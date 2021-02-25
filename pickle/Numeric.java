@@ -5,10 +5,10 @@ package pickle;
  */
 public class Numeric {
 
-    public SubClassif dataType;
-    public String strValue;
-    public double doubleValue;
-    public int intValue;
+    public SubClassif dataType;         // INTEGER or FLOAT
+    public String     strValue;         // String representation of Numeric Value
+    public double     doubleValue;      // Value as a FLOAT, only valid if dataType is FLOAT
+    public int        intValue;         // Value as an INT, only valid if dataType is INT
 
     /**
      * Validates if a given ResultValue is an integer or float.
@@ -21,8 +21,11 @@ public class Numeric {
      * @param operator      The operator string associated with this value
      * @param operandDesc   The description of the Operand ("1st Operand"/"2nd Operand")
      *
+     * @throws NumericConstantException if the string is not an int or float
+     *                                  or the value cannot be parsed.
      */
     public Numeric(Scanner scanner, ResultValue resValue, String operator, String operandDesc)
+            throws NumericConstantException
     {
         // store the given result value string
         strValue = resValue.strValue;
@@ -57,8 +60,11 @@ public class Numeric {
      *
      * @param scanner   Scanner object
      * @param str       String to parse
+     *
+     * @throws NumericConstantException if the string is not an int or float
+     *                                  or the value cannot be parsed.
      */
-    private void parseString(Scanner scanner, String str)
+    private void parseString(Scanner scanner, String str) throws NumericConstantException
     {
         // string is one or more digits
         if (str.matches("\\d+"))
@@ -75,8 +81,7 @@ public class Numeric {
         // string is not an int or float
         else
         {
-            throw new Error("Value is not an int or float");
-            // TODO: raise exception via scanner.error()
+            throw new NumericConstantException(scanner.currentToken, scanner.sourceFileNm);
         }
     }
 
@@ -85,8 +90,10 @@ public class Numeric {
      *
      * @param str       String representation of Int or Flaot
      * @param dataType  Subclassif.INTEGER or Subclassif.FLOAT
+     *
+     * @throws NumericConstantException if the int or float cannot be parsed
      */
-    private void storeValue(Scanner scanner, String str, SubClassif dataType)
+    private void storeValue(Scanner scanner, String str, SubClassif dataType) throws NumericConstantException
     {
         if (dataType == SubClassif.INTEGER)
         {
@@ -98,8 +105,7 @@ public class Numeric {
             {
                 // this likely means the integer in the string
                 // is too large for the int data type
-                throw new Error("Integer value could not be parsed");
-                // TODO: raise exception via scanner.error()
+                throw new NumericConstantException(scanner.currentToken, scanner.sourceFileNm);
             }
         }
         else if (dataType == SubClassif.FLOAT)
@@ -110,8 +116,7 @@ public class Numeric {
             }
             catch (Exception ex)
             {
-                throw new Error("Float value could not be parsed");
-                // TODO: raise exception via scanner.error()
+                throw new NumericConstantException(scanner.currentToken, scanner.sourceFileNm);
             }
         }
     }
