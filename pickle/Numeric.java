@@ -7,7 +7,7 @@ public class Numeric {
 
     public SubClassif dataType;
     public String strValue;
-    public Double doubleValue;
+    public double doubleValue;
     public int intValue;
 
     /**

@@ -10,8 +10,9 @@ public class ResultValue {
     public SubClassif dataType;
     public String strValue;
 
-    public ResultValue(String strValue)
+    public ResultValue(String strValue, SubClassif dataType)
     {
         this.strValue = strValue;
+        this.dataType = dataType;
     }
 }
