@@ -1,5 +1,6 @@
 package pickle;
 
+
 public enum Classif
 {
     EMPTY,      // empty
