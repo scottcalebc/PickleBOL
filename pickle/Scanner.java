@@ -36,9 +36,11 @@ public class Scanner {
             "Bool"
     };
 
-    private ArrayList<String>   sourceLineM;                                // List of all source file lines
-    private SymbolTable         symbolTable;                                // Symbol Table (for prgm #2)
-    private char[]              textCharM;                                  // Char array of current line
+
+
+    protected ArrayList<String>   sourceLineM;                              // List of all source file lines
+    protected SymbolTable         symbolTable;                              // Symbol Table (for prgm #2)
+    protected char[]              textCharM;                                // Char array of current line
 
     protected String            sourceFileNm;                               // Source file name
     protected int               iSourceLineNr;                              // Source line number
@@ -279,6 +281,7 @@ public class Scanner {
         if (iSourceLineNr >= sourceLineM.size() && iColPos >= textCharM.length)
             return;
 
+        // Todo: use utility skipWiteSpace
         skipWhiteSpace();
 
         // Continues to add non-delimeter characters to tokenStr
@@ -293,7 +296,8 @@ public class Scanner {
         if (tokenStr.length() == 0)
             tokenStr = Character.toString(textCharM[iColPos++]);
 
-        
+
+        // todo: use utility skipComment
         // first check if comment before classifying
         if (tokenStr.equals("/") && iColPos < textCharM.length && textCharM[iColPos] == '/')
         {
