@@ -1,12 +1,40 @@
 package pickle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Scanner {
 
     private final static String delimiters = " \t:;()'\"=!<>+-*/[]#,^\n";   // Terminate a token
-    private final static String operators = "+-*/<>=!";                     // All operators
+    private final static String operators = "+-*/<>=!^";                    // All operators
     private final static String separators = "(),:;[]";                     // All seperators
+    private final static String controlFlow[] = {
+            "if",
+            "else",
+            "while",
+            "for"
+    };
+
+    private final static String controlEnd[] = {
+            "endif",
+            "endwhile",
+            "endfor"
+    };
+
+    private final static String compareOperators[] = {
+            "and",
+            "or",
+            "not",
+            "in",
+            "notin"
+    };
+
+    private final static String controlDeclare[] = {
+            "Int",
+            "Float",
+            "String",
+            "Bool"
+    };
 
     private ArrayList<String>   sourceLineM;                                // List of all source file lines
     private SymbolTable         symbolTable;                                // Symbol Table (for prgm #2)
@@ -103,6 +131,13 @@ public class Scanner {
         token.iSourceLineNr = iSourceLineNr;
         token.iColPos = iColPos - tokenStr.length();
     }
+
+
+    public boolean checkStringArray(String tokenStr, String[] checkArray) {
+        return Arrays.stream(checkArray).anyMatch(tokenStr::matches);
+    }
+
+
 
     /**
      *
@@ -310,11 +345,22 @@ public class Scanner {
             // todo: classify separator?
         }
 
-        else if (operators.contains(tokenStr))
+        else if (operators.contains(tokenStr) || checkStringArray(tokenStr, compareOperators))
         {
+            if (iColPos < textCharM.length && operators.indexOf(textCharM[iColPos]) > 0) {
+                tokenStr += textCharM[iColPos++];
+            }
+
+
             nextToken.primClassif = Classif.OPERATOR;
 
             //todo: classify operator
+        }
+
+        else if (classifyControl(tokenStr))
+        {
+            nextToken.primClassif = Classif.CONTROL;
+
         }
 
         else
@@ -351,6 +397,10 @@ public class Scanner {
             case '\'':
                 tokenStr = getStringConstant('\'');
                 break;
+            case 'T':
+            case 'F':
+                nextToken.subClassif = SubClassif.BOOLEAN;
+                break;
             default:
                 // What if token is delimiter not in seperators or operators?
                 if (delimiters.contains(tokenStr)) {
@@ -373,4 +423,35 @@ public class Scanner {
         // return current token string after any modifications to attach to token
         return tokenStr;
     }
+
+    public boolean classifyControl(String tokenStr) {
+
+        if (checkStringArray(tokenStr, controlFlow)) {
+            nextToken.subClassif = SubClassif.FLOW;
+        }
+
+        else if (checkStringArray(tokenStr, controlEnd))
+        {
+            nextToken.subClassif = SubClassif.END;
+        }
+
+        else if (checkStringArray(tokenStr, controlDeclare))
+        {
+            nextToken.subClassif = SubClassif.DECLARE;
+        }
+
+
+        if (nextToken.subClassif != SubClassif.EMPTY) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+
+
 }
+
+
+
