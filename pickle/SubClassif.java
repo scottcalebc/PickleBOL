@@ -1,5 +1,4 @@
 package pickle;
-
 public enum SubClassif 
 {
     EMPTY,      // empty
