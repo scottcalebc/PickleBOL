@@ -23,8 +23,7 @@ public class Pickle
     {
         // Create the SymbolTable
         SymbolTable symbolTable = new SymbolTable();
-        STEntry entryy = symbolTable.getSymbol("ss");
-       /* try
+       try
         {
             // Print a column heading 
             System.out.printf("%-11s %-12s %s\n"
@@ -41,6 +40,6 @@ public class Pickle
         catch (Exception e)
         {
             e.printStackTrace();
-        }*/
+        }
     }
 }
