@@ -29,14 +29,17 @@ public class Utility {
 
     /**
      * Returns true if remaining text in line is comment.
+     * <p>
+     *     The rest of the line is a comment if
+     *     the tokenStr = '/' and the next char = '/'
      *
      * @param scanner   Scanner object
+     * @param tokenStr  The current token string
      * @return boolean : True if is comment, false otherwise
      */
-    public boolean skipComment(Scanner scanner)
+    public boolean skipComment(Scanner scanner, String tokenStr)
     {
-        return scanner.currentToken.tokenStr.equals("/")
-                && scanner.iColPos < scanner.textCharM.length
+        return tokenStr.equals("/") && scanner.iColPos < scanner.textCharM.length
                 && scanner.textCharM[scanner.iColPos] == '/';
     }
 
