@@ -198,23 +198,50 @@ public class Scanner {
             iColPos++;
     }
 
-    public String convertStringEscapeCharacters(String tokenStr) {
+    public String convertStringEscapeCharacters(String tokenStr) throws ScannerParserException {
         char currCharM[] = tokenStr.toCharArray();
-        String outString = "";
+        char retCharM[] = new char[currCharM.length];
+        int iRet = 0;
 
         for(int i = 0; i < currCharM.length; i++) {
             if (currCharM[i] == '\\' && i+1 < currCharM.length) {
                 String escapeCode = "" + currCharM[i] + currCharM[i+1];
-                outString += asciiEscapeCharacters.get(escapeCode);
+
+                switch (escapeCode) {
+                    case "\\\"":
+                        retCharM[iRet] = '"';
+                        break;
+                    case "\\'":
+                        retCharM[iRet] = '\'';
+                        break;
+                    case "\\\\":
+                        retCharM[iRet] = '\\';
+                        break;
+                    case "\\t":
+                        retCharM[iRet] = 0x09;
+                        break;
+                    case "\\n":
+                        retCharM[iRet] = 0x0A;
+                        break;
+                    case "\\a":
+                        retCharM[iRet] = 0x07;
+                        break;
+                    default:
+                        setToken(nextToken, escapeCode);
+                        throw new ScannerParserException(nextToken, sourceFileNm, "Invalid escape character");
+                }
+
+                iRet++;
                 i++;
                 continue;
             }
 
-            outString += currCharM[i];
+            retCharM[iRet] = currCharM[i];
+            iRet++;
 
         }
 
-        return outString;
+        return String.valueOf(retCharM, 0, iRet);
     }
 
     /**
@@ -225,7 +252,7 @@ public class Scanner {
      * @return                          token string gathered from textCharM
      * @throws StringConstantException
      */
-    public String getStringConstant(char type) throws StringConstantException
+    public String getStringConstant(char type) throws ScannerParserException
     {
         String tokenStr = "";
 
