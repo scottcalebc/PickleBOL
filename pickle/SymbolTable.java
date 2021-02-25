@@ -4,31 +4,56 @@ import java.util.HashMap;
 
 public class SymbolTable {
 
-	private HashMap<String, HashMap<String, STEntry>> tables;		// HashMap to hold all symbol tables
-	private HashMap<String, STEntry> globalST;						// Global symbol table
+	private HashMap<String, STEntry> globalST;		// Global symbol table
+	private final int VAR_ARGS = -1;				// Value for variable args
 
-	public SymbolTable() {
-		this.tables = new HashMap<>();
+	/**
+	 *
+	 * Returns a SymbolTable object that holds the symbol tables of the pickle code
+	 * <p>
+	 *
+	 */
+	public SymbolTable()
+	{
 		this.globalST = new HashMap<>();
 		initGlobal();
-		this.tables.put("global", globalST);
 	}
 
-	public STEntry getSymbol(String symbol) {
-		//check correct symbol table(s?) for requested symbol
-
-		return null;
+	/**
+	 *
+	 * Returns the symbol table entry for a given symbol
+	 * <p>
+	 *
+	 * @param symbol	Name of symbol in the symbol table
+	 * @return			Symbol table entry (STEntry), null if not found
+	 */
+	public STEntry getSymbol(String symbol)
+	{
+		return this.globalST.get(symbol);
 	}
 
-	public void putSymbol(String symbol, STEntry entry) {
-
+	/**
+	 *
+	 * Stores the symbol and its corresponding entry in the symbol table
+	 * <p>
+	 *
+	 * @param symbol	Name of symbol to be stored
+	 * @param entry		STEntry of symbol to be stored (data or values of symbol)
+	 *
+	 */
+	public void putSymbol(String symbol, STEntry entry)
+	{
+		this.globalST.put(symbol, entry);
 	}
 
-	private void addSymbolTable(String tableName, HashMap<String, STEntry> entry) {
-		tables.put(tableName, entry);
-	}
-	
-	private void initGlobal() {
+	/**
+	 *
+	 * Initializes the global symbol table's values
+	 * <p>
+	 *
+	 */
+	private void initGlobal()
+	{
 		this.globalST.put("enddef", new STControl("enddef", Classif.CONTROL, SubClassif.END));
 		this.globalST.put("if", new STControl("if", Classif.CONTROL, SubClassif.FLOW));
 		this.globalST.put("endif", new STControl("endif", Classif.CONTROL, SubClassif.END));
@@ -49,12 +74,12 @@ public class SymbolTable {
 		this.globalST.put("in", new STEntry("in", Classif.OPERATOR));
 		this.globalST.put("notin", new STEntry("notin", Classif.OPERATOR));
 
-		this.globalST.put("print", new STFunction("print", Classif.FUNCTION, SubClassif.VOID, SubClassif.BUILTIN));
-		this.globalST.put("LENGTH", new STFunction("LENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN));
-		this.globalST.put("MAXLENGTH", new STFunction("MAXLENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN));
-		this.globalST.put("SPACES", new STFunction("SPACES", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN));
-		this.globalST.put("ELEM", new STFunction("ELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN));
-		this.globalST.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN));
+		this.globalST.put("print", new STFunction("print", Classif.FUNCTION, SubClassif.VOID, SubClassif.BUILTIN, VAR_ARGS));
+		this.globalST.put("LENGTH", new STFunction("LENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0)); 			//TODO: acutal number?
+		this.globalST.put("MAXLENGTH", new STFunction("MAXLENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0));	//TODO: acutal number?
+		this.globalST.put("SPACES", new STFunction("SPACES", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0));			//TODO: acutal number?
+		this.globalST.put("ELEM", new STFunction("ELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0));				//TODO: acutal number?
+		this.globalST.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0));		//TODO: acutal number?
 	}
 
 }
