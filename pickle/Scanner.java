@@ -2,6 +2,7 @@ package pickle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 public class Scanner {
 
@@ -15,13 +16,13 @@ public class Scanner {
             "for"
     };
 
-    private final static String controlEnd[] = {
+    private final static String controlEnd[] = new String[]{
             "endif",
             "endwhile",
             "endfor"
     };
 
-    private final static String compareOperators[] = {
+    private final static String compareOperators[] = new String[]{
             "and",
             "or",
             "not",
@@ -29,7 +30,7 @@ public class Scanner {
             "notin"
     };
 
-    private final static String controlDeclare[] = {
+    private final static String controlDeclare[] = new String[]{
             "Int",
             "Float",
             "String",
@@ -37,6 +38,10 @@ public class Scanner {
     };
 
 
+    private final static Map<String, String> asciiEscapeCharacters = Map.of(
+            "\\t" , "\t" ,
+            "\\n" , "\n"
+    );
 
     protected ArrayList<String>   sourceLineM;                              // List of all source file lines
     protected SymbolTable         symbolTable;                              // Symbol Table (for prgm #2)
@@ -193,6 +198,25 @@ public class Scanner {
             iColPos++;
     }
 
+    public String convertStringEscapeCharacters(String tokenStr) {
+        char currCharM[] = tokenStr.toCharArray();
+        String outString = "";
+
+        for(int i = 0; i < currCharM.length; i++) {
+            if (currCharM[i] == '\\' && i+1 < currCharM.length) {
+                String escapeCode = "" + currCharM[i] + currCharM[i+1];
+                outString += asciiEscapeCharacters.get(escapeCode);
+                i++;
+                continue;
+            }
+
+            outString += currCharM[i];
+
+        }
+
+        return outString;
+    }
+
     /**
      * Retrieves a string constant out of textCharM
      * <p>
@@ -221,7 +245,7 @@ public class Scanner {
         iColPos++;                                  // Skips past ' or " left in textCharM
         nextToken.subClassif = SubClassif.STRING;   // sets tokens sub classification
 
-        return tokenStr;
+        return convertStringEscapeCharacters(tokenStr);
     }
 
     /**
