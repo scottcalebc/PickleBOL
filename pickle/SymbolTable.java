@@ -25,11 +25,11 @@ public class SymbolTable {
 	 * <p>
 	 *
 	 * @param symbol	Name of symbol in the symbol table
-	 * @return			Symbol table entry (STEntry), null if not found
+	 * @return			Symbol table entry (STEntry), empty STEntry object if not found
 	 */
 	public STEntry getSymbol(String symbol)
 	{
-		return this.globalST.get(symbol);
+		return this.globalST.containsKey(symbol) ? this.globalST.get(symbol) : new STEntry("", Classif.EMPTY);
 	}
 
 	/**

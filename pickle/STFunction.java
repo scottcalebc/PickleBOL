@@ -5,12 +5,12 @@ import java.util.HashMap;
 
 public class STFunction extends STEntry
 {
-    public SubClassif returnType;                       // Return data type
-    public SubClassif definedBy;                        // Who/what defined it (e.g. user or builtin)
-    public int numArgs;                                 // Number of arguments (VAR_ARGS for variable length)
-    public ArrayList<String> parmList;                  // Reference to an ArrayList of parameters TODO
-    public String symbolTable;                          // Reference to the function's symbol table if it's a user def function
-    protected HashMap<String, STEntry> functionST;      // Function's symbol table
+    public SubClassif returnType;                    // Return data type
+    public SubClassif definedBy;                     // Who/what defined it (e.g. user or builtin)
+    public int numArgs;                              // Number of arguments (VAR_ARGS for variable length)
+    public ArrayList<String> parmList;               // Reference to an ArrayList of parameters TODO
+    public String symbolTable;                       // Reference to the function's symbol table if it's a user def function
+    public HashMap<String, STEntry> functionST;      // Function's symbol table
 
     /**
      * Returns a STFunction object (Value in the symbol table) to more explicitly reference a function entry in the symbol table
