@@ -23,8 +23,7 @@ public class Pickle
     {
         // Create the SymbolTable
         SymbolTable symbolTable = new SymbolTable();
-        
-        try
+       try
         {
             // Print a column heading 
             System.out.printf("%-11s %-12s %s\n"
