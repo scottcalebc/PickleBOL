@@ -105,7 +105,8 @@ public class Numeric {
             {
                 // this likely means the integer in the string
                 // is too large for the int data type
-                throw new NumericConstantException(scanner.currentToken, scanner.sourceFileNm);
+                throw new NumericConstantException(scanner.currentToken, scanner.sourceFileNm,
+                                                    "Invalid Integer value");
             }
         }
         else if (dataType == SubClassif.FLOAT)
@@ -116,7 +117,8 @@ public class Numeric {
             }
             catch (Exception ex)
             {
-                throw new NumericConstantException(scanner.currentToken, scanner.sourceFileNm);
+                throw new NumericConstantException(scanner.currentToken, scanner.sourceFileNm,
+                                                    "Invalid Float value");
             }
         }
     }
