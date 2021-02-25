@@ -293,6 +293,16 @@ public class Scanner {
         if (tokenStr.length() == 0)
             tokenStr = Character.toString(textCharM[iColPos++]);
 
+        
+        // first check if comment before classifying
+        if (tokenStr.equals("/") && iColPos < textCharM.length && textCharM[iColPos] == '/')
+        {
+            iColPos = textCharM.length;     // set col position to end of line
+            getToken();                     // get the next token; because iColPos == textCharM.length getNext()
+                                            //      will automatically get the next line from the source file
+            return;                         // exit current getToken routine as previous routine performed classification
+        }
+
 
         tokenStr = classifyPrimary(tokenStr);
 
