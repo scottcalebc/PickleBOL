@@ -10,7 +10,7 @@ public class Scanner {
 
     private ArrayList<String>   sourceLineM;                                // List of all source file lines
     private SymbolTable         symbolTable;                                // Symbol Table (for prgm #2)
-    private char[]              textCharM;                                  // Char array of current line
+    protected char[]              textCharM;                                  // Char array of current line
 
     protected String            sourceFileNm;                               // Source file name
     protected int               iSourceLineNr;                              // Source line number

@@ -15,33 +15,29 @@ public class Utility {
      * whitespace characters and returns it.
      *
      * @param scanner   Scanner Object
-     * @param textCharM Current line text
      * @return int representing column position after whitespace
      */
-    public int skipWhitespace(Scanner scanner, char[] textCharM)
+    public int skipWhitespace(Scanner scanner)
     {
-        while (scanner.iColPos < textCharM.length
-                && textCharM[scanner.iColPos] == ' '
-                || textCharM[scanner.iColPos] == '\t'
-                || textCharM[scanner.iColPos] == '\n')
+        while (scanner.iColPos < scanner.textCharM.length
+                && scanner.textCharM[scanner.iColPos] == ' '
+                || scanner.textCharM[scanner.iColPos] == '\t'
+                || scanner.textCharM[scanner.iColPos] == '\n')
             scanner.iColPos++;
         return scanner.iColPos;
     }
 
     /**
-     * If the next two characters in the line are '//'
-     * advance the line of the scanner and return the
-     * scanner object.
+     * Returns true if remaining text in line is comment.
      *
      * @param scanner   Scanner object
-     * @param textCharM Current line text
-     * @return Scanner object with next line number set
+     * @return boolean : True if is comment, false otherwise
      */
-    public Scanner skipComment(Scanner scanner, char[] textCharM)
+    public boolean skipComment(Scanner scanner)
     {
-        if (textCharM[scanner.iColPos] == '/' && textCharM[scanner.iColPos+1] == '/')
-            scanner.getNextSourceLine();
-        return scanner;
+        return scanner.currentToken.tokenStr.equals("/")
+                && scanner.iColPos < scanner.textCharM.length
+                && scanner.textCharM[scanner.iColPos] == '/';
     }
 
     /**
@@ -60,7 +56,7 @@ public class Utility {
         ResultValue res =  new ResultValue("", nOp1.dataType);
 
         // Do operation and store resulting string
-        if (nOp1.dataType == nOp1.dataType) {
+        if (nOp1.dataType == nOp2.dataType) {
             // both values are integers
             if (nOp1.dataType == SubClassif.INTEGER)
                 res.strValue = Integer.toString(nOp1.intValue + nOp2.intValue);
@@ -97,7 +93,7 @@ public class Utility {
         ResultValue res =  new ResultValue("", nOp1.dataType);
 
         // Do operation and store resulting string
-        if (nOp1.dataType == nOp1.dataType) {
+        if (nOp1.dataType == nOp2.dataType) {
             // both values are integers
             if (nOp1.dataType == SubClassif.INTEGER)
                 res.strValue = Integer.toString(nOp1.intValue - nOp2.intValue);
