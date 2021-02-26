@@ -11,8 +11,6 @@ public class Scanner {
     private final static String separators = "(),:;[]";                     // All seperators
 
     protected ArrayList<String>   sourceLineM;                              // List of all source file lines
-    protected SymbolTable         symbolTable;                              // Symbol Table (for prgm #2)
-    protected char[]              textCharM;                                // Char array of current line
 
     protected String            sourceFileNm;                               // Source file name
     protected int               iSourceLineNr;                              // Source line number
