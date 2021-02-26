@@ -9,39 +9,6 @@ public class Scanner {
     private final static String delimiters = " \t:;()'\"=!<>+-*/[]#,^\n";   // Terminate a token
     private final static String operators = "+-*/<>=!^";                    // All operators
     private final static String separators = "(),:;[]";                     // All seperators
-    private final static String controlFlow[] = {
-            "if",
-            "else",
-            "while",
-            "for"
-    };
-
-    private final static String controlEnd[] = new String[]{
-            "endif",
-            "endwhile",
-            "endfor"
-    };
-
-    private final static String compareOperators[] = new String[]{
-            "and",
-            "or",
-            "not",
-            "in",
-            "notin"
-    };
-
-    private final static String controlDeclare[] = new String[]{
-            "Int",
-            "Float",
-            "String",
-            "Bool"
-    };
-
-
-    private final static Map<String, String> asciiEscapeCharacters = Map.of(
-            "\\t" , "\t" ,
-            "\\n" , "\n"
-    );
 
     protected ArrayList<String>   sourceLineM;                              // List of all source file lines
     protected SymbolTable         symbolTable;                              // Symbol Table (for prgm #2)
@@ -398,6 +365,7 @@ public class Scanner {
      */
     public String classifyPrimary(String tokenStr) throws ScannerParserException
     {
+        STEntry entry = symbolTable.getSymbol(tokenStr);
         if (separators.contains(tokenStr))
         {
             nextToken.primClassif = Classif.SEPARATOR;
@@ -410,7 +378,7 @@ public class Scanner {
             // todo: classify separator?
         }
 
-        else if (operators.contains(tokenStr) || checkStringArray(tokenStr, compareOperators))
+        else if ( operators.contains(tokenStr) )
         {
             if (iColPos < textCharM.length && operators.indexOf(textCharM[iColPos]) > 0) {
                 tokenStr += textCharM[iColPos++];
@@ -422,10 +390,14 @@ public class Scanner {
             //todo: classify operator
         }
 
-        else if (classifyControl(tokenStr))
-        {
-            nextToken.primClassif = Classif.CONTROL;
+        else if ( entry.primClassif != Classif.EMPTY ) {
+            nextToken.primClassif = entry.primClassif;
 
+            if (entry instanceof STControl) {
+                nextToken.subClassif = ((STControl) entry).subClassif;
+            } else if (entry instanceof  STFunction) {
+                nextToken.subClassif = SubClassif.BUILTIN; // ???
+            }
         }
 
         else
@@ -488,32 +460,6 @@ public class Scanner {
         // return current token string after any modifications to attach to token
         return tokenStr;
     }
-
-    public boolean classifyControl(String tokenStr) {
-
-        if (checkStringArray(tokenStr, controlFlow)) {
-            nextToken.subClassif = SubClassif.FLOW;
-        }
-
-        else if (checkStringArray(tokenStr, controlEnd))
-        {
-            nextToken.subClassif = SubClassif.END;
-        }
-
-        else if (checkStringArray(tokenStr, controlDeclare))
-        {
-            nextToken.subClassif = SubClassif.DECLARE;
-        }
-
-
-        if (nextToken.subClassif != SubClassif.EMPTY) {
-            return true;
-        }
-
-        return false;
-
-    }
-
 
 
 }
