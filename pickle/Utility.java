@@ -20,9 +20,9 @@ public class Utility {
     public static int skipWhitespace(Scanner scanner)
     {
         while (scanner.iColPos < scanner.textCharM.length
-                && scanner.textCharM[scanner.iColPos] == ' '
+                && ( scanner.textCharM[scanner.iColPos] == ' '
                 || scanner.textCharM[scanner.iColPos] == '\t'
-                || scanner.textCharM[scanner.iColPos] == '\n')
+                || scanner.textCharM[scanner.iColPos] == '\n') )
             scanner.iColPos++;
         return scanner.iColPos;
     }
