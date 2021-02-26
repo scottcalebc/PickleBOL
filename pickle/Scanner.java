@@ -1,17 +1,18 @@
 package pickle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
 
 public class Scanner {
 
     private final static String delimiters = " \t:;()'\"=!<>+-*/[]#,^\n";   // Terminate a token
-    private final static String operators = "+-*/<>=!";                     // All operators
+    private final static String operators = "+-*/<>=!^";                    // All operators
     private final static String separators = "(),:;[]";                     // All seperators
 
-    private ArrayList<String>   sourceLineM;                                // List of all source file lines
-    private SymbolTable         symbolTable;                                // Symbol Table (for prgm #2)
-    protected char[]              textCharM;                                  // Char array of current line
-
+    protected ArrayList<String> sourceLineM;                                // List of all source file lines
+    protected char[]            textCharM;                                  // Char array of current source line
+    protected SymbolTable       symbolTable;                                // Symbol table reference
     protected String            sourceFileNm;                               // Source file name
     protected int               iSourceLineNr;                              // Source line number
     protected int               iColPos;                                    // Source column position
@@ -104,6 +105,7 @@ public class Scanner {
         token.iColPos = iColPos - tokenStr.length();
     }
 
+
     /**
      *
      * Helper function to get the next source line from array list
@@ -139,21 +141,68 @@ public class Scanner {
         while (iSourceLineNr < sourceLineM.size() && iColPos >= textCharM.length)
         {
             getNextSourceLine();
-            skipWhiteSpace();
+            Utility.skipWhitespace(this);
         }
     }
 
+
     /**
      *
-     * Helper function to skip through textCharM when it contains spaces, tabs, or newlines
+     * Converts valid string taken from source file
      * <p>
+     * Transforms escape code characters to correct hexadecimal format to output correctly
      *
+     * @param tokenStr                  tokenStr to convert
+     * @return                          converted string with correct escape code
+     * @throws ScannerParserException   throws error on invalid escape codes
      */
-    public void skipWhiteSpace()
-    {
-        while(iColPos < textCharM.length &&
-                (textCharM[iColPos] == ' ' || textCharM[iColPos] == '\t' || textCharM[iColPos] == '\n') )
-            iColPos++;
+    public String convertStringEscapeCharacters(String tokenStr) throws ScannerParserException {
+        char currCharM[] = tokenStr.toCharArray();          // char array to convert
+        char retCharM[] = new char[currCharM.length];       // return char array
+        int iRet = 0;                                       // return char index to insert into array
+
+        for(int i = 0; i < currCharM.length; i++) {
+
+            // if escape code collect and insert correct hex value into return char
+            if (currCharM[i] == '\\' && i+1 < currCharM.length) {
+                String escapeCode = "" + currCharM[i] + currCharM[i+1];
+
+                switch (escapeCode) {
+                    case "\\\"":
+                        retCharM[iRet] = '"';
+                        break;
+                    case "\\'":
+                        retCharM[iRet] = '\'';
+                        break;
+                    case "\\\\":
+                        retCharM[iRet] = '\\';
+                        break;
+                    case "\\t":
+                        retCharM[iRet] = 0x09;
+                        break;
+                    case "\\n":
+                        retCharM[iRet] = 0x0A;
+                        break;
+                    case "\\a":
+                        retCharM[iRet] = 0x07;
+                        break;
+                    default:
+                        // not a valid escape character throw error
+                        setToken(nextToken, escapeCode);
+                        throw new ScannerParserException(nextToken, sourceFileNm, "Invalid escape character");
+                }
+
+                iRet++;     // increment index into return array
+                i++;        // skip second character used for escape character
+                continue;
+            }
+
+            retCharM[iRet] = currCharM[i];
+            iRet++;
+
+        }
+
+        return String.valueOf(retCharM, 0, iRet);
     }
 
     /**
@@ -164,7 +213,7 @@ public class Scanner {
      * @return                          token string gathered from textCharM
      * @throws StringConstantException
      */
-    public String getStringConstant(char type) throws StringConstantException
+    public String getStringConstant(char type) throws ScannerParserException
     {
         String tokenStr = "";
 
@@ -184,7 +233,7 @@ public class Scanner {
         iColPos++;                                  // Skips past ' or " left in textCharM
         nextToken.subClassif = SubClassif.STRING;   // sets tokens sub classification
 
-        return tokenStr;
+        return convertStringEscapeCharacters(tokenStr);
     }
 
     /**
@@ -244,7 +293,8 @@ public class Scanner {
         if (iSourceLineNr >= sourceLineM.size() && iColPos >= textCharM.length)
             return;
 
-        skipWhiteSpace();
+
+        Utility.skipWhitespace(this);
 
         // Continues to add non-delimeter characters to tokenStr
         while (iColPos < textCharM.length
@@ -257,6 +307,16 @@ public class Scanner {
         // this sets the tokenStr to the delimeter to verify type
         if (tokenStr.length() == 0)
             tokenStr = Character.toString(textCharM[iColPos++]);
+
+
+        // first check if comment before classifying
+        if (Utility.skipComment(this, tokenStr))
+        {
+            iColPos = textCharM.length;     // set cursor to end of line
+            getNextValidLine();             // get next valid line
+            getToken();                     // get the next token
+            return;                         // exit current getToken routine as previous routine performed classification
+        }
 
 
         tokenStr = classifyPrimary(tokenStr);
@@ -298,6 +358,7 @@ public class Scanner {
      */
     public String classifyPrimary(String tokenStr) throws ScannerParserException
     {
+        STEntry entry = symbolTable.getSymbol(tokenStr);
         if (separators.contains(tokenStr))
         {
             nextToken.primClassif = Classif.SEPARATOR;
@@ -310,11 +371,32 @@ public class Scanner {
             // todo: classify separator?
         }
 
-        else if (operators.contains(tokenStr))
+        else if ( operators.contains(tokenStr) )
         {
+            if (iColPos < textCharM.length && operators.indexOf(textCharM[iColPos]) > 0) {
+                tokenStr += textCharM[iColPos++];
+            }
+
+
             nextToken.primClassif = Classif.OPERATOR;
 
             //todo: classify operator
+        }
+
+        // use symbol table to label primary and sub classification of builtin, operators, and control
+        else if ( entry.primClassif != Classif.EMPTY )
+        {
+
+            nextToken.primClassif = entry.primClassif;
+
+            if (entry instanceof STControl)
+            {
+                nextToken.subClassif = ((STControl) entry).subClassif;
+            }
+            else if (entry instanceof  STFunction)
+            {
+                nextToken.subClassif = SubClassif.BUILTIN;
+            }
         }
 
         else
@@ -351,6 +433,10 @@ public class Scanner {
             case '\'':
                 tokenStr = getStringConstant('\'');
                 break;
+            case 'T':
+            case 'F':
+                nextToken.subClassif = SubClassif.BOOLEAN;
+                break;
             default:
                 // What if token is delimiter not in seperators or operators?
                 if (delimiters.contains(tokenStr)) {
@@ -373,4 +459,9 @@ public class Scanner {
         // return current token string after any modifications to attach to token
         return tokenStr;
     }
+
+
 }
+
+
+
