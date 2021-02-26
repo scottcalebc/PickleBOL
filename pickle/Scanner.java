@@ -106,12 +106,6 @@ public class Scanner {
     }
 
 
-    public boolean checkStringArray(String tokenStr, String[] checkArray) {
-        return Arrays.stream(checkArray).anyMatch(tokenStr::matches);
-    }
-
-
-
     /**
      *
      * Helper function to get the next source line from array list
