@@ -305,7 +305,8 @@ public class Scanner {
         // first check if comment before classifying
         if (Utility.skipComment(this, tokenStr))
         {
-            getNextValidLine();
+            iColPos = textCharM.length;     // set cursor to end of line
+            getNextValidLine();             // get next valid line
             getToken();                     // get the next token
             return;                         // exit current getToken routine as previous routine performed classification
         }
