@@ -17,7 +17,7 @@ public class Utility {
      * @param scanner   Scanner Object
      * @return int representing column position after whitespace
      */
-    public int skipWhitespace(Scanner scanner)
+    public static int skipWhitespace(Scanner scanner)
     {
         while (scanner.iColPos < scanner.textCharM.length
                 && scanner.textCharM[scanner.iColPos] == ' '
@@ -37,7 +37,7 @@ public class Utility {
      * @param tokenStr  The current token string
      * @return boolean : True if is comment, false otherwise
      */
-    public boolean skipComment(Scanner scanner, String tokenStr)
+    public static boolean skipComment(Scanner scanner, String tokenStr)
     {
         return tokenStr.equals("/") && scanner.iColPos < scanner.textCharM.length
                 && scanner.textCharM[scanner.iColPos] == '/';
@@ -54,7 +54,7 @@ public class Utility {
      * @param nOp2      Numeric Operand 2
      * @return ResultValue
      */
-    public ResultValue add(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue add(Scanner scanner, Numeric nOp1, Numeric nOp2)
     {
         ResultValue res =  new ResultValue("", nOp1.dataType);
 
@@ -91,7 +91,7 @@ public class Utility {
      * @param nOp2      Numeric Operand 2
      * @return ResultValue
      */
-    public ResultValue subtract(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue subtract(Scanner scanner, Numeric nOp1, Numeric nOp2)
     {
         ResultValue res =  new ResultValue("", nOp1.dataType);
 
