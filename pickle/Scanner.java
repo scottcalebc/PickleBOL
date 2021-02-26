@@ -2,7 +2,7 @@ package pickle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
+
 
 public class Scanner {
 
@@ -10,8 +10,9 @@ public class Scanner {
     private final static String operators = "+-*/<>=!^";                    // All operators
     private final static String separators = "(),:;[]";                     // All seperators
 
-    protected ArrayList<String>   sourceLineM;                              // List of all source file lines
-
+    protected ArrayList<String> sourceLineM;                                // List of all source file lines
+    protected char[]            textCharM;
+    protected SymbolTable       symbolTable;
     protected String            sourceFileNm;                               // Source file name
     protected int               iSourceLineNr;                              // Source line number
     protected int               iColPos;                                    // Source column position
@@ -146,22 +147,10 @@ public class Scanner {
         while (iSourceLineNr < sourceLineM.size() && iColPos >= textCharM.length)
         {
             getNextSourceLine();
-            skipWhiteSpace();
+            Utility.skipWhitespace(this);
         }
     }
 
-    /**
-     *
-     * Helper function to skip through textCharM when it contains spaces, tabs, or newlines
-     * <p>
-     *
-     */
-    public void skipWhiteSpace()
-    {
-        while(iColPos < textCharM.length &&
-                (textCharM[iColPos] == ' ' || textCharM[iColPos] == '\t' || textCharM[iColPos] == '\n') )
-            iColPos++;
-    }
 
     public String convertStringEscapeCharacters(String tokenStr) throws ScannerParserException {
         char currCharM[] = tokenStr.toCharArray();
@@ -297,8 +286,8 @@ public class Scanner {
         if (iSourceLineNr >= sourceLineM.size() && iColPos >= textCharM.length)
             return;
 
-        // Todo: use utility skipWiteSpace
-        skipWhiteSpace();
+        // Todo: use utility skipWhiteSpace
+        Utility.skipWhitespace(this);
 
         // Continues to add non-delimeter characters to tokenStr
         while (iColPos < textCharM.length
@@ -313,13 +302,11 @@ public class Scanner {
             tokenStr = Character.toString(textCharM[iColPos++]);
 
 
-        // todo: use utility skipComment
         // first check if comment before classifying
-        if (tokenStr.equals("/") && iColPos < textCharM.length && textCharM[iColPos] == '/')
+        if (Utility.skipComment(this, tokenStr))
         {
-            iColPos = textCharM.length;     // set col position to end of line
-            getToken();                     // get the next token; because iColPos == textCharM.length getNext()
-                                            //      will automatically get the next line from the source file
+            getNextValidLine();
+            getToken();                     // get the next token
             return;                         // exit current getToken routine as previous routine performed classification
         }
 
