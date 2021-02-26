@@ -24,6 +24,7 @@ public class Utility {
                 || scanner.textCharM[scanner.iColPos] == '\t'
                 || scanner.textCharM[scanner.iColPos] == '\n') )
             scanner.iColPos++;
+	scanner.getNextValidLine();
         return scanner.iColPos;
     }
 
