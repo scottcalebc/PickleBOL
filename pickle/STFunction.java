@@ -30,6 +30,6 @@ public class STFunction extends STEntry
         this.definedBy = definedBy;
         this.numArgs = numArgs;
         this.symbolTable = definedBy == SubClassif.BUILTIN ? null : symbol;
-        this.functionST = definedBy == SubClassif.BUILTIN ? null : new HashMap<>(); //TODO: depends on how Clark wants...
+        this.functionST = definedBy == SubClassif.BUILTIN ? null : new HashMap<String, STEntry>(); //TODO: depends on how Clark wants...
     }
 }
