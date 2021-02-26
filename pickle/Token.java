@@ -100,7 +100,7 @@ public class Token
         char [] charray = str.toCharArray();
         char ch;
         // print each character in the string
-        for (int i = 0; i < indent; i++)
+        for (int i = 0; i < len; i++)
         {
             ch = charray[i];
             if (ch > 31 && ch < 127) // char is ASCII printable
@@ -116,7 +116,7 @@ public class Token
         }
         // print the second line. Non-printable characters will be
         // shown as their hex value. Printable will simply be a space
-        for (int i = 0; i < indent; i++)
+        for (int i = 0; i < len; i++)
         {
             ch = charray[i];
             // only deal with the printable characters
