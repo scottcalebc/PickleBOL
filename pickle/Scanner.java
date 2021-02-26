@@ -11,8 +11,8 @@ public class Scanner {
     private final static String separators = "(),:;[]";                     // All seperators
 
     protected ArrayList<String> sourceLineM;                                // List of all source file lines
-    protected char[]            textCharM;
-    protected SymbolTable       symbolTable;
+    protected char[]            textCharM;                                  // Char array of current source line
+    protected SymbolTable       symbolTable;                                // Symbol table reference
     protected String            sourceFileNm;                               // Source file name
     protected int               iSourceLineNr;                              // Source line number
     protected int               iColPos;                                    // Source column position
@@ -152,12 +152,24 @@ public class Scanner {
     }
 
 
+    /**
+     *
+     * Converts valid string taken from source file
+     * <p>
+     * Transforms escape code characters to correct hexadecimal format to output correctly
+     *
+     * @param tokenStr                  tokenStr to convert
+     * @return                          converted string with correct escape code
+     * @throws ScannerParserException   throws error on invalid escape codes
+     */
     public String convertStringEscapeCharacters(String tokenStr) throws ScannerParserException {
-        char currCharM[] = tokenStr.toCharArray();
-        char retCharM[] = new char[currCharM.length];
-        int iRet = 0;
+        char currCharM[] = tokenStr.toCharArray();          // char array to convert
+        char retCharM[] = new char[currCharM.length];       // return char array
+        int iRet = 0;                                       // return char index to insert into array
 
         for(int i = 0; i < currCharM.length; i++) {
+
+            // if escape code collect and insert correct hex value into return char
             if (currCharM[i] == '\\' && i+1 < currCharM.length) {
                 String escapeCode = "" + currCharM[i] + currCharM[i+1];
 
@@ -181,12 +193,13 @@ public class Scanner {
                         retCharM[iRet] = 0x07;
                         break;
                     default:
+                        // not a valid escape character throw error
                         setToken(nextToken, escapeCode);
                         throw new ScannerParserException(nextToken, sourceFileNm, "Invalid escape character");
                 }
 
-                iRet++;
-                i++;
+                iRet++;     // increment index into return array
+                i++;        // skip second character used for escape character
                 continue;
             }
 
@@ -286,7 +299,7 @@ public class Scanner {
         if (iSourceLineNr >= sourceLineM.size() && iColPos >= textCharM.length)
             return;
 
-        // Todo: use utility skipWhiteSpace
+
         Utility.skipWhitespace(this);
 
         // Continues to add non-delimeter characters to tokenStr
@@ -376,13 +389,19 @@ public class Scanner {
             //todo: classify operator
         }
 
-        else if ( entry.primClassif != Classif.EMPTY ) {
+        // use symbol table to label primary and sub classification of builtin, operators, and control
+        else if ( entry.primClassif != Classif.EMPTY )
+        {
+
             nextToken.primClassif = entry.primClassif;
 
-            if (entry instanceof STControl) {
+            if (entry instanceof STControl)
+            {
                 nextToken.subClassif = ((STControl) entry).subClassif;
-            } else if (entry instanceof  STFunction) {
-                nextToken.subClassif = SubClassif.BUILTIN; // ???
+            }
+            else if (entry instanceof  STFunction)
+            {
+                nextToken.subClassif = SubClassif.BUILTIN;
             }
         }
 
