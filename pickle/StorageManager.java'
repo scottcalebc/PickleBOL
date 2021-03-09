@@ -1,9 +1,0 @@
-package pickle;
-
-public class StorageManager {
-
-    public StorageManager() {
-        
-    }
-
-}
