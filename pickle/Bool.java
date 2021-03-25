@@ -22,7 +22,7 @@ public class Bool {
 
     private void parseString(Scanner scanner, String str) throws BoolException
     {
-        if (str.length() > 1)
+        if (str.length() != 1)
             throw new BoolException(scanner.currentToken, scanner.sourceFileNm);
         if (str.equals("T"))
         {
