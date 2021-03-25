@@ -11,6 +11,12 @@ package pickle;
  *
  * <p> Compare Numerics:
  *     ==. !=. <, >, <=, >=
+ *
+ * <p> Compare Booleans:
+ *     and, or, not
+ *
+ * <p> Compare String/Chars:
+ *     ==. !=. <, >, <=, >=
  */
 public class Utility {
 
@@ -46,6 +52,32 @@ public class Utility {
     {
         return tokenStr.equals("/") && scanner.iColPos < scanner.textCharM.length
                 && scanner.textCharM[scanner.iColPos] == '/';
+    }
+
+    //TODO: casting a Numeric between double and int
+
+    /**
+     * Applies a unary minus to a Numeric value.
+     * <p>
+     *      The ResultValue will have the data type of the
+     *      first operand.
+     *
+     * @param scanner   Scanner object
+     * @param nOp1      Numeric Operand 1
+     * @return ResultValue
+     */
+    public static ResultValue unaryMinus(Scanner scanner, Numeric nOp1)
+    {
+        // result has data type of first operand
+        ResultValue res =  new ResultValue("", nOp1.dataType);
+
+        // apply unary minus to Numeric
+        if (nOp1.dataType == SubClassif.INTEGER)
+            res.strValue = Integer.toString(-nOp1.intValue);
+        else if (nOp1.dataType == SubClassif.FLOAT)
+            res.strValue = Double.toString(-nOp1.doubleValue);
+
+        return res;
     }
 
     /**
@@ -120,30 +152,6 @@ public class Utility {
             else
                 res.strValue = Double.toString(nOp1.doubleValue - nOp2.intValue);
         }
-
-        return res;
-    }
-
-    /**
-     * Applies a unary minus to a Numeric value.
-     * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
-     *
-     * @param scanner   Scanner object
-     * @param nOp1      Numeric Operand 1
-     * @return ResultValue
-     */
-    public static ResultValue unaryMinus(Scanner scanner, Numeric nOp1)
-    {
-        // result has data type of first operand
-        ResultValue res =  new ResultValue("", nOp1.dataType);
-
-        // apply unary minus to Numeric
-        if (nOp1.dataType == SubClassif.INTEGER)
-            res.strValue = Integer.toString(-nOp1.intValue);
-        else if (nOp1.dataType == SubClassif.FLOAT)
-            res.strValue = Double.toString(-nOp1.doubleValue);
 
         return res;
     }
@@ -271,7 +279,8 @@ public class Utility {
 
     /**
      * Tests if two Numeric Values are equal.
-     * Returns true if the first Numeric value is equal to the second Numeric value.
+     * Returns ResultValue "T" if the first Numeric value is equal
+     * to the second Numeric value, "F" otherwise.
      * <p>
      *      The ResultValue will have the data type of the
      *      first operand.
@@ -279,9 +288,9 @@ public class Utility {
      * @param scanner   Scanner object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
-     * @return boolean - True if nOp1 is equal to nOp2; False otherwise
+     * @return ResultValue
      */
-    public static boolean equalTo(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue equalTo(Scanner scanner, Numeric nOp1, Numeric nOp2)
     {
         boolean res;
 
@@ -304,12 +313,15 @@ public class Utility {
                 res = nOp1.doubleValue == nOp2.intValue;
         }
 
-        return res;
+        // result is a ResultValue representing a Bool
+        String strRes = (res) ? "T" : "F";
+        return new ResultValue(strRes, SubClassif.BOOLEAN);
     }
 
     /**
      * Tests if two Numeric Values are not equal.
-     * Returns true if the first Numeric value is not equal to the second Numeric value.
+     * Returns ResultValue "T" if the first Numeric value is not equal
+     * to the second Numeric value, "F" otherwise.
      * This is effectively a wrapper for the equalTo function.
      * <p>
      *      The ResultValue will have the data type of the
@@ -318,16 +330,20 @@ public class Utility {
      * @param scanner   Scanner object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
-     * @return boolean - True if nOp1 is not equal to nOp2; False otherwise
+     * @return ResultValue - True if nOp1 is not equal to nOp2; False otherwise
      */
-    public static boolean notEqualTo(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue notEqualTo(Scanner scanner, Numeric nOp1, Numeric nOp2)
     {
-        return !(equalTo(scanner, nOp1, nOp2));
+        // result is a ResultValue representing a Bool
+        ResultValue res = equalTo(scanner, nOp1, nOp2);
+        // the value is the opposite of what was returned by equalTo()
+        return new ResultValue((res.strValue.equals("T")) ? "F" : "T", SubClassif.BOOLEAN);
     }
 
     /**
      * Tests if a Numeric value is less than another Numeric value.
-     * Returns true if the first Numeric is less than the second Numeric.
+     * Returns ResultValue "T" if the first Numeric value is less than
+     * the second Numeric value, "F" otherwise.
      * <p>
      *      The ResultValue will have the data type of the
      *      first operand.
@@ -335,9 +351,9 @@ public class Utility {
      * @param scanner   Scanner object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
-     * @return boolean - True if nOp1 is less than nOp2; False otherwise
+     * @return ResultValue - True if nOp1 is less than nOp2; False otherwise
      */
-    public static boolean lessThan(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue lessThan(Scanner scanner, Numeric nOp1, Numeric nOp2)
     {
         boolean res;
 
@@ -360,12 +376,15 @@ public class Utility {
                 res = nOp1.doubleValue < nOp2.intValue;
         }
 
-        return res;
+        // result is a ResultValue representing a Bool
+        String strRes = (res) ? "T" : "F";
+        return new ResultValue(strRes, SubClassif.BOOLEAN);
     }
 
     /**
      * Tests if a Numeric value is greater than another Numeric value.
-     * Returns true if the first Numeric is greater than the second Numeric.
+     * Returns ResultValue "T" if the first Numeric value is greater than
+     * the second Numeric value, "F" otherwise.
      * <p>
      *      The ResultValue will have the data type of the
      *      first operand.
@@ -373,9 +392,9 @@ public class Utility {
      * @param scanner   Scanner object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
-     * @return boolean - True if nOp1 is greater than nOp2; False otherwise
+     * @return ResultValue - True if nOp1 is greater than nOp2; False otherwise
      */
-    public static boolean greaterThan(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue greaterThan(Scanner scanner, Numeric nOp1, Numeric nOp2)
     {
         boolean res;
 
@@ -398,12 +417,15 @@ public class Utility {
                 res = nOp1.doubleValue > nOp2.intValue;
         }
 
-        return res;
+        // result is a ResultValue representing a Bool
+        String strRes = (res) ? "T" : "F";
+        return new ResultValue(strRes, SubClassif.BOOLEAN);
     }
 
     /**
      * Tests if a Numeric value is less than or equal to another Numeric value.
-     * Returns true if the first Numeric is less than or equal to the second Numeric.
+     * Returns ResultValue "T" if the first Numeric value is less than or equal to
+     * the second Numeric value, "F" otherwise.
      * This is effectively a wrapper for the equalTo() and lessThan() functions.
      * <p>
      *      The ResultValue will have the data type of the
@@ -412,16 +434,25 @@ public class Utility {
      * @param scanner   Scanner object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
-     * @return boolean - True if nOp1 is greater than or equal to nOp2; False otherwise
+     * @return ResultValue - True if nOp1 is greater than or equal to nOp2; False otherwise
      */
-    public static boolean lessThanOrEqualTo(Scanner scanner, Numeric nOp1, Numeric nOp2)
-    {
-        return (lessThan(scanner, nOp1, nOp2) || equalTo(scanner, nOp1, nOp2));
+    public static ResultValue lessThanOrEqualTo(Scanner scanner, Numeric nOp1, Numeric nOp2) throws BoolException {
+        // Get result of equalTo() and LessThan()
+        ResultValue res1 = equalTo(scanner, nOp1, nOp2);
+        ResultValue res2 = lessThan(scanner, nOp1, nOp2);
+
+        // Convert result into Bool objects
+        Bool bOp1 = new Bool(scanner, res1);
+        Bool bOp2 = new Bool(scanner, res1);
+
+        // Or both Bools, return result
+        return boolOr(scanner, bOp1, bOp2);
     }
 
     /**
      * Tests if a Numeric value is greater than or equal to another Numeric value.
-     * Returns true if the first Numeric is greater than or equal to the second Numeric.
+     * Returns ResultValue "T" if the first Numeric value is greater than or equal to
+     * the second Numeric value, "F" otherwise.
      * This is effectively a wrapper for the equalTo() and greaterThan() functions.
      * <p>
      *      The ResultValue will have the data type of the
@@ -430,10 +461,90 @@ public class Utility {
      * @param scanner   Scanner object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
-     * @return boolean - True if nOp1 is greater than or equal to nOp2; False otherwise
+     * @return ResultValue - True if nOp1 is greater than or equal to nOp2; False otherwise
      */
-    public static boolean greaterThanOrEqualTo(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue greaterThanOrEqualTo(Scanner scanner, Numeric nOp1, Numeric nOp2) throws BoolException {
+        // Get result of equalTo() and LessThan()
+        ResultValue res1 = equalTo(scanner, nOp1, nOp2);
+        ResultValue res2 = greaterThan(scanner, nOp1, nOp2);
+
+        // Convert result into Bool objects
+        Bool bOp1 = new Bool(scanner, res1);
+        Bool bOp2 = new Bool(scanner, res1);
+
+        // Or both Bools, return result
+        return boolOr(scanner, bOp1, bOp2);
+    }
+
+    /**
+     * Boolean AND test on two Bool Operands.
+     * Returns a ResultValue containing the result of the test.
+     *
+     * @param scanner   Scanner object
+     * @param bOp1      Bool Operand 1
+     * @param bOp2      Bool Operand 2
+     * @return ResultValue
+     */
+    public static ResultValue boolAnd(Scanner scanner, Bool bOp1, Bool bOp2)
     {
-        return (greaterThan(scanner, nOp1, nOp2) || equalTo(scanner, nOp1, nOp2));
+        ResultValue res =  new ResultValue("", bOp1.dataType);
+        res.strValue = (bOp1.bValue && bOp2.bValue) ? "T" : "F";
+        return res;
+    }
+
+    /**
+     * Boolean OR test on two Bool Operands.
+     * Returns a ResultValue containing the result of the test.
+     *
+     * @param scanner   Scanner object
+     * @param bOp1      Bool Operand 1
+     * @param bOp2      Bool Operand 2
+     * @return ResultValue
+     */
+    public static ResultValue boolOr(Scanner scanner, Bool bOp1, Bool bOp2)
+    {
+        ResultValue res =  new ResultValue("", bOp1.dataType);
+        res.strValue = (bOp1.bValue || bOp2.bValue) ? "T" : "F";
+        return res;
+    }
+
+    /**
+     * Boolean NOT test on two Bool Operands.
+     * Returns a ResultValue containing the result of the test.
+     *
+     * @param scanner   Scanner object
+     * @param bOp1      Bool Operand 1
+     * @return ResultValue
+     */
+    public static ResultValue boolNot(Scanner scanner, Bool bOp1)
+    {
+        ResultValue res =  new ResultValue("", bOp1.dataType);
+        res.strValue = (!bOp1.bValue) ? "T" : "F";
+        return res;
+    }
+    //TODO: String Comparison Functions
+    public static boolean strEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+    {
+        return true;
+    }
+    public static boolean strNotEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+    {
+        return true;
+    }
+    public static boolean strLessThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+    {
+        return true;
+    }
+    public static boolean strGreaterThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+    {
+        return true;
+    }
+    public static boolean strLessThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+    {
+        return true;
+    }
+    public static boolean strGreaterThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+    {
+        return true;
     }
 }
