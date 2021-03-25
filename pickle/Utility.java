@@ -7,6 +7,7 @@ package pickle;
  *     Skip Whitespace, Skip Comments
  *
  * <p> Operate on Numerics:
+ *     Cast to Integer, Cast to Double,
  *     Add, Subtract, Unary Minus, Multiply, Divide, and Power operations.
  *
  * <p> Compare Numerics:
@@ -19,7 +20,8 @@ package pickle;
  *     ==. !=. <, >, <=, >=
  */
 public class Utility {
-
+    // ==================== SCANNER OPERATIONS =====================
+    // =============================================================
     /**
      * Finds the column position after advancing past all
      * whitespace characters and returns it.
@@ -54,7 +56,45 @@ public class Utility {
                 && scanner.textCharM[scanner.iColPos] == '/';
     }
 
-    //TODO: casting a Numeric between double and int
+    // ==================== NUMERIC OPERATIONS =====================
+    // =============================================================
+    /**
+     * Casts a Numeric Value to an Integer and returns a Result Value
+     * containing the correct type and string value.
+     *
+     * @param scanner   Scanner object
+     * @param nOp1      Numeric Operand 1
+     * @return ResultValue
+     */
+    public static ResultValue castNumericToInt(Scanner scanner, Numeric nOp1)
+    {
+        // result will be of type INTEGER
+        ResultValue res =  new ResultValue("", SubClassif.INTEGER);
+        // get value of numeric
+        int iValue = (nOp1.dataType == SubClassif.INTEGER) ? nOp1.intValue : (int)nOp1.doubleValue;
+        // convert to string
+        res.strValue = Integer.toString(iValue);
+        return res;
+    }
+
+    /**
+     * Casts a Numeric Value to a Double and returns a Result Value
+     * containing the correct type and string value.
+     *
+     * @param scanner   Scanner object
+     * @param nOp1      Numeric Operand 1
+     * @return ResultValue
+     */
+    public static ResultValue castNumericToDouble(Scanner scanner, Numeric nOp1)
+    {
+        // result will be of type FLOAT
+        ResultValue res =  new ResultValue("", SubClassif.FLOAT);
+        // get value of numeric
+        double fValue = (nOp1.dataType == SubClassif.INTEGER) ? (double)nOp1.intValue : nOp1.doubleValue;
+        // convert to string
+        res.strValue = Double.toString(fValue);
+        return res;
+    }
 
     /**
      * Applies a unary minus to a Numeric value.
@@ -277,6 +317,8 @@ public class Utility {
         return res;
     }
 
+    // ==================== NUMERIC COMPARISONS ====================
+    // =============================================================
     /**
      * Tests if two Numeric Values are equal.
      * Returns ResultValue "T" if the first Numeric value is equal
@@ -476,6 +518,8 @@ public class Utility {
         return boolOr(scanner, bOp1, bOp2);
     }
 
+    // ====================== BOOL OPERATIONS ======================
+    // =============================================================
     /**
      * Boolean AND test on two Bool Operands.
      * Returns a ResultValue containing the result of the test.
@@ -522,6 +566,9 @@ public class Utility {
         res.strValue = (!bOp1.bValue) ? "T" : "F";
         return res;
     }
+
+    // ===================== STRING COMPARISONS ====================
+    // =============================================================
     //TODO: String Comparison Functions
     public static boolean strEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
     {
