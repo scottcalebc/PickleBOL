@@ -3,10 +3,14 @@ package pickle;
 /**
  * Utility class provides various utility functions for Scanner class.
  *
- * <p>
- *     Skipping Comments
- *     Adding Numerics
- *     Subtracting Numerics
+ * <p> Scanner Operations:
+ *     Skip Whitespace, Skip Comments
+ *
+ * <p> Operate on Numerics:
+ *     Add, Subtract, Unary Minus, Multiply, Divide, and Power operations.
+ *
+ * <p> Compare Numerics:
+ *     ==. !=. <, >, <=, >=
  */
 public class Utility {
 
@@ -73,10 +77,10 @@ public class Utility {
         {
             // first value is integer, second is float
             if (nOp1.dataType == SubClassif.INTEGER)
-                res.strValue = Integer.toString(nOp1.intValue + (int)nOp2.doubleValue);
+                res.strValue = Integer.toString((int)(nOp1.intValue + nOp2.doubleValue));
             // first value is float, second is integer
             else
-                res.strValue = Double.toString(nOp1.doubleValue + nOp2.doubleValue);
+                res.strValue = Double.toString(nOp1.doubleValue + nOp2.intValue);
         }
 
         return res;
@@ -111,10 +115,10 @@ public class Utility {
         {
             // first value is integer, second is float
             if (nOp1.dataType == SubClassif.INTEGER)
-                res.strValue = Integer.toString(nOp1.intValue - (int)nOp2.doubleValue);
+                res.strValue = Integer.toString((int)(nOp1.intValue - nOp2.doubleValue));
             // first value is float, second is integer
             else
-                res.strValue = Double.toString(nOp1.doubleValue - nOp2.doubleValue);
+                res.strValue = Double.toString(nOp1.doubleValue - nOp2.intValue);
         }
 
         return res;
@@ -173,10 +177,10 @@ public class Utility {
         {
             // first value is integer, second is float
             if (nOp1.dataType == SubClassif.INTEGER)
-                res.strValue = Integer.toString(nOp1.intValue * (int)nOp2.doubleValue);
+                res.strValue = Integer.toString((int)(nOp1.intValue * nOp2.doubleValue));
             // first value is float, second is integer
             else
-                res.strValue = Double.toString(nOp1.doubleValue * nOp2.doubleValue);
+                res.strValue = Double.toString(nOp1.doubleValue * nOp2.intValue);
         }
 
         return res;
@@ -218,10 +222,10 @@ public class Utility {
         {
             // first value is integer, second is float
             if (nOp1.dataType == SubClassif.INTEGER)
-                res.strValue = Integer.toString(nOp1.intValue / (int)nOp2.doubleValue);
+                res.strValue = Integer.toString((int)(nOp1.intValue / nOp2.doubleValue));
             // first value is float, second is integer
             else
-                res.strValue = Double.toString(nOp1.doubleValue / nOp2.doubleValue);
+                res.strValue = Double.toString(nOp1.doubleValue / nOp2.intValue);
         }
 
         return res;
@@ -250,16 +254,16 @@ public class Utility {
                 res.strValue = Integer.toString((int) Math.pow(nOp1.intValue, nOp2.intValue));
             // both values are floats
             else
-                res.strValue = Double.toString(Math.pow(nOp1.intValue, nOp2.intValue));
+                res.strValue = Double.toString(Math.pow(nOp1.doubleValue, nOp2.doubleValue));
         }
         else
         {
             // first value is integer, second is float
             if (nOp1.dataType == SubClassif.INTEGER)
-                res.strValue = Integer.toString((int) Math.pow(nOp1.intValue, nOp2.intValue));
+                res.strValue = Integer.toString((int) Math.pow(nOp1.intValue, nOp2.doubleValue));
             // first value is float, second is integer
             else
-                res.strValue = Double.toString(Math.pow(nOp1.intValue, nOp2.intValue));
+                res.strValue = Double.toString(Math.pow(nOp1.doubleValue, nOp2.intValue));
         }
 
         return res;
