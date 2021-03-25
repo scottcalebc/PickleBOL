@@ -6,6 +6,10 @@ package pickle;
  * <p> Scanner Operations:
  *     Skip Whitespace, Skip Comments
  *
+ * <p>
+ * All operation and comparison functions return ResultValues containing
+ * the data type and string value of the operation's or comparison's result.
+ *
  * <p> Operate on Numerics:
  *     Cast to Integer, Cast to Double,
  *     Add, Subtract, Unary Minus, Multiply, Divide, and Power operations.
@@ -569,29 +573,149 @@ public class Utility {
 
     // ===================== STRING COMPARISONS ====================
     // =============================================================
-    //TODO: String Comparison Functions
-    public static boolean strEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+    /**
+     * Tests if two ResultValues are equal.
+     * Returns ResultValue "T" if the first ResultValue is equal
+     * to the second ResultValue, "F" otherwise.
+     * <p>
+     *      The ResultValue will have the data type of the
+     *      first operand.
+     *
+     * @param scanner   Scanner object
+     * @param resVal1   ResultValue Operand 1
+     * @param resVal2   ResultValue Operand 2
+     * @return ResultValue
+     */
+    public static ResultValue strEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
     {
-        return true;
+        // ResultValue will be of type boolean
+        ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
+
+        // Set "T" if both strings are equal, else "F"
+        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) == 0) ? "T" : "F";
+
+        return res;
     }
-    public static boolean strNotEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+
+    /**
+     * Tests if two ResultValues are not equal.
+     * Returns ResultValue "T" if the first ResultValue is not equal
+     * to the second ResultValue, "F" otherwise.
+     * <p>
+     *      The ResultValue will have the data type of the
+     *      first operand.
+     *
+     * @param scanner   Scanner object
+     * @param resVal1   ResultValue Operand 1
+     * @param resVal2   ResultValue Operand 2
+     * @return ResultValue
+     */
+    public static ResultValue strNotEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
     {
-        return true;
+        // ResultValue will be of type boolean
+        ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
+
+        // Set "T" if both strings are equal, else "F"
+        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) != 0) ? "T" : "F";
+
+        return res;
     }
-    public static boolean strLessThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+
+    /**
+     * Tests if a ResultValue is less than another ResultValue.
+     * Returns ResultValue "T" if the first ResultValue is less than
+     * the second ResultValue, "F" otherwise.
+     * <p>
+     *      The ResultValue will have the data type of the
+     *      first operand.
+     *
+     * @param scanner   Scanner object
+     * @param resVal1   ResultValue Operand 1
+     * @param resVal2   ResultValue Operand 2
+     * @return ResultValue
+     */
+    public static ResultValue strLessThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
     {
-        return true;
+        // ResultValue will be of type boolean
+        ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
+
+        // Set "T" if resVal1 is lexicographically less than resVal2, else "F"
+        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) < 0) ? "T" : "F";
+
+        return res;
     }
-    public static boolean strGreaterThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+
+    /**
+     * Tests if a ResultValue is greater than another ResultValue.
+     * Returns ResultValue "T" if the first ResultValue is greater than
+     * the second ResultValue, "F" otherwise.
+     * <p>
+     *      The ResultValue will have the data type of the
+     *      first operand.
+     *
+     * @param scanner   Scanner object
+     * @param resVal1   ResultValue Operand 1
+     * @param resVal2   ResultValue Operand 2
+     * @return ResultValue
+     */
+    public static ResultValue strGreaterThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
     {
-        return true;
+        // ResultValue will be of type boolean
+        ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
+
+        // Set "T" if resVal1 is lexicographically greater than resVal2, else "F"
+        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) > 0) ? "T" : "F";
+
+        return res;
     }
-    public static boolean strLessThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+
+    /**
+     * Tests if a ResultValue is less than or equals to another ResultValue.
+     * Returns ResultValue "T" if the first ResultValue is less than or equals to
+     * the second ResultValue, "F" otherwise.
+     * This is effectively a wrapper for the strEqualTo() and strLessThan() functions.
+     * <p>
+     *      The ResultValue will have the data type of the
+     *      first operand.
+     *
+     * @param scanner   Scanner object
+     * @param resVal1   ResultValue Operand 1
+     * @param resVal2   ResultValue Operand 2
+     * @return ResultValue
+     */
+    public static ResultValue strLessThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
     {
-        return true;
+        // ResultValue will be of type boolean
+        ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
+
+        // Set "T" if resVal1 is lexicographically less than or equals to resVal2, else "F"
+        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) <= 0) ? "T" : "F";
+
+        return res;
     }
-    public static boolean strGreaterThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
+
+    /**
+     * Tests if a ResultValue is greater than or equals to another ResultValue.
+     * Returns ResultValue "T" if the first ResultValue is greater than or equals to
+     * the second ResultValue, "F" otherwise.
+     * This is effectively a wrapper for the strEqualTo() and strGreaterThan() functions.
+     * <p>
+     *      The ResultValue will have the data type of the
+     *      first operand.
+     *
+     * @param scanner   Scanner object
+     * @param resVal1   ResultValue Operand 1
+     * @param resVal2   ResultValue Operand 2
+     * @return ResultValue
+     */
+    public static ResultValue strGreaterThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
     {
-        return true;
+        // ResultValue will be of type boolean
+        ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
+
+        // Set "T" if resVal1 is lexicographically greater than or equal to resVal2, else "F"
+        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) >= 0) ? "T" : "F";
+
+        return res;
     }
 }
