@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class StorageManager {
 
-    private HashMap<String, Object> variables;
+    private HashMap<String, ResultValue> variables;     // HashMap for containing variables values (in ResultValue form)
 
     /**
      *
@@ -12,7 +12,8 @@ public class StorageManager {
      * <p>
      *
      */
-    public StorageManager() {
+    public StorageManager()
+    {
         this.variables = new HashMap<>();
     }
 
@@ -22,9 +23,10 @@ public class StorageManager {
      * <p>
      *
      * @param name      variable name to be added/updated
-     * @param value     value of said variable
+     * @param value     value of said variable (ResultValue)
      */
-    public void updateVariable(String name, Object value) {
+    public void updateVariable(String name, ResultValue value)
+    {
         this.variables.put(name, value);
     }
 
@@ -34,34 +36,11 @@ public class StorageManager {
      * <p>
      *
      * @param name      name of the variable to get the value from
-     * @return          Return a string of the variable's value, Classif.EMPTY if variable not found.
+     * @return          Returns a ResultValue object, ResultValue of data type Classif.EMPTY and string value "", if variable not found.
      */
-    public Object getVariable(String name) {
-        return this.variables.containsKey(name) ? this.variables.get(name).toString() : Classif.EMPTY;
-    }
-
-    /**
-     *
-     * Retrieves a value given a variable name. Adds a generic return type via a type parameter.
-     * <p>
-     *
-     * @param name          name of the variable to get the value from
-     * @param type          Return type of variable. E.g. Integer.class, Boolean.class, etc.
-     * @param <T>           Generic type
-     * @return              Return a string of the variable's value, Classif.EMPTY if variable not found.
-     * @throws Exception
-     */
-    public <T> T getVariable(String name, Class<T> type) throws Exception {
-        try {
-            return this.variables.containsKey(name) ?  type.cast(this.variables.get(name)) : (T) Classif.EMPTY;
-        }
-        catch(java.lang.ClassCastException e) {
-            throw new Exception("Error casting return type: Invalid type supplied for \"" + name + "\"!\n\t" +
-                    name + "'s value: " + this.variables.get(name).toString()); //compile err so using regular Exception Class
-        }
-        catch(Exception e) {
-            return (T) Classif.EMPTY;
-        }
+    public ResultValue getVariable(String name)
+    {
+        return this.variables.containsKey(name) ? this.variables.get(name) : new ResultValue("", SubClassif.EMPTY);
     }
 
 }
