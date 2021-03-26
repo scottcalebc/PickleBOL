@@ -57,7 +57,7 @@ public class Utility {
                 && scanner.textCharM[scanner.iColPos] == '/';
     }
 
-    // ==================== NUMERIC OPERATIONS =====================
+    // ==================== TYPE COERCIONS =====================
     // =============================================================
     /**
      * Casts a Numeric Value to an Integer and returns a Result Value
@@ -97,6 +97,8 @@ public class Utility {
         return res;
     }
 
+    // ==================== NUMERIC OPERATIONS =====================
+    // =============================================================
     /**
      * Applies a unary minus to a Numeric value.
      * <p>

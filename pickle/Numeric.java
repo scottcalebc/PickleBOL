@@ -1,5 +1,7 @@
 package pickle;
 
+import java.text.DecimalFormat;
+
 /**
  * This class handles Numeric conversions from Strings
  */
@@ -41,12 +43,9 @@ public class Numeric {
      */
     @Override
     public String toString() {
-        return "Numeric{" +
-                "dataType=" + dataType +
-                ", strValue='" + strValue + '\'' +
-                ", doubleValue=" + doubleValue +
-                ", intValue=" + intValue +
-                '}';
+        DecimalFormat df = new DecimalFormat("#.00");
+        return (this.dataType == SubClassif.INTEGER) ?
+                Integer.toString(this.intValue) : df.format(this.doubleValue);
     }
 
     /**
