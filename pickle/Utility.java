@@ -14,13 +14,10 @@ package pickle;
  *     Cast to Integer, Cast to Double,
  *     Add, Subtract, Unary Minus, Multiply, Divide, and Power operations.
  *
- * <p> Compare Numerics:
- *     ==. !=. <, >, <=, >=
- *
  * <p> Compare Booleans:
  *     and, or, not
  *
- * <p> Compare String/Chars:
+ * <p> Compare Strings and Numerics:
  *     ==. !=. <, >, <=, >=
  */
 public class Utility {
@@ -321,207 +318,6 @@ public class Utility {
         return res;
     }
 
-    // ==================== NUMERIC COMPARISONS ====================
-    // =============================================================
-    /**
-     * Tests if two Numeric Values are equal.
-     * Returns ResultValue "T" if the first Numeric value is equal
-     * to the second Numeric value, "F" otherwise.
-     * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
-     *
-     * @param scanner   Scanner object
-     * @param nOp1      Numeric Operand 1
-     * @param nOp2      Numeric Operand 2
-     * @return ResultValue
-     */
-    public static ResultValue equalTo(Scanner scanner, Numeric nOp1, Numeric nOp2)
-    {
-        boolean res;
-
-        // Do Test
-        if (nOp1.dataType == nOp2.dataType) {
-            // both values are integers
-            if (nOp1.dataType == SubClassif.INTEGER)
-                res = nOp1.intValue == nOp2.intValue;
-            // both values are floats
-            else
-                res = nOp1.doubleValue == nOp2.doubleValue;
-        }
-        else
-        {
-            // first value is integer, second is float
-            if (nOp1.dataType == SubClassif.INTEGER)
-                res = nOp1.intValue == nOp2.doubleValue;
-            // first value is float, second is integer
-            else
-                res = nOp1.doubleValue == nOp2.intValue;
-        }
-
-        // result is a ResultValue representing a Bool
-        String strRes = (res) ? "T" : "F";
-        return new ResultValue(strRes, SubClassif.BOOLEAN);
-    }
-
-    /**
-     * Tests if two Numeric Values are not equal.
-     * Returns ResultValue "T" if the first Numeric value is not equal
-     * to the second Numeric value, "F" otherwise.
-     * This is effectively a wrapper for the equalTo function.
-     * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
-     *
-     * @param scanner   Scanner object
-     * @param nOp1      Numeric Operand 1
-     * @param nOp2      Numeric Operand 2
-     * @return ResultValue - True if nOp1 is not equal to nOp2; False otherwise
-     */
-    public static ResultValue notEqualTo(Scanner scanner, Numeric nOp1, Numeric nOp2)
-    {
-        // result is a ResultValue representing a Bool
-        ResultValue res = equalTo(scanner, nOp1, nOp2);
-        // the value is the opposite of what was returned by equalTo()
-        return new ResultValue((res.strValue.equals("T")) ? "F" : "T", SubClassif.BOOLEAN);
-    }
-
-    /**
-     * Tests if a Numeric value is less than another Numeric value.
-     * Returns ResultValue "T" if the first Numeric value is less than
-     * the second Numeric value, "F" otherwise.
-     * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
-     *
-     * @param scanner   Scanner object
-     * @param nOp1      Numeric Operand 1
-     * @param nOp2      Numeric Operand 2
-     * @return ResultValue - True if nOp1 is less than nOp2; False otherwise
-     */
-    public static ResultValue lessThan(Scanner scanner, Numeric nOp1, Numeric nOp2)
-    {
-        boolean res;
-
-        // Do Test
-        if (nOp1.dataType == nOp2.dataType) {
-            // both values are integers
-            if (nOp1.dataType == SubClassif.INTEGER)
-                res = nOp1.intValue < nOp2.intValue;
-            // both values are floats
-            else
-                res = nOp1.doubleValue < nOp2.doubleValue;
-        }
-        else
-        {
-            // first value is integer, second is float
-            if (nOp1.dataType == SubClassif.INTEGER)
-                res = nOp1.intValue < nOp2.doubleValue;
-            // first value is float, second is integer
-            else
-                res = nOp1.doubleValue < nOp2.intValue;
-        }
-
-        // result is a ResultValue representing a Bool
-        String strRes = (res) ? "T" : "F";
-        return new ResultValue(strRes, SubClassif.BOOLEAN);
-    }
-
-    /**
-     * Tests if a Numeric value is greater than another Numeric value.
-     * Returns ResultValue "T" if the first Numeric value is greater than
-     * the second Numeric value, "F" otherwise.
-     * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
-     *
-     * @param scanner   Scanner object
-     * @param nOp1      Numeric Operand 1
-     * @param nOp2      Numeric Operand 2
-     * @return ResultValue - True if nOp1 is greater than nOp2; False otherwise
-     */
-    public static ResultValue greaterThan(Scanner scanner, Numeric nOp1, Numeric nOp2)
-    {
-        boolean res;
-
-        // Do Test
-        if (nOp1.dataType == nOp2.dataType) {
-            // both values are integers
-            if (nOp1.dataType == SubClassif.INTEGER)
-                res = nOp1.intValue > nOp2.intValue;
-            // both values are floats
-            else
-                res = nOp1.doubleValue > nOp2.doubleValue;
-        }
-        else
-        {
-            // first value is integer, second is float
-            if (nOp1.dataType == SubClassif.INTEGER)
-                res = nOp1.intValue > nOp2.doubleValue;
-            // first value is float, second is integer
-            else
-                res = nOp1.doubleValue > nOp2.intValue;
-        }
-
-        // result is a ResultValue representing a Bool
-        String strRes = (res) ? "T" : "F";
-        return new ResultValue(strRes, SubClassif.BOOLEAN);
-    }
-
-    /**
-     * Tests if a Numeric value is less than or equal to another Numeric value.
-     * Returns ResultValue "T" if the first Numeric value is less than or equal to
-     * the second Numeric value, "F" otherwise.
-     * This is effectively a wrapper for the equalTo() and lessThan() functions.
-     * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
-     *
-     * @param scanner   Scanner object
-     * @param nOp1      Numeric Operand 1
-     * @param nOp2      Numeric Operand 2
-     * @return ResultValue - True if nOp1 is greater than or equal to nOp2; False otherwise
-     */
-    public static ResultValue lessThanOrEqualTo(Scanner scanner, Numeric nOp1, Numeric nOp2) throws BoolException {
-        // Get result of equalTo() and LessThan()
-        ResultValue res1 = equalTo(scanner, nOp1, nOp2);
-        ResultValue res2 = lessThan(scanner, nOp1, nOp2);
-
-        // Convert result into Bool objects
-        Bool bOp1 = new Bool(scanner, res1);
-        Bool bOp2 = new Bool(scanner, res1);
-
-        // Or both Bools, return result
-        return boolOr(scanner, bOp1, bOp2);
-    }
-
-    /**
-     * Tests if a Numeric value is greater than or equal to another Numeric value.
-     * Returns ResultValue "T" if the first Numeric value is greater than or equal to
-     * the second Numeric value, "F" otherwise.
-     * This is effectively a wrapper for the equalTo() and greaterThan() functions.
-     * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
-     *
-     * @param scanner   Scanner object
-     * @param nOp1      Numeric Operand 1
-     * @param nOp2      Numeric Operand 2
-     * @return ResultValue - True if nOp1 is greater than or equal to nOp2; False otherwise
-     */
-    public static ResultValue greaterThanOrEqualTo(Scanner scanner, Numeric nOp1, Numeric nOp2) throws BoolException {
-        // Get result of equalTo() and LessThan()
-        ResultValue res1 = equalTo(scanner, nOp1, nOp2);
-        ResultValue res2 = greaterThan(scanner, nOp1, nOp2);
-
-        // Convert result into Bool objects
-        Bool bOp1 = new Bool(scanner, res1);
-        Bool bOp2 = new Bool(scanner, res1);
-
-        // Or both Bools, return result
-        return boolOr(scanner, bOp1, bOp2);
-    }
-
     // ====================== BOOL OPERATIONS ======================
     // =============================================================
     /**
@@ -571,28 +367,77 @@ public class Utility {
         return res;
     }
 
-    // ===================== STRING COMPARISONS ====================
+    // ===================== GENERIC COMPARISONS ====================
     // =============================================================
     /**
      * Tests if two ResultValues are equal.
      * Returns ResultValue "T" if the first ResultValue is equal
      * to the second ResultValue, "F" otherwise.
      * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
+     *      The ResultValue returned will be of Boolean type.
+     *      If the first operand is of type String, a lexicographical
+     *      comparison will be assumed.
+     * <p>
+     *      If the first operand is a Numeric,
+     *      a numeric comparison will be assumed. If the second operand
+     *      has a different type than the first, and exception will be thrown.
      *
      * @param scanner   Scanner object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue strEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
-    {
+    public static ResultValue equal(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
-        // Set "T" if both strings are equal, else "F"
-        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) == 0) ? "T" : "F";
+        // Test is based on data type of left operand
+        // left operand is STRING
+        if (resVal1.dataType == SubClassif.STRING) {
+            // If the second operand is not a String, throw exception
+            if (resVal2.dataType != SubClassif.STRING)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '==' cannot be applied String and Numeric");
+            // Do a lexicographical comparison
+            // Set "T" if both strings are equal, else "F"
+            res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) == 0) ? "T" : "F";
+        }
+        // left operand is INTEGER or FLOAT
+        else if (resVal1.dataType == SubClassif.INTEGER || resVal1.dataType == SubClassif.FLOAT)
+        {
+            // If the second operand is not a Numeric, throw exception
+            if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '==' cannot be applied Numeric and String");
+
+            // Convert both result values into Numerics
+            // if they cannot be parsed a NumericConstantException will be thrown
+            Numeric nOp1 = new Numeric(scanner, resVal1, "==", "test equal");
+            Numeric nOp2 = new Numeric(scanner, resVal2, "==", "test equal");
+
+            // Compare the values
+            boolean bResult;
+            if (nOp1.dataType == nOp2.dataType) {
+                // both values are integers
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue == nOp2.intValue;
+                // both values are floats
+                else
+                    bResult = nOp1.doubleValue == nOp2.doubleValue;
+            }
+            else
+            {
+                // first value is integer, second is float
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue == nOp2.doubleValue;
+                // first value is float, second is integer
+                else
+                    bResult = nOp1.doubleValue == nOp2.intValue;
+            }
+
+            // store comparison result into ResultValue
+            res.strValue = (bResult) ? "T" : "F";
+        }
 
         return res;
     }
@@ -602,21 +447,70 @@ public class Utility {
      * Returns ResultValue "T" if the first ResultValue is not equal
      * to the second ResultValue, "F" otherwise.
      * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
+     *      The ResultValue returned will be of Boolean type.
+     *      If the first operand is of type String, a lexicographical
+     *      comparison will be assumed.
+     * <p>
+     *      If the first operand is a Numeric,
+     *      a numeric comparison will be assumed. If the second operand
+     *      has a different type than the first, and exception will be thrown.
      *
      * @param scanner   Scanner object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue strNotEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
-    {
+    public static ResultValue notEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
-        // Set "T" if both strings are equal, else "F"
-        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) != 0) ? "T" : "F";
+        // Test is based on data type of left operand
+        // left operand is STRING
+        if (resVal1.dataType == SubClassif.STRING) {
+            // If the second operand is not a String, throw exception
+            if (resVal2.dataType != SubClassif.STRING)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '!=' cannot be applied String and Numeric");
+            // Set "T" if both strings are equal, else "F"
+            res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) != 0) ? "T" : "F";
+        }
+        // left operand is INTEGER or FLOAT
+        else if (resVal1.dataType == SubClassif.INTEGER || resVal1.dataType == SubClassif.FLOAT)
+        {
+            // If the second operand is not a Numeric, throw exception
+            if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '!=' cannot be applied Numeric and String");
+
+            // Convert both result values into Numerics
+            // if they cannot be parsed a NumericConstantException will be thrown
+            Numeric nOp1 = new Numeric(scanner, resVal1, "!=", "test not equal");
+            Numeric nOp2 = new Numeric(scanner, resVal2, "!=", "test not equal");
+
+
+            // Compare the values
+            boolean bResult;
+            if (nOp1.dataType == nOp2.dataType) {
+                // both values are integers
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue != nOp2.intValue;
+                // both values are floats
+                else
+                    bResult = nOp1.doubleValue != nOp2.doubleValue;
+            }
+            else
+            {
+                // first value is integer, second is float
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue != nOp2.doubleValue;
+                // first value is float, second is integer
+                else
+                    bResult = nOp1.doubleValue != nOp2.intValue;
+            }
+
+            // store comparison result into ResultValue
+            res.strValue = (bResult) ? "T" : "F";
+        }
 
         return res;
     }
@@ -626,21 +520,69 @@ public class Utility {
      * Returns ResultValue "T" if the first ResultValue is less than
      * the second ResultValue, "F" otherwise.
      * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
+     *      The ResultValue returned will be of Boolean type.
+     *      If the first operand is of type String, a lexicographical
+     *      comparison will be assumed.
+     * <p>
+     *      If the first operand is a Numeric,
+     *      a numeric comparison will be assumed. If the second operand
+     *      has a different type than the first, and exception will be thrown.
      *
      * @param scanner   Scanner object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue strLessThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
-    {
+    public static ResultValue lessThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
-        // Set "T" if resVal1 is lexicographically less than resVal2, else "F"
-        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) < 0) ? "T" : "F";
+        // Test is based on data type of left operand
+        // left operand is STRING
+        if (resVal1.dataType == SubClassif.STRING) {
+            // If the second operand is not a String, throw exception
+            if (resVal2.dataType != SubClassif.STRING)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '<' cannot be applied String and Numeric");
+            // Set "T" if resVal1 is lexicographically less than resVal2, else "F"
+            res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) < 0) ? "T" : "F";
+        }
+        // left operand is INTEGER or FLOAT
+        else if (resVal1.dataType == SubClassif.INTEGER || resVal1.dataType == SubClassif.FLOAT)
+        {
+            // If the second operand is not a Numeric, throw exception
+            if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '<' cannot be applied Numeric and String");
+
+            // Convert both result values into Numerics
+            // if they cannot be parsed a NumericConstantException will be thrown
+            Numeric nOp1 = new Numeric(scanner, resVal1, "<", "test less than");
+            Numeric nOp2 = new Numeric(scanner, resVal2, "<", "test less than");
+
+            // Compare the values
+            boolean bResult;
+            if (nOp1.dataType == nOp2.dataType) {
+                // both values are integers
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue < nOp2.intValue;
+                // both values are floats
+                else
+                    bResult = nOp1.doubleValue < nOp2.doubleValue;
+            }
+            else
+            {
+                // first value is integer, second is float
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue < nOp2.doubleValue;
+                // first value is float, second is integer
+                else
+                    bResult = nOp1.doubleValue < nOp2.intValue;
+            }
+
+            // store comparison result into ResultValue
+            res.strValue = (bResult) ? "T" : "F";
+        }
 
         return res;
     }
@@ -650,21 +592,70 @@ public class Utility {
      * Returns ResultValue "T" if the first ResultValue is greater than
      * the second ResultValue, "F" otherwise.
      * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
+     *      The ResultValue returned will be of Boolean type.
+     *      If the first operand is of type String, a lexicographical
+     *      comparison will be assumed.
+     * <p>
+     *      If the first operand is a Numeric,
+     *      a numeric comparison will be assumed. If the second operand
+     *      has a different type than the first, and exception will be thrown.
      *
      * @param scanner   Scanner object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue strGreaterThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
-    {
+
+    public static ResultValue greaterThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
-        // Set "T" if resVal1 is lexicographically greater than resVal2, else "F"
-        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) > 0) ? "T" : "F";
+        // Test is based on data type of left operand
+        // left operand is STRING
+        if (resVal1.dataType == SubClassif.STRING) {
+            // If the second operand is not a String, throw exception
+            if (resVal2.dataType != SubClassif.STRING)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '>' cannot be applied String and Numeric");
+            // Set "T" if resVal1 is lexicographically greater than resVal2, else "F"
+            res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) > 0) ? "T" : "F";
+        }
+        // left operand is INTEGER or FLOAT
+        else if (resVal1.dataType == SubClassif.INTEGER || resVal1.dataType == SubClassif.FLOAT)
+        {
+            // If the second operand is not a Numeric, throw exception
+            if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '>' cannot be applied Numeric and String");
+
+            // Convert both result values into Numerics
+            // if they cannot be parsed a NumericConstantException will be thrown
+            Numeric nOp1 = new Numeric(scanner, resVal1, ">", "test greater than");
+            Numeric nOp2 = new Numeric(scanner, resVal2, ">", "test greater than");
+
+            // Compare the values
+            boolean bResult;
+            if (nOp1.dataType == nOp2.dataType) {
+                // both values are integers
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue > nOp2.intValue;
+                    // both values are floats
+                else
+                    bResult = nOp1.doubleValue > nOp2.doubleValue;
+            }
+            else
+            {
+                // first value is integer, second is float
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue > nOp2.doubleValue;
+                    // first value is float, second is integer
+                else
+                    bResult = nOp1.doubleValue > nOp2.intValue;
+            }
+
+            // store comparison result into ResultValue
+            res.strValue = (bResult) ? "T" : "F";
+        }
 
         return res;
     }
@@ -673,23 +664,70 @@ public class Utility {
      * Tests if a ResultValue is less than or equals to another ResultValue.
      * Returns ResultValue "T" if the first ResultValue is less than or equals to
      * the second ResultValue, "F" otherwise.
-     * This is effectively a wrapper for the strEqualTo() and strLessThan() functions.
      * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
+     *      The ResultValue returned will be of Boolean type.
+     *      If the first operand is of type String, a lexicographical
+     *      comparison will be assumed.
+     * <p>
+     *      If the first operand is a Numeric,
+     *      a numeric comparison will be assumed. If the second operand
+     *      has a different type than the first, and exception will be thrown.
      *
      * @param scanner   Scanner object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue strLessThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
-    {
+    public static ResultValue lessThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
-        // Set "T" if resVal1 is lexicographically less than or equals to resVal2, else "F"
-        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) <= 0) ? "T" : "F";
+        // Test is based on data type of left operand
+        // left operand is STRING
+        if (resVal1.dataType == SubClassif.STRING) {
+            // If the second operand is not a String, throw exception
+            if (resVal2.dataType != SubClassif.STRING)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '<=' cannot be applied String and Numeric");
+            // Set "T" if resVal1 is lexicographically less than or equals to resVal2, else "F"
+            res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) <= 0) ? "T" : "F";
+        }
+        // left operand is INTEGER or FLOAT
+        else if (resVal1.dataType == SubClassif.INTEGER || resVal1.dataType == SubClassif.FLOAT)
+        {
+            // If the second operand is not a Numeric, throw exception
+            if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '<=' cannot be applied Numeric and String");
+
+            // Convert both result values into Numerics
+            // if they cannot be parsed a NumericConstantException will be thrown
+            Numeric nOp1 = new Numeric(scanner, resVal1, "<=", "test less than or equal");
+            Numeric nOp2 = new Numeric(scanner, resVal2, "<=", "test less than or equal");
+
+            // Compare the values
+            boolean bResult;
+            if (nOp1.dataType == nOp2.dataType) {
+                // both values are integers
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue <= nOp2.intValue;
+                    // both values are floats
+                else
+                    bResult = nOp1.doubleValue <= nOp2.doubleValue;
+            }
+            else
+            {
+                // first value is integer, second is float
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue <= nOp2.doubleValue;
+                    // first value is float, second is integer
+                else
+                    bResult = nOp1.doubleValue <= nOp2.intValue;
+            }
+
+            // store comparison result into ResultValue
+            res.strValue = (bResult) ? "T" : "F";
+        }
 
         return res;
     }
@@ -698,23 +736,71 @@ public class Utility {
      * Tests if a ResultValue is greater than or equals to another ResultValue.
      * Returns ResultValue "T" if the first ResultValue is greater than or equals to
      * the second ResultValue, "F" otherwise.
-     * This is effectively a wrapper for the strEqualTo() and strGreaterThan() functions.
      * <p>
-     *      The ResultValue will have the data type of the
-     *      first operand.
+     *      The ResultValue returned will be of Boolean type.
+     *      If the first operand is of type String, a lexicographical
+     *      comparison will be assumed.
+     * <p>
+     *      If the first operand is a Numeric,
+     *      a numeric comparison will be assumed. If the second operand
+     *      has a different type than the first, and exception will be thrown.
      *
      * @param scanner   Scanner object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue strGreaterThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2)
-    {
+    public static ResultValue greaterThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
-        // Set "T" if resVal1 is lexicographically greater than or equal to resVal2, else "F"
-        res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) >= 0) ? "T" : "F";
+        // Test is based on data type of left operand
+        // left operand is STRING
+        if (resVal1.dataType == SubClassif.STRING)
+        {
+            // If the second operand is not a String, throw exception
+            if (resVal2.dataType != SubClassif.STRING)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '>=' cannot be applied String and Numeric");
+            // Set "T" if resVal1 is lexicographically greater than or equal to resVal2, else "F"
+            res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) >= 0) ? "T" : "F";
+        }
+        // left operand is INTEGER or FLOAT
+        else if (resVal1.dataType == SubClassif.INTEGER || resVal1.dataType == SubClassif.FLOAT)
+        {
+            // If the second operand is not a Numeric, throw exception
+            if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                                              "Operator '>=' cannot be applied Numeric and String");
+
+            // Convert both result values into Numerics
+            // if they cannot be parsed a NumericConstantException will be thrown
+            Numeric nOp1 = new Numeric(scanner, resVal1, ">=", "test greater than or equal");
+            Numeric nOp2 = new Numeric(scanner, resVal2, ">=", "test greater than or equal");
+
+            // Compare the values
+            boolean bResult;
+            if (nOp1.dataType == nOp2.dataType) {
+                // both values are integers
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue >= nOp2.intValue;
+                    // both values are floats
+                else
+                    bResult = nOp1.doubleValue >= nOp2.doubleValue;
+            }
+            else
+            {
+                // first value is integer, second is float
+                if (nOp1.dataType == SubClassif.INTEGER)
+                    bResult = nOp1.intValue >= nOp2.doubleValue;
+                    // first value is float, second is integer
+                else
+                    bResult = nOp1.doubleValue >= nOp2.intValue;
+            }
+
+            // store comparison result into ResultValue
+            res.strValue = (bResult) ? "T" : "F";
+        }
 
         return res;
     }
