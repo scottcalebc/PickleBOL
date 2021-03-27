@@ -63,10 +63,10 @@ public class Parser {
 
                 switch (flowStr) {
                     case "if":
-                        //res = ifStmt();
+                        res = ifStmt(true);
                         break;
                     case "while":
-                        //res = whileStmt();
+                        res = whileStmt(true);
                         break;
 
                 }
@@ -452,7 +452,7 @@ public class Parser {
         return res;
     }
 
-    private void skipto(String token) throws PickleException {
+    private void skipTo(String token) throws PickleException {
         while (!scanner.getNext().equals(token));
     }
 
@@ -466,7 +466,7 @@ public class Parser {
         if (bExec) {
             //while contition is true execute stmts
              while (evalCond().strValue.equals("T")) {
-                 result = statments(true);
+                 result = statements(true);
                  if(!result.terminatingString.equals("endwhile")) {
                      throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
                  }
@@ -474,8 +474,8 @@ public class Parser {
                  scanner.setPosition(entryPosition.iSourceLineNr, entryPosition.iColPos);
              }
              //after while loop's condition is false, get back to the endwhile token
-             skipto(":");
-             result = statments(false);
+             skipTo(":");
+             result = statements(false);
              if(!result.terminatingString.equals("endwhile")) {
                  throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
              }
@@ -484,8 +484,8 @@ public class Parser {
              }
         }
         else { //dont execute while
-            skipto(":");
-            result = statments(false);
+            skipTo(":");
+            result = statements(false);
             if(!result.terminatingString.equals("endwhile")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
             }
@@ -506,7 +506,7 @@ public class Parser {
             resCond = evalCond();
             
             if (resCond.strValue.equals("T")) {
-                resTemp = statments(true);
+                resTemp = statements(true);
                 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
