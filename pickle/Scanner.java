@@ -16,6 +16,8 @@ public class Scanner {
     protected String            sourceFileNm;                               // Source file name
     protected int               iSourceLineNr;                              // Source line number
     protected int               iColPos;                                    // Source column position
+    protected boolean           bShowToken;
+    protected boolean       bShowStmt;
 
     public  Token               currentToken;                               // Current evaluated Token
     public  Token               nextToken;                                  // Next evaluated Token
@@ -42,6 +44,8 @@ public class Scanner {
         this.nextToken = new Token();
         this.sourceLineM = new ArrayList<String>();
         this.textCharM = new char[0];
+        this.bShowToken = false;
+        this.bShowStmt = false;
 
         // Attempt to read the all lines into sourceLineM
         try {
@@ -122,8 +126,8 @@ public class Scanner {
             textCharM = currLine.toCharArray();                         //Convert current line to char[]
             iColPos = 0;
 
-
-            System.out.printf("\t%d %s\n", iSourceLineNr, currLine);    //Print Debug info of current line
+            if (bShowStmt)
+                System.out.printf("%d %s\n", iSourceLineNr, currLine);    //Print Debug info of current line
         }
 
     }
@@ -342,6 +346,11 @@ public class Scanner {
         currentToken = nextToken;       // Gets the current token
         getToken();                     // Get Next token
 
+        if (bShowToken) {
+            System.out.printf("...");
+            currentToken.printToken();
+        }
+
         return currentToken.tokenStr;
     }
 
@@ -396,6 +405,8 @@ public class Scanner {
             else if (entry instanceof  STFunction)
             {
                 nextToken.subClassif = SubClassif.BUILTIN;
+            } else if (nextToken.primClassif == Classif.OPERAND){
+                tokenStr = classifyOperand(tokenStr);
             }
         }
 

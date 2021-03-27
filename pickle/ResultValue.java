@@ -9,10 +9,17 @@ public class ResultValue {
     //type, value, structure, terminating string
     public SubClassif dataType;
     public String strValue;
+    public String terminatingString;
 
     public ResultValue(String strValue, SubClassif dataType)
     {
         this.strValue = strValue;
         this.dataType = dataType;
+    }
+
+    public ResultValue(String strValue, SubClassif dataType, String terminatingString) {
+        this.strValue = strValue;
+        this.dataType = dataType;
+        this.terminatingString = terminatingString;
     }
 }

@@ -1,6 +1,6 @@
 package pickle;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.HashMap;
 
 public class STFunction extends STEntry
@@ -8,7 +8,7 @@ public class STFunction extends STEntry
     public SubClassif returnType;                    // Return data type
     public SubClassif definedBy;                     // Who/what defined it (e.g. user or builtin)
     public int numArgs;                              // Number of arguments (VAR_ARGS for variable length)
-    public ArrayList<String> parmList;               // Reference to an ArrayList of parameters TODO
+    //public ArrayList<String> paramList;               // Reference to an ArrayList of parameters TODO
     public String symbolTable;                       // Reference to the function's symbol table if it's a user def function
     public HashMap<String, STEntry> functionST;      // Function's symbol table
 

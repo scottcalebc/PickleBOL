@@ -1,5 +1,7 @@
 *.iml
 *.idea
 ./.idea/*
+./out
 ./out/*
+/out/*
 .gitignore
