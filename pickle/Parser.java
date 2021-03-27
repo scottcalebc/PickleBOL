@@ -304,6 +304,10 @@ public class Parser {
 
             }
 
+            if (bShowExpr)
+                System.out.printf("...%s %s %s is %s\n", nOp1.strValue, operatorStr, nOp2.strValue, res.strValue);
+
+
         }
 
 
@@ -446,6 +450,16 @@ public class Parser {
         else { // dont lmao
             while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
                 scanner.getNext();
+
+                if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
+                    switch (scanner.currentToken.tokenStr) {
+                        case "if":
+                            ifStmt(bExec);
+                            break;
+                        case "while":
+                            whileStmt(bExec);
+                    }
+                }
             }
         }
         
@@ -473,9 +487,9 @@ public class Parser {
                  }
                  //set position back to while
                  scanner.setPosition(entryPosition.iSourceLineNr, entryPosition.iColPos);
+                 scanner.getNext();
              }
              //after while loop's condition is false, get back to the endwhile token
-             skipTo(":");
              result = statements(false);
              if(!result.terminatingString.equals("endwhile")) {
                  throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
@@ -511,17 +525,20 @@ public class Parser {
                 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
-                        // TODO: 3/26/2021 throw error  
+                        // TODO: 3/26/2021 throw error
+                        throw new PickleException();
                     }
-                    
+
                     resTemp = statements(false);
                     
                 }
                 if (!resTemp.terminatingString.equals("endif")) {
-                    // TODO: 3/26/2021 throw error 
+                    // TODO: 3/26/2021 throw error
+                    throw new PickleException();
                 }
                 if (!scanner.getNext().equals(";")) {
-                    // TODO: 3/26/2021 throw error 
+                    // TODO: 3/26/2021 throw error
+                    throw new PickleException();
                 }
 
 
@@ -531,17 +548,20 @@ public class Parser {
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
                         // TODO: 3/26/2021 throw error
+                        throw new PickleException();
                     }
 
                     resTemp = statements(true);
                 }
 
                 if (!resTemp.terminatingString.equals("endif")) {
-                    // TODO: 3/26/2021 throw error 
+                    // TODO: 3/26/2021 throw error
+                    throw new PickleException();
                 }
                 
                 if (!scanner.getNext().equals(";")) {
                     // TODO: 3/26/2021 throw error
+                    throw new PickleException();
                 }
             }
 
@@ -554,6 +574,7 @@ public class Parser {
             if (resTemp.terminatingString.equals("else")) {
                 if (!scanner.getNext().equals(":")) {
                     // TODO: 3/26/2021 throw error
+                    throw new PickleException();
                 }
                 resTemp = statements(false);
 
@@ -562,10 +583,12 @@ public class Parser {
 
             if (!resTemp.terminatingString.equals("endif")) {
                 // TODO: 3/26/2021 throw error
+                throw new PickleException();
             }
 
             if (!scanner.getNext().equals(";")) {
                 // TODO: 3/26/2021 throw error
+                throw new PickleException();
             }
         }
 
@@ -638,6 +661,8 @@ public class Parser {
                 throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Invalid comparator token");
         }
 
+        if (bShowExpr)
+            System.out.printf("...%s %s %s is %s\n", res01.strValue, operatorStr, res02.strValue, tempResult.strValue);
 
 
         return tempResult;
