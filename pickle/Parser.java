@@ -172,6 +172,7 @@ public class Parser {
             case OPERATOR:
                 if (!scanner.currentToken.tokenStr.equals("-")) {
                     // TODO: 3/25/2021 throw pickle exception non-unary minus
+                    break;
                 }
                 if (scanner.nextToken.primClassif != Classif.OPERAND) {
                     // TODO: 3/25/2021 throw pickle exception unary minus on non operand
@@ -435,7 +436,7 @@ public class Parser {
     }
 
     private ResultValue statements(boolean bExec) throws PickleException {
-        ResultValue res = null;
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
         //exec statements
         if (bExec) {
             while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
@@ -588,6 +589,7 @@ public class Parser {
         String operatorStr = scanner.currentToken.tokenStr;
         Token operatorToken = scanner.currentToken;
 
+        scanner.getNext();
 
         res02 = expr();
 
@@ -599,7 +601,7 @@ public class Parser {
         Bool bOp1;
         Bool bOp2;
 
-        switch (scanner.currentToken.tokenStr) {
+        switch (operatorStr) {
             case ">":
                 tempResult = Utility.greaterThan(scanner, res01, res02);
                 break;
@@ -633,7 +635,7 @@ public class Parser {
                 tempResult = Utility.boolNot(scanner, bOp2);
                 break;
             default:
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid comparator token");
+                throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Invalid comparator token");
         }
 
 
