@@ -253,6 +253,19 @@ public class Parser {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Token must be operator or ';'");
             }
 
+            switch (scanner.currentToken.tokenStr) {
+                case ">":
+                case "<":
+                case ">=":
+                case "<=":
+                case "==":
+                case "!=":
+                case "and":
+                case "or":
+                case "not":
+                    return res;
+            }
+
             String operatorStr = scanner.currentToken.tokenStr;
             Token operatorToken = scanner.currentToken;
             scanner.getNext();
@@ -484,13 +497,16 @@ public class Parser {
     }
 
     private ResultValue ifStmt(Boolean bExec) throws PickleException {
+
+        ResultValue resCond;
+        ResultValue resTemp;
         
         if (bExec) {
 
-            ResultValue resCond = evalCond();
+            resCond = evalCond();
             
             if (resCond.strValue.equals("T")) {
-                ResultValue resTemp = statments(true);
+                resTemp = statments(true);
                 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
@@ -509,7 +525,7 @@ public class Parser {
 
 
             } else {
-                ResultValue resTemp = statements(false);
+                resTemp = statements(false);
 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
@@ -520,19 +536,110 @@ public class Parser {
                 }
 
                 if (!resTemp.terminatingString.equals("endif")) {
-                    
+                    // TODO: 3/26/2021 throw error 
                 }
+                
+                if (!scanner.getNext().equals(";")) {
+                    // TODO: 3/26/2021 throw error
+                }
+            }
+
+        } else {
+
+            skipTo(":");
+
+            resTemp = statements(false);
+
+            if (resTemp.terminatingString.equals("else")) {
+                if (!scanner.getNext().equals(":")) {
+                    // TODO: 3/26/2021 throw error
+                }
+                resTemp = statements(false);
+
+
+            }
+
+            if (!resTemp.terminatingString.equals("endif")) {
+                // TODO: 3/26/2021 throw error
+            }
+
+            if (!scanner.getNext().equals(";")) {
+                // TODO: 3/26/2021 throw error
             }
         }
 
 
-        return res;
+        return resTemp;
 
     }
 
 
 
+    private ResultValue evalCond() throws PickleException {
+        scanner.getNext();
 
+        ResultValue res01 = null;
+        ResultValue res02 = null;
+
+        if (scanner.currentToken.primClassif != Classif.OPERATOR) {
+            res01 = expr();
+        }
+
+        String operatorStr = scanner.currentToken.tokenStr;
+        Token operatorToken = scanner.currentToken;
+
+
+        res02 = expr();
+
+        if (!scanner.getNext().equals(":")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Conditions must be followed by ':' token :");
+        }
+
+        ResultValue tempResult;
+        Bool bOp1;
+        Bool bOp2;
+
+        switch (scanner.currentToken.tokenStr) {
+            case ">":
+                tempResult = Utility.greaterThan(scanner, res01, res02);
+                break;
+            case "<":
+                tempResult = Utility.lessThan(scanner, res01, res02);
+                break;
+            case ">=":
+                tempResult = Utility.greaterThanOrEqualTo(scanner, res01, res02);
+                break;
+            case "<=":
+                tempResult = Utility.lessThanOrEqualTo(scanner, res01, res02);
+                break;
+            case "==":
+                tempResult = Utility.equal(scanner, res01, res02);
+                break;
+            case "!=":
+                tempResult = Utility.notEqual(scanner, res01, res02);
+                break;
+            case "and":
+                bOp1 = new Bool(scanner, res01);
+                bOp2 = new Bool(scanner, res02);
+                tempResult = Utility.boolAnd(scanner, bOp1, bOp2);
+                break;
+            case "or":
+                bOp1 = new Bool(scanner, res01);
+                bOp2 = new Bool(scanner, res02);
+                tempResult = Utility.boolOr(scanner, bOp1, bOp2);
+                break;
+            case "not":
+                bOp2 = new Bool(scanner, res02);
+                tempResult = Utility.boolNot(scanner, bOp2);
+                break;
+            default:
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid comparator token");
+        }
+
+
+
+        return tempResult;
+    }
 
 
 

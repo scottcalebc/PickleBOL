@@ -389,7 +389,7 @@ public class Utility {
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue equal(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
+    public static ResultValue equal(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -462,7 +462,7 @@ public class Utility {
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue notEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
+    public static ResultValue notEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -535,7 +535,7 @@ public class Utility {
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue lessThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
+    public static ResultValue lessThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -608,7 +608,7 @@ public class Utility {
      * @return ResultValue
      */
 
-    public static ResultValue greaterThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
+    public static ResultValue greaterThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -680,7 +680,7 @@ public class Utility {
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue lessThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
+    public static ResultValue lessThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -752,7 +752,7 @@ public class Utility {
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue greaterThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws Exception {
+    public static ResultValue greaterThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
