@@ -27,10 +27,7 @@ public class Pickle
         {
 
             Parser parser = new Parser(new Scanner(args[0], symbolTable), symbolTable);
-            while (parser.hasNext())
-            {
-                parser.getNext();
-            }
+            parser.run();
         }
         catch (Exception e)
         {
