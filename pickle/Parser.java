@@ -2,8 +2,9 @@ package pickle;
 
 public class Parser {
 
-    protected Scanner       scanner;
-    protected SymbolTable   symbolTable;
+    protected Scanner        scanner;
+    protected SymbolTable    symbolTable;
+    protected StorageManager storageManager;
 
     protected boolean       bShowExpr;
     protected boolean       bShowAssign;
@@ -13,6 +14,7 @@ public class Parser {
     public Parser(Scanner scanner, SymbolTable symbolTable) {
         this.scanner = scanner;
         this.symbolTable = symbolTable;
+        this.storageManager = new StorageManager();
 
         this.bShowExpr = false;
         this.bShowAssign = false;
@@ -113,12 +115,15 @@ public class Parser {
         symbolTable.putSymbol(varStr, new STIdentifier(
                 varStr,
                 Classif.OPERAND,
-                declareTypeStr,
+                getDataType(declareTypeStr),
                 "primitive",
                 "none",
                 99
         ));
 
+        if (res.dataType != SubClassif.EMPTY) {
+            res = assign(varStr, res);
+        }
 
 
         //System.out.printf("Declared new variable with symbol: %s Type: %s\n", varStr, declareTypeStr);
@@ -143,13 +148,14 @@ public class Parser {
 
         scanner.getNext();
         res = expr();
-        //res = assign(varStr, res02);
+
         if (!scanner.getNext().equals(";")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statment must end in ';':");
         }
 
-        if (bShowAssign)
-            System.out.printf("... Assign result into '%s' is '%s'\n", varStr, res.strValue);
+        res = assign(varStr, res);
+
+
 
 
         return res;
@@ -175,6 +181,24 @@ public class Parser {
                 scanner.getNext();
                 if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
                     // TODO: 3/25/2021 collect value from storage manager and assign to numeric for unary minus
+                    STEntry symbolEntry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+
+                    if (symbolEntry.primClassif == Classif.EMPTY) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol does not exist:");
+                    }
+
+                    if (symbolEntry.primClassif != Classif.OPERAND) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol is not operand type:");
+                    }
+
+
+                    res = this.storageManager.getVariable(symbolEntry.symbol);
+
+                    if (res.dataType != SubClassif.INTEGER && res.dataType != SubClassif.FLOAT) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot perform unary minus on non-numeric operand identifier:");
+                    }
+
+                    nOp1 = new Numeric(scanner, res, "-", "first operand for unary minus");
                 } else if (scanner.currentToken.subClassif == SubClassif.INTEGER) {
                     
                     nOp1 = new Numeric(scanner, new ResultValue(scanner.currentToken.tokenStr, SubClassif.INTEGER), "-", "first operand for unary minus");
@@ -186,9 +210,7 @@ public class Parser {
 
                 
                 // TODO: 3/25/2021 use new utility function for unary operation
-                //res = Utility.unaryMinus(scanner, nOp1);
-
-                res = new ResultValue("1", SubClassif.INTEGER);
+                res = Utility.unaryMinus(scanner, nOp1);
 
                 break;
             case OPERAND:
@@ -196,7 +218,18 @@ public class Parser {
                         case IDENTIFIER:
                             // get value of Identifier and check for more expressions following
                             // TODO: 3/26/2021 fix to pull value from SymbolTable and StorageManager
-                            res = new ResultValue("1", SubClassif.INTEGER);
+                            STEntry symbolEntry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+
+                            if (symbolEntry.primClassif == Classif.EMPTY) {
+                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol does not exist:");
+                            }
+
+                            if (symbolEntry.primClassif != Classif.OPERAND) {
+                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol is not operand type:");
+                            }
+
+
+                            res = this.storageManager.getVariable(symbolEntry.symbol);
                             break;
                         case FLOAT:
                             res = new ResultValue(scanner.currentToken.tokenStr, SubClassif.FLOAT);
@@ -316,6 +349,30 @@ public class Parser {
     }
 
 
+    private ResultValue assign(String varStr, ResultValue res) throws PickleException{
+        if (res.dataType == SubClassif.EMPTY) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign empty value to identifier:");
+        }
+
+        STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);
+
+
+
+        if (symbolEntry.dclType == SubClassif.FLOAT) {
+            res = Utility.castNumericToDouble(scanner, new Numeric(scanner, res, "", "cast to declared type"));
+        } if (symbolEntry.dclType == SubClassif.INTEGER) {
+            res = Utility.castNumericToInt(scanner, new Numeric(scanner, res, "", "cast to declared type"));
+        }
+
+
+        this.storageManager.updateVariable(varStr, res);
+
+        if (bShowAssign)
+            System.out.printf("... Assign result into '%s' is '%s'\n", varStr, res.strValue);
+
+        return res;
+    }
+
 
     private boolean debugStmt() throws PickleException{
         if (scanner.currentToken.tokenStr.equals("debug")) {
@@ -366,9 +423,47 @@ public class Parser {
         return false;
     }
 
-    private ResultValue ifStmt(Boolean bExec) {
+    private ResultValue ifStmt(Boolean bExec) throws PickleException {
+        
+        if (bExec) {
 
-        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+            ResultValue resCond = evalCond();
+            
+            if (resCond.strValue.equals("T")) {
+                ResultValue resTemp = statments(true);
+                
+                if (resTemp.terminatingString.equals("else")) {
+                    if (!scanner.getNext().equals(":")) {
+                        // TODO: 3/26/2021 throw error  
+                    }
+                    
+                    resTemp = statements(false);
+                    
+                }
+                if (!resTemp.terminatingString.equals("endif")) {
+                    // TODO: 3/26/2021 throw error 
+                }
+                if (!scanner.getNext().equals(";")) {
+                    // TODO: 3/26/2021 throw error 
+                }
+
+
+            } else {
+                ResultValue resTemp = statements(false);
+
+                if (resTemp.terminatingString.equals("else")) {
+                    if (!scanner.getNext().equals(":")) {
+                        // TODO: 3/26/2021 throw error
+                    }
+
+                    resTemp = statements(true);
+                }
+
+                if (!resTemp.terminatingString.equals("endif")) {
+                    
+                }
+            }
+        }
 
 
         return res;

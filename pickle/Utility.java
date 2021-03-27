@@ -190,10 +190,10 @@ public class Utility {
         {
             // first value is integer, second is float
             if (nOp1.dataType == SubClassif.INTEGER)
-                res.strValue = Integer.toString((int)(nOp1.intValue - nOp2.doubleValue));
+                res.strValue = Integer.toString((nOp1.intValue - (int)nOp2.doubleValue));
             // first value is float, second is integer
             else
-                res.strValue = Double.toString(nOp1.doubleValue - nOp2.intValue);
+                res.strValue = Double.toString(nOp1.doubleValue - (double)nOp2.intValue);
         }
 
         return res;
@@ -228,10 +228,10 @@ public class Utility {
         {
             // first value is integer, second is float
             if (nOp1.dataType == SubClassif.INTEGER)
-                res.strValue = Integer.toString((int)(nOp1.intValue * nOp2.doubleValue));
+                res.strValue = Integer.toString((nOp1.intValue * (int)nOp2.doubleValue));
             // first value is float, second is integer
             else
-                res.strValue = Double.toString(nOp1.doubleValue * nOp2.intValue);
+                res.strValue = Double.toString(nOp1.doubleValue * (double)nOp2.intValue);
         }
 
         return res;
@@ -273,10 +273,10 @@ public class Utility {
         {
             // first value is integer, second is float
             if (nOp1.dataType == SubClassif.INTEGER)
-                res.strValue = Integer.toString((int)(nOp1.intValue / nOp2.doubleValue));
+                res.strValue = Integer.toString((nOp1.intValue / (int)nOp2.doubleValue));
             // first value is float, second is integer
             else
-                res.strValue = Double.toString(nOp1.doubleValue / nOp2.intValue);
+                res.strValue = Double.toString(nOp1.doubleValue / (double)nOp2.intValue);
         }
 
         return res;
@@ -311,10 +311,10 @@ public class Utility {
         {
             // first value is integer, second is float
             if (nOp1.dataType == SubClassif.INTEGER)
-                res.strValue = Integer.toString((int) Math.pow(nOp1.intValue, nOp2.doubleValue));
+                res.strValue = Integer.toString( (int)Math.pow(nOp1.intValue, (int)nOp2.doubleValue));
             // first value is float, second is integer
             else
-                res.strValue = Double.toString(Math.pow(nOp1.doubleValue, nOp2.intValue));
+                res.strValue = Double.toString(Math.pow(nOp1.doubleValue, (double)nOp2.intValue));
         }
 
         return res;

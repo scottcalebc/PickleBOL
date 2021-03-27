@@ -347,6 +347,7 @@ public class Scanner {
         getToken();                     // Get Next token
 
         if (bShowToken) {
+            System.out.printf("...");
             currentToken.printToken();
         }
 
