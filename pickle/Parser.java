@@ -7,7 +7,7 @@ public class Parser {
 
     protected boolean       bShowExpr;
     protected boolean       bShowAssign;
-    protected boolean       bShowStmt;
+
 
 
     public Parser(Scanner scanner, SymbolTable symbolTable) {
@@ -16,7 +16,6 @@ public class Parser {
 
         this.bShowExpr = false;
         this.bShowAssign = false;
-        this.bShowStmt = false;
     }
 
 
@@ -28,9 +27,7 @@ public class Parser {
         // get Next Statment, meaning get all tokens for a stmt
         scanner.getNext();
 
-        if (bShowStmt) {
-            System.out.printf("%d %s", scanner.iSourceLineNr, scanner.sourceLineM.get(scanner.iSourceLineNr-1));
-        }
+
 
         switch (scanner.currentToken.primClassif) {
             case OPERAND:
@@ -124,7 +121,7 @@ public class Parser {
 
 
 
-        System.out.printf("Declared new variable with symbol: %s Type: %s\n", varStr, declareTypeStr);
+        //System.out.printf("Declared new variable with symbol: %s Type: %s\n", varStr, declareTypeStr);
 
         return res;
     }
@@ -147,7 +144,12 @@ public class Parser {
         scanner.getNext();
         res = expr();
         //res = assign(varStr, res02);
-        System.out.printf("Assigning result into '%s' is '%s'\n", varStr, res.strValue);
+        if (!scanner.getNext().equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statment must end in ';':");
+        }
+
+        if (bShowAssign)
+            System.out.printf("... Assign result into '%s' is '%s'\n", varStr, res.strValue);
 
 
         return res;
@@ -155,7 +157,7 @@ public class Parser {
 
 
     private ResultValue expr() throws PickleException {
-        System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
+        /*System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);*/
 
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
 
@@ -221,6 +223,7 @@ public class Parser {
             }
 
             String operatorStr = scanner.currentToken.tokenStr;
+            Token operatorToken = scanner.currentToken;
             scanner.getNext();
             ResultValue res2 = expr();
 
@@ -228,31 +231,34 @@ public class Parser {
                 throw new PickleException();
             }
 
-            System.out.printf("Result 1: %s\n", res.strValue);
+            /*System.out.printf("Result 1: %s\n", res.strValue);
             System.out.printf("Result 2: %s\n", res2.strValue);
-            System.out.printf("Operator: %s\n", operatorStr);
+            System.out.printf("Operator: %s\n", operatorStr);*/
 
             nOp1 = new Numeric(scanner, res, operatorStr, "first operand");
             nOp2 = new Numeric(scanner, res2, operatorStr, "second operand");
 
             switch (operatorStr) {
                 case "+":
-                    return Utility.add(scanner, nOp1, nOp2);
+                    res = Utility.add(scanner, nOp1, nOp2);
+                    break;
                 case "-":
-                    return Utility.subtract(scanner, nOp1, nOp2);
+                    res = Utility.subtract(scanner, nOp1, nOp2);
+                    break;
                 case "*":
-                    //return Utility.multiply(scanner, nOp1, nOp2);
+                    res = Utility.multiply(scanner, nOp1, nOp2);
                     break;
                 case "/":
-                    //return Utility.divide(scanner, nOp1, nOp2);
+                    res = Utility.divide(scanner, nOp1, nOp2);
                     break;
                 case "^":
-                    //return Utility.power(scanner, nOp1, nOp2);
+                    res = Utility.power(scanner, nOp1, nOp2);
                     break;
+                default:
+                    throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Cannot perform operation with invalid OPERATOR:");
 
             }
 
-            System.out.printf("Last token in feed %s\n", scanner.currentToken.tokenStr);
         }
 
 
@@ -279,7 +285,8 @@ public class Parser {
 
 
     private void print() throws PickleException{
-        System.out.println("Calling BUILTIN print function");
+        StringBuilder sb = new StringBuilder();
+
         if (!scanner.getNext().equals("(")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function does not start with '(' token:");
         }
@@ -292,16 +299,20 @@ public class Parser {
                 continue;
             }
 
-            System.out.println("Calling expr()");
             ResultValue res = expr();
 
-            System.out.printf("%s ", res.strValue);
+            sb.append(res.strValue);
+            sb.append(" ");
+
+
 
         }
-        System.out.println();
+
         if (!scanner.getNext().equals(";")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Did not reach ';' at end of function call:");
         }
+
+        System.out.println(sb.toString());
     }
 
 
@@ -337,7 +348,7 @@ public class Parser {
                     bShowAssign = onOff;
                     break;
                 case "Stmt":
-                    bShowStmt = onOff;
+                    scanner.bShowStmt = onOff;
                     break;
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid debugType:");
