@@ -397,9 +397,9 @@ public class Utility {
         // left operand is STRING
         if (resVal1.dataType == SubClassif.STRING) {
             // If the second operand is not a String, throw exception
-            if (resVal2.dataType != SubClassif.STRING)
+            /*if (resVal2.dataType != SubClassif.STRING)
                 throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
-                                              "Operator '==' cannot be applied String and Numeric");
+                                              "Operator '==' cannot be applied String and Numeric");*/
             // Do a lexicographical comparison
             // Set "T" if both strings are equal, else "F"
             res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) == 0) ? "T" : "F";
@@ -470,9 +470,9 @@ public class Utility {
         // left operand is STRING
         if (resVal1.dataType == SubClassif.STRING) {
             // If the second operand is not a String, throw exception
-            if (resVal2.dataType != SubClassif.STRING)
+            /*if (resVal2.dataType != SubClassif.STRING)
                 throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
-                                              "Operator '!=' cannot be applied String and Numeric");
+                                              "Operator '!=' cannot be applied String and Numeric");*/
             // Set "T" if both strings are equal, else "F"
             res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) != 0) ? "T" : "F";
         }
@@ -543,9 +543,9 @@ public class Utility {
         // left operand is STRING
         if (resVal1.dataType == SubClassif.STRING) {
             // If the second operand is not a String, throw exception
-            if (resVal2.dataType != SubClassif.STRING)
+            /*if (resVal2.dataType != SubClassif.STRING)
                 throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
-                                              "Operator '<' cannot be applied String and Numeric");
+                                              "Operator '<' cannot be applied String and Numeric");*/
             // Set "T" if resVal1 is lexicographically less than resVal2, else "F"
             res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) < 0) ? "T" : "F";
         }
@@ -616,9 +616,9 @@ public class Utility {
         // left operand is STRING
         if (resVal1.dataType == SubClassif.STRING) {
             // If the second operand is not a String, throw exception
-            if (resVal2.dataType != SubClassif.STRING)
+            /*if (resVal2.dataType != SubClassif.STRING)
                 throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
-                                              "Operator '>' cannot be applied String and Numeric");
+                                              "Operator '>' cannot be applied String and Numeric");*/
             // Set "T" if resVal1 is lexicographically greater than resVal2, else "F"
             res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) > 0) ? "T" : "F";
         }
@@ -688,9 +688,9 @@ public class Utility {
         // left operand is STRING
         if (resVal1.dataType == SubClassif.STRING) {
             // If the second operand is not a String, throw exception
-            if (resVal2.dataType != SubClassif.STRING)
+            /*if (resVal2.dataType != SubClassif.STRING)
                 throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
-                                              "Operator '<=' cannot be applied String and Numeric");
+                                              "Operator '<=' cannot be applied String and Numeric");*/
             // Set "T" if resVal1 is lexicographically less than or equals to resVal2, else "F"
             res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) <= 0) ? "T" : "F";
         }
@@ -761,9 +761,9 @@ public class Utility {
         if (resVal1.dataType == SubClassif.STRING)
         {
             // If the second operand is not a String, throw exception
-            if (resVal2.dataType != SubClassif.STRING)
+            /*if (resVal2.dataType != SubClassif.STRING)
                 throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
-                                              "Operator '>=' cannot be applied String and Numeric");
+                                              "Operator '>=' cannot be applied String and Numeric");*/
             // Set "T" if resVal1 is lexicographically greater than or equal to resVal2, else "F"
             res.strValue = (resVal1.strValue.compareTo(resVal2.strValue) >= 0) ? "T" : "F";
         }
