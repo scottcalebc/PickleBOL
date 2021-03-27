@@ -75,11 +75,11 @@ public class SymbolTable {
 		this.globalST.put("notin", new STEntry("notin", Classif.OPERATOR));
 
 		this.globalST.put("print", new STFunction("print", Classif.FUNCTION, SubClassif.VOID, SubClassif.BUILTIN, VAR_ARGS));
-		this.globalST.put("LENGTH", new STFunction("LENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1)); 			//TODO: acutal number?
-		this.globalST.put("MAXLENGTH", new STFunction("MAXLENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1));	//TODO: acutal number?
+		this.globalST.put("LENGTH", new STFunction("LENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0)); 			//TODO: acutal number?
+		this.globalST.put("MAXLENGTH", new STFunction("MAXLENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0));	//TODO: acutal number?
 		this.globalST.put("SPACES", new STFunction("SPACES", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0));			//TODO: acutal number?
-		this.globalST.put("ELEM", new STFunction("ELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1));				//TODO: acutal number?
-		this.globalST.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1));		//TODO: acutal number?
+		this.globalST.put("ELEM", new STFunction("ELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0));				//TODO: acutal number?
+		this.globalST.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0));		//TODO: acutal number?
 	}
 
 }
