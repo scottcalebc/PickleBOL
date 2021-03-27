@@ -1,5 +1,7 @@
 package pickle;
 
+import java.text.DecimalFormat;
+
 /**
  * This class handles Numeric conversions from Strings
  */
@@ -41,12 +43,9 @@ public class Numeric {
      */
     @Override
     public String toString() {
-        return "Numeric{" +
-                "dataType=" + dataType +
-                ", strValue='" + strValue + '\'' +
-                ", doubleValue=" + doubleValue +
-                ", intValue=" + intValue +
-                '}';
+        DecimalFormat df = new DecimalFormat("#.00");
+        return (this.dataType == SubClassif.INTEGER) ?
+                Integer.toString(this.intValue) : df.format(this.doubleValue);
     }
 
     /**
@@ -67,13 +66,13 @@ public class Numeric {
     private void parseString(Scanner scanner, String str) throws NumericConstantException
     {
         // string is one or more digits
-        if (str.matches("\\d+"))
+        if (str.matches("-?\\d+"))
         {
             dataType = SubClassif.INTEGER;
             storeValue(scanner, str, dataType);
         }
         // string is one or more digits, a '.', and one or more digits
-        else if (str.matches("\\d+\\.?\\d+"))
+        else if (str.matches("-?\\d+\\.?\\d+"))
         {
             dataType = SubClassif.FLOAT;
             storeValue(scanner, str, dataType);
