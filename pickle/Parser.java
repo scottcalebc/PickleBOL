@@ -28,9 +28,7 @@ public class Parser {
     public void getNext() throws PickleException {
         // get Next Statment, meaning get all tokens for a stmt
         scanner.getNext();
-
-
-
+        
         switch (scanner.currentToken.primClassif) {
             case OPERAND:
                 if (debugStmt()) {
@@ -390,7 +388,7 @@ public class Parser {
                     onOff = false;
                     break;
                 default:
-                    throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "value following debug type must be 'on' or 'off': ");
+                    throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Value following debug type must be 'on' or 'off': ");
             }
 
 
@@ -414,13 +412,75 @@ public class Parser {
             scanner.getNext();
 
             if (!scanner.getNext().equals(";")) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statment must end in ';':");
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';':");
             }
 
             return true;
         }
 
         return false;
+    }
+
+    private ResultValue statements(boolean bExec) throws PickleException {
+        ResultValue res = null;
+        //exec statements
+        if (bExec) {
+            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
+                getNext();
+            }
+        }
+        else { // dont lmao
+            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
+                scanner.getNext();
+            }
+        }
+        
+        res.terminatingString = scanner.getNext();
+        return res;
+    }
+
+    private void skipto(String token) throws PickleException {
+        while (!scanner.getNext().equals(token));
+    }
+
+    private ResultValue whileStmt(Boolean bExec) throws PickleException {
+
+        //set while position
+        Token entryPosition = scanner.currentToken;
+        ResultValue result;
+
+        //execute while statement
+        if (bExec) {
+            //while contition is true execute stmts
+             while (evalCond().strValue.equals("T")) {
+                 result = statments(true);
+                 if(!result.terminatingString.equals("endwhile")) {
+                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
+                 }
+                 //set position back to while
+                 scanner.setPosition(entryPosition.iSourceLineNr, entryPosition.iColPos);
+             }
+             //after while loop's condition is false, get back to the endwhile token
+             skipto(":");
+             result = statments(false);
+             if(!result.terminatingString.equals("endwhile")) {
+                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
+             }
+             if (!scanner.getNext().equals(";")) {
+                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';':");
+             }
+        }
+        else { //dont execute while
+            skipto(":");
+            result = statments(false);
+            if(!result.terminatingString.equals("endwhile")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
+            }
+            if (!scanner.getNext().equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';':");
+            }
+        }
+        return result;
     }
 
     private ResultValue ifStmt(Boolean bExec) throws PickleException {
