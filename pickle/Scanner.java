@@ -17,6 +17,7 @@ public class Scanner {
     protected int               iSourceLineNr;                              // Source line number
     protected int               iColPos;                                    // Source column position
     protected boolean           bShowToken;
+    protected boolean       bShowStmt;
 
     public  Token               currentToken;                               // Current evaluated Token
     public  Token               nextToken;                                  // Next evaluated Token
@@ -44,6 +45,7 @@ public class Scanner {
         this.sourceLineM = new ArrayList<String>();
         this.textCharM = new char[0];
         this.bShowToken = false;
+        this.bShowStmt = false;
 
         // Attempt to read the all lines into sourceLineM
         try {
@@ -124,8 +126,8 @@ public class Scanner {
             textCharM = currLine.toCharArray();                         //Convert current line to char[]
             iColPos = 0;
 
-
-            //System.out.printf("\t%d %s\n", iSourceLineNr, currLine);    //Print Debug info of current line
+            if (bShowStmt)
+                System.out.printf("%d %s\n", iSourceLineNr, currLine);    //Print Debug info of current line
         }
 
     }

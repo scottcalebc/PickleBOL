@@ -248,7 +248,7 @@ public class Utility {
      * @param nOp2      Numeric Operand 2
      * @return ResultValue
      */
-    public static ResultValue divide(Scanner scanner, Numeric nOp1, Numeric nOp2) throws Exception
+    public static ResultValue divide(Scanner scanner, Numeric nOp1, Numeric nOp2) throws PickleException
     {
         // check for divide by zero
         if ((nOp2.dataType == SubClassif.INTEGER && nOp2.intValue == 0) ||
