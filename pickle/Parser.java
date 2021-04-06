@@ -251,7 +251,7 @@ public class Parser {
                 }
 
 
-                res = Utility.unaryMinus(scanner, nOp1);
+                res = Utility.unaryMinus(this, nOp1);
 
                 break;
             case OPERAND:
@@ -325,19 +325,19 @@ public class Parser {
             // perform specific numeric operation
             switch (operatorStr) {
                 case "+":
-                    res = Utility.add(scanner, nOp1, nOp2);
+                    res = Utility.add(this, nOp1, nOp2);
                     break;
                 case "-":
-                    res = Utility.subtract(scanner, nOp1, nOp2);
+                    res = Utility.subtract(this, nOp1, nOp2);
                     break;
                 case "*":
-                    res = Utility.multiply(scanner, nOp1, nOp2);
+                    res = Utility.multiply(this, nOp1, nOp2);
                     break;
                 case "/":
-                    res = Utility.divide(scanner, nOp1, nOp2);
+                    res = Utility.divide(this, nOp1, nOp2);
                     break;
                 case "^":
-                    res = Utility.power(scanner, nOp1, nOp2);
+                    res = Utility.power(this, nOp1, nOp2);
                     break;
                 default:
                     throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Cannot perform operation with invalid OPERATOR:");
@@ -444,9 +444,9 @@ public class Parser {
 
         // conversion from specified types to declared type
         if (symbolEntry.dclType == SubClassif.FLOAT) {
-            res = Utility.castNumericToDouble(scanner, new Numeric(scanner, res, "", "cast to declared type"));
+            res = Utility.castNumericToDouble(this, new Numeric(scanner, res, "", "cast to declared type"));
         } if (symbolEntry.dclType == SubClassif.INTEGER) {
-            res = Utility.castNumericToInt(scanner, new Numeric(scanner, res, "", "cast to declared type"));
+            res = Utility.castNumericToInt(this, new Numeric(scanner, res, "", "cast to declared type"));
         }
 
         // store value
@@ -739,36 +739,36 @@ public class Parser {
         // Switch to perform specific Utility boolean check
         switch (operatorStr) {
             case ">":
-                tempResult = Utility.greaterThan(scanner, res01, res02);
+                tempResult = Utility.greaterThan(this, res01, res02);
                 break;
             case "<":
-                tempResult = Utility.lessThan(scanner, res01, res02);
+                tempResult = Utility.lessThan(this, res01, res02);
                 break;
             case ">=":
-                tempResult = Utility.greaterThanOrEqualTo(scanner, res01, res02);
+                tempResult = Utility.greaterThanOrEqualTo(this, res01, res02);
                 break;
             case "<=":
-                tempResult = Utility.lessThanOrEqualTo(scanner, res01, res02);
+                tempResult = Utility.lessThanOrEqualTo(this, res01, res02);
                 break;
             case "==":
-                tempResult = Utility.equal(scanner, res01, res02);
+                tempResult = Utility.equal(this, res01, res02);
                 break;
             case "!=":
-                tempResult = Utility.notEqual(scanner, res01, res02);
+                tempResult = Utility.notEqual(this, res01, res02);
                 break;
             case "and":
                 bOp1 = new Bool(scanner, res01);
                 bOp2 = new Bool(scanner, res02);
-                tempResult = Utility.boolAnd(scanner, bOp1, bOp2);
+                tempResult = Utility.boolAnd(this, bOp1, bOp2);
                 break;
             case "or":
                 bOp1 = new Bool(scanner, res01);
                 bOp2 = new Bool(scanner, res02);
-                tempResult = Utility.boolOr(scanner, bOp1, bOp2);
+                tempResult = Utility.boolOr(this, bOp1, bOp2);
                 break;
             case "not":
                 bOp2 = new Bool(scanner, res02);
-                tempResult = Utility.boolNot(scanner, bOp2);
+                tempResult = Utility.boolNot(this, bOp2);
                 break;
             default:
                 throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Invalid comparator token");
