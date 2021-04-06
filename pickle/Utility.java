@@ -57,6 +57,18 @@ public class Utility {
                 && scanner.textCharM[scanner.iColPos] == '/';
     }
 
+    /**
+     * Helper function to skip to end of if control block
+     * <p>
+     *
+     * </p>
+     * @param token
+     * @throws PickleException
+     */
+    public static void skipTo(Scanner scanner, String token) throws PickleException {
+        while (!scanner.getNext().equals(token));
+    }
+
     // ==================== TYPE COERCIONS =====================
     // =============================================================
     /**

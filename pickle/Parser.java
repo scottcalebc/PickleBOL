@@ -557,18 +557,6 @@ public class Parser {
     }
 
     /**
-     * Helper function to skip to end of if control block
-     * <p>
-     *
-     * </p>
-     * @param token
-     * @throws PickleException
-     */
-    private void skipTo(String token) throws PickleException {
-        while (!scanner.getNext().equals(token));
-    }
-
-    /**
      * Parses and executes while statement based on execute flag
      * <p></p>
      *
@@ -604,7 +592,7 @@ public class Parser {
              }
         }
         else { //dont execute while
-            skipTo(":");
+            Utility.skipTo(scanner, ":");
             result = statements(false);
             if(!result.terminatingString.equals("endwhile")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
@@ -681,7 +669,7 @@ public class Parser {
         } else {
             // do not execute any statements for if or else block
 
-            skipTo(":");
+            Utility.skipTo(scanner, ":");
 
             resTemp = statements(false);
 
