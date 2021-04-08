@@ -1,5 +1,7 @@
 package pickle;
 
+import java.util.ArrayList;
+
 public class Parser {
 
     protected Scanner        scanner;               // scanner pointer
@@ -206,9 +208,23 @@ public class Parser {
      * @throws PickleException
      */
     private ResultValue expr() throws PickleException {
-        /*System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);*/
+        System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
+
+        Token savedPos = scanner.currentToken;
+
+        ArrayList<Token> out = Expr.postFixExpr(this);
+
+        for(Token token : out) {
+            System.out.printf("%s ", token.tokenStr);
+        }
+
+        System.out.println();
+
+        scanner.setPosition(savedPos.iSourceLineNr, savedPos.iColPos-1);
 
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
+
+
 
         Numeric nOp1 = null;
         Numeric nOp2 = null;
