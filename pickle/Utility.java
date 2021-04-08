@@ -57,17 +57,29 @@ public class Utility {
                 && scanner.textCharM[scanner.iColPos] == '/';
     }
 
+    /**
+     * Helper function to skip to end of if control block
+     * <p>
+     *
+     * </p>
+     * @param token
+     * @throws PickleException
+     */
+    public static void skipTo(Scanner scanner, String token) throws PickleException {
+        while (!scanner.getNext().equals(token));
+    }
+
     // ==================== TYPE COERCIONS =====================
     // =============================================================
     /**
      * Casts a Numeric Value to an Integer and returns a Result Value
      * containing the correct type and string value.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param nOp1      Numeric Operand 1
      * @return ResultValue
      */
-    public static ResultValue castNumericToInt(Scanner scanner, Numeric nOp1)
+    public static ResultValue castNumericToInt(Parser parser, Numeric nOp1)
     {
         // result will be of type INTEGER
         ResultValue res =  new ResultValue("", SubClassif.INTEGER);
@@ -82,11 +94,11 @@ public class Utility {
      * Casts a Numeric Value to a Double and returns a Result Value
      * containing the correct type and string value.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param nOp1      Numeric Operand 1
      * @return ResultValue
      */
-    public static ResultValue castNumericToDouble(Scanner scanner, Numeric nOp1)
+    public static ResultValue castNumericToDouble(Parser parser, Numeric nOp1)
     {
         // result will be of type FLOAT
         ResultValue res =  new ResultValue("", SubClassif.FLOAT);
@@ -105,11 +117,11 @@ public class Utility {
      *      The ResultValue will have the data type of the
      *      first operand.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param nOp1      Numeric Operand 1
      * @return ResultValue
      */
-    public static ResultValue unaryMinus(Scanner scanner, Numeric nOp1)
+    public static ResultValue unaryMinus(Parser parser, Numeric nOp1)
     {
         // result has data type of first operand
         ResultValue res =  new ResultValue("", nOp1.dataType);
@@ -129,12 +141,12 @@ public class Utility {
      *     The ResultValue will have the data type of the
      *     first operand.
      *
-     * @param scanner   Scanner Object
+     * @param parser    Parser Object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
      * @return ResultValue
      */
-    public static ResultValue add(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue add(Parser parser, Numeric nOp1, Numeric nOp2)
     {
         // result has data type of first operand
         ResultValue res =  new ResultValue("", nOp1.dataType);
@@ -167,12 +179,12 @@ public class Utility {
      *      The ResultValue will have the data type of the
      *      first operand.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
      * @return ResultValue
      */
-    public static ResultValue subtract(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue subtract(Parser parser, Numeric nOp1, Numeric nOp2)
     {
         // result has data type of first operand
         ResultValue res =  new ResultValue("", nOp1.dataType);
@@ -205,12 +217,12 @@ public class Utility {
      *      The ResultValue will have the data type of the
      *      first operand.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
      * @return ResultValue
      */
-    public static ResultValue multiply(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue multiply(Parser parser, Numeric nOp1, Numeric nOp2)
     {
         // result has data type of first operand
         ResultValue res =  new ResultValue("", nOp1.dataType);
@@ -243,18 +255,18 @@ public class Utility {
      *      The ResultValue will have the data type of the
      *      first operand.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
      * @return ResultValue
      */
-    public static ResultValue divide(Scanner scanner, Numeric nOp1, Numeric nOp2) throws PickleException
+    public static ResultValue divide(Parser parser, Numeric nOp1, Numeric nOp2) throws PickleException
     {
         // check for divide by zero
         if ((nOp2.dataType == SubClassif.INTEGER && nOp2.intValue == 0) ||
             (nOp2.dataType == SubClassif.FLOAT && nOp2.doubleValue == 0))
             // cannot divide by zero
-            throw new NumericConstantException(scanner.currentToken, scanner.sourceFileNm,
+            throw new NumericConstantException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                     "Cannot Divide by Zero");
 
         // result has data type of first operand
@@ -288,12 +300,12 @@ public class Utility {
      *      The ResultValue will have the data type of the
      *      first operand.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param nOp1      Numeric Operand 1
      * @param nOp2      Numeric Operand 2
      * @return ResultValue
      */
-    public static ResultValue power(Scanner scanner, Numeric nOp1, Numeric nOp2)
+    public static ResultValue power(Parser parser, Numeric nOp1, Numeric nOp2)
     {
         // result has data type of first operand
         ResultValue res =  new ResultValue("", nOp1.dataType);
@@ -326,12 +338,12 @@ public class Utility {
      * Boolean AND test on two Bool Operands.
      * Returns a ResultValue containing the result of the test.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param bOp1      Bool Operand 1
      * @param bOp2      Bool Operand 2
      * @return ResultValue
      */
-    public static ResultValue boolAnd(Scanner scanner, Bool bOp1, Bool bOp2)
+    public static ResultValue boolAnd(Parser parser, Bool bOp1, Bool bOp2)
     {
         ResultValue res =  new ResultValue("", bOp1.dataType);
         res.strValue = (bOp1.bValue && bOp2.bValue) ? "T" : "F";
@@ -342,12 +354,12 @@ public class Utility {
      * Boolean OR test on two Bool Operands.
      * Returns a ResultValue containing the result of the test.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param bOp1      Bool Operand 1
      * @param bOp2      Bool Operand 2
      * @return ResultValue
      */
-    public static ResultValue boolOr(Scanner scanner, Bool bOp1, Bool bOp2)
+    public static ResultValue boolOr(Parser parser, Bool bOp1, Bool bOp2)
     {
         ResultValue res =  new ResultValue("", bOp1.dataType);
         res.strValue = (bOp1.bValue || bOp2.bValue) ? "T" : "F";
@@ -358,11 +370,11 @@ public class Utility {
      * Boolean NOT test on two Bool Operands.
      * Returns a ResultValue containing the result of the test.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param bOp1      Bool Operand 1
      * @return ResultValue
      */
-    public static ResultValue boolNot(Scanner scanner, Bool bOp1)
+    public static ResultValue boolNot(Parser parser, Bool bOp1)
     {
         ResultValue res =  new ResultValue("", bOp1.dataType);
         res.strValue = (!bOp1.bValue) ? "T" : "F";
@@ -384,12 +396,12 @@ public class Utility {
      *      a numeric comparison will be assumed. If the second operand
      *      has a different type than the first, and exception will be thrown.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue equal(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
+    public static ResultValue equal(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -409,13 +421,13 @@ public class Utility {
         {
             // If the second operand is not a Numeric, throw exception
             if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
-                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                                               "Operator '==' cannot be applied Numeric and String");
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(scanner, resVal1, "==", "test equal");
-            Numeric nOp2 = new Numeric(scanner, resVal2, "==", "test equal");
+            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "==", "test equal");
+            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "==", "test equal");
 
             // Compare the values
             boolean bResult;
@@ -457,12 +469,12 @@ public class Utility {
      *      a numeric comparison will be assumed. If the second operand
      *      has a different type than the first, and exception will be thrown.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue notEqual(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
+    public static ResultValue notEqual(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -481,13 +493,13 @@ public class Utility {
         {
             // If the second operand is not a Numeric, throw exception
             if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
-                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                                               "Operator '!=' cannot be applied Numeric and String");
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(scanner, resVal1, "!=", "test not equal");
-            Numeric nOp2 = new Numeric(scanner, resVal2, "!=", "test not equal");
+            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "!=", "test not equal");
+            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "!=", "test not equal");
 
 
             // Compare the values
@@ -530,12 +542,12 @@ public class Utility {
      *      a numeric comparison will be assumed. If the second operand
      *      has a different type than the first, and exception will be thrown.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue lessThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
+    public static ResultValue lessThan(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -554,13 +566,13 @@ public class Utility {
         {
             // If the second operand is not a Numeric, throw exception
             if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
-                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                                               "Operator '<' cannot be applied Numeric and String");
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(scanner, resVal1, "<", "test less than");
-            Numeric nOp2 = new Numeric(scanner, resVal2, "<", "test less than");
+            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "<", "test less than");
+            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "<", "test less than");
 
             // Compare the values
             boolean bResult;
@@ -602,13 +614,13 @@ public class Utility {
      *      a numeric comparison will be assumed. If the second operand
      *      has a different type than the first, and exception will be thrown.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
 
-    public static ResultValue greaterThan(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
+    public static ResultValue greaterThan(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -627,13 +639,13 @@ public class Utility {
         {
             // If the second operand is not a Numeric, throw exception
             if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
-                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                                               "Operator '>' cannot be applied Numeric and String");
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(scanner, resVal1, ">", "test greater than");
-            Numeric nOp2 = new Numeric(scanner, resVal2, ">", "test greater than");
+            Numeric nOp1 = new Numeric(parser.scanner, resVal1, ">", "test greater than");
+            Numeric nOp2 = new Numeric(parser.scanner, resVal2, ">", "test greater than");
 
             // Compare the values
             boolean bResult;
@@ -675,12 +687,12 @@ public class Utility {
      *      a numeric comparison will be assumed. If the second operand
      *      has a different type than the first, and exception will be thrown.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue lessThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
+    public static ResultValue lessThanOrEqualTo(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -699,13 +711,13 @@ public class Utility {
         {
             // If the second operand is not a Numeric, throw exception
             if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
-                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                                               "Operator '<=' cannot be applied Numeric and String");
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(scanner, resVal1, "<=", "test less than or equal");
-            Numeric nOp2 = new Numeric(scanner, resVal2, "<=", "test less than or equal");
+            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "<=", "test less than or equal");
+            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "<=", "test less than or equal");
 
             // Compare the values
             boolean bResult;
@@ -747,12 +759,12 @@ public class Utility {
      *      a numeric comparison will be assumed. If the second operand
      *      has a different type than the first, and exception will be thrown.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param resVal1   ResultValue Operand 1
      * @param resVal2   ResultValue Operand 2
      * @return ResultValue
      */
-    public static ResultValue greaterThanOrEqualTo(Scanner scanner, ResultValue resVal1, ResultValue resVal2) throws PickleException {
+    public static ResultValue greaterThanOrEqualTo(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
@@ -772,13 +784,13 @@ public class Utility {
         {
             // If the second operand is not a Numeric, throw exception
             if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
-                throw new OperationException(scanner.currentToken, scanner.sourceFileNm,
+                throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                                               "Operator '>=' cannot be applied Numeric and String");
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(scanner, resVal1, ">=", "test greater than or equal");
-            Numeric nOp2 = new Numeric(scanner, resVal2, ">=", "test greater than or equal");
+            Numeric nOp1 = new Numeric(parser.scanner, resVal1, ">=", "test greater than or equal");
+            Numeric nOp2 = new Numeric(parser.scanner, resVal2, ">=", "test greater than or equal");
 
             // Compare the values
             boolean bResult;
