@@ -240,12 +240,12 @@ public class Parser {
                         throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot perform unary minus on non-numeric operand identifier:");
                     }
 
-                    nOp1 = new Numeric(scanner, res, "-", "first operand for unary minus");
+                    nOp1 = new Numeric(this, res, "-", "first operand for unary minus");
                 } else if (scanner.currentToken.subClassif == SubClassif.INTEGER) {
                     
-                    nOp1 = new Numeric(scanner, new ResultValue(scanner.currentToken.tokenStr, SubClassif.INTEGER), "-", "first operand for unary minus");
+                    nOp1 = new Numeric(this, new ResultValue(scanner.currentToken.tokenStr, SubClassif.INTEGER), "-", "first operand for unary minus");
                 } else if (scanner.currentToken.subClassif == SubClassif.FLOAT) {
-                    nOp1 = new Numeric(scanner, new ResultValue(scanner.currentToken.tokenStr, SubClassif.FLOAT), "-", "first operand for unary minus");
+                    nOp1 = new Numeric(this, new ResultValue(scanner.currentToken.tokenStr, SubClassif.FLOAT), "-", "first operand for unary minus");
                 } else {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot convert non-numeric data to numeric:");
                 }
@@ -319,8 +319,8 @@ public class Parser {
             }
 
 
-            nOp1 = new Numeric(scanner, res, operatorStr, "first operand");
-            nOp2 = new Numeric(scanner, res2, operatorStr, "second operand");
+            nOp1 = new Numeric(this, res, operatorStr, "first operand");
+            nOp2 = new Numeric(this, res2, operatorStr, "second operand");
 
             // perform specific numeric operation
             switch (operatorStr) {
@@ -444,9 +444,9 @@ public class Parser {
 
         // conversion from specified types to declared type
         if (symbolEntry.dclType == SubClassif.FLOAT) {
-            res = Utility.castNumericToDouble(this, new Numeric(scanner, res, "", "cast to declared type"));
+            res = Utility.castNumericToDouble(this, new Numeric(this, res, "", "cast to declared type"));
         } if (symbolEntry.dclType == SubClassif.INTEGER) {
-            res = Utility.castNumericToInt(this, new Numeric(scanner, res, "", "cast to declared type"));
+            res = Utility.castNumericToInt(this, new Numeric(this, res, "", "cast to declared type"));
         }
 
         // store value

@@ -426,8 +426,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "==", "test equal");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "==", "test equal");
+            Numeric nOp1 = new Numeric(parser, resVal1, "==", "test equal");
+            Numeric nOp2 = new Numeric(parser, resVal2, "==", "test equal");
 
             // Compare the values
             boolean bResult;
@@ -498,8 +498,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "!=", "test not equal");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "!=", "test not equal");
+            Numeric nOp1 = new Numeric(parser, resVal1, "!=", "test not equal");
+            Numeric nOp2 = new Numeric(parser, resVal2, "!=", "test not equal");
 
 
             // Compare the values
@@ -571,8 +571,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "<", "test less than");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "<", "test less than");
+            Numeric nOp1 = new Numeric(parser, resVal1, "<", "test less than");
+            Numeric nOp2 = new Numeric(parser, resVal2, "<", "test less than");
 
             // Compare the values
             boolean bResult;
@@ -644,8 +644,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, ">", "test greater than");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, ">", "test greater than");
+            Numeric nOp1 = new Numeric(parser, resVal1, ">", "test greater than");
+            Numeric nOp2 = new Numeric(parser, resVal2, ">", "test greater than");
 
             // Compare the values
             boolean bResult;
@@ -716,8 +716,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "<=", "test less than or equal");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "<=", "test less than or equal");
+            Numeric nOp1 = new Numeric(parser, resVal1, "<=", "test less than or equal");
+            Numeric nOp2 = new Numeric(parser, resVal2, "<=", "test less than or equal");
 
             // Compare the values
             boolean bResult;
@@ -789,8 +789,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, ">=", "test greater than or equal");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, ">=", "test greater than or equal");
+            Numeric nOp1 = new Numeric(parser, resVal1, ">=", "test greater than or equal");
+            Numeric nOp2 = new Numeric(parser, resVal2, ">=", "test greater than or equal");
 
             // Compare the values
             boolean bResult;
