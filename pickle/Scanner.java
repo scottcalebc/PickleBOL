@@ -390,6 +390,8 @@ public class Scanner {
             nextToken.primClassif = Classif.OPERATOR;
 
             //todo: classify operator
+            classifyOperator(tokenStr);
+            System.out.printf("Operator: %s Precedence: %d Stack Precedence: %d\n", tokenStr, nextToken.precedence, nextToken.stkPrecedence);
         }
 
         // use symbol table to label primary and sub classification of builtin, operators, and control
@@ -469,6 +471,68 @@ public class Scanner {
 
         // return current token string after any modifications to attach to token
         return tokenStr;
+    }
+
+    public void classifyOperator(String tokenStr) {
+        switch (tokenStr) {
+
+            case "(":
+                nextToken.precedence = 15;
+                nextToken.stkPrecedence = 2;
+                break;
+            case "-":
+                if (currentToken.primClassif != Classif.OPERAND) {
+                    nextToken.precedence = 12;
+                    nextToken.stkPrecedence = 12;
+                } else {
+                    nextToken.precedence = 8;
+                    nextToken.stkPrecedence = 8;
+                }
+                break;
+            case "^":
+                nextToken.precedence = 11;
+                nextToken.stkPrecedence = 10;
+                break;
+            case "*":
+            case "/":
+                nextToken.precedence = 9;
+                nextToken.stkPrecedence = 9;
+                break;
+            case "+":
+                nextToken.precedence = 8;
+                nextToken.stkPrecedence = 8;
+                break;
+            case "#":
+                nextToken.precedence = 7;
+                nextToken.stkPrecedence = 7;
+                break;
+            case "<":
+            case ">":
+            case "<=":
+            case ">=":
+            case "==":
+            case "!=":
+            case "in":
+            case "notin":
+                nextToken.precedence = 6;
+                nextToken.stkPrecedence = 6;
+                break;
+            case "not":
+                nextToken.precedence = 5;
+                nextToken.stkPrecedence = 5;
+                break;
+            case "and":
+            case "or":
+                nextToken.precedence = 4;
+                nextToken.stkPrecedence = 4;
+                break;
+            default:
+                nextToken.precedence = 0;
+                nextToken.stkPrecedence = 0;
+        }
+
+
+
     }
 
 
