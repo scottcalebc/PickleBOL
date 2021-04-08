@@ -745,17 +745,17 @@ public class Parser {
                 tempResult = Utility.notEqual(this, res01, res02);
                 break;
             case "and":
-                bOp1 = new Bool(scanner, res01);
-                bOp2 = new Bool(scanner, res02);
+                bOp1 = new Bool(this, res01);
+                bOp2 = new Bool(this, res02);
                 tempResult = Utility.boolAnd(this, bOp1, bOp2);
                 break;
             case "or":
-                bOp1 = new Bool(scanner, res01);
-                bOp2 = new Bool(scanner, res02);
+                bOp1 = new Bool(this, res01);
+                bOp2 = new Bool(this, res02);
                 tempResult = Utility.boolOr(this, bOp1, bOp2);
                 break;
             case "not":
-                bOp2 = new Bool(scanner, res02);
+                bOp2 = new Bool(this, res02);
                 tempResult = Utility.boolNot(this, bOp2);
                 break;
             default:
