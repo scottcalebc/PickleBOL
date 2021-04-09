@@ -126,6 +126,7 @@ public class Parser {
 
         // if assignment occuring grab expression into result value
         if (scanner.getNext().equals("=")) {
+            scanner.getNext();
             res = expr();
         }
 
@@ -186,8 +187,8 @@ public class Parser {
         res = expr();           //get expression value
 
         // ensure assignment ends in ';'
-        if (!scanner.getNext().equals(";")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statment must end in ';':");
+        if (!scanner.currentToken.tokenStr.equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
         }
 
         res = assign(varStr, res);  //save value to symbol
@@ -208,19 +209,24 @@ public class Parser {
      * @throws PickleException
      */
     private ResultValue expr() throws PickleException {
-        System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
+        //System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
 
-        Token savedPos = scanner.currentToken;
 
         ArrayList<Token> out = Expr.postFixExpr(this);
 
+        ResultValue ans = Expr.evaluatePostFix(this, out);
+
+        /*System.out.printf("Postfix: ");
         for(Token token : out) {
             System.out.printf("%s ", token.tokenStr);
         }
 
         System.out.println();
 
-        scanner.setPosition(savedPos.iSourceLineNr, savedPos.iColPos-1);
+        System.out.printf("Evalueted to answer: %s\n", ans.strValue);*/
+
+        return ans;
+/*
 
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
 
@@ -368,6 +374,7 @@ public class Parser {
 
         // does not check for end of statement as this is only evaluating expressions
         return res;
+*/
 
     }
 
@@ -412,7 +419,7 @@ public class Parser {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function does not start with '(' token:");
         }
 
-        while(!scanner.getNext().equals(")")) {
+        while(!scanner.currentToken.tokenStr.equals(";")) {
             // if reached ';' before end of parameters
             if (scanner.currentToken.tokenStr.equals(";")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Reached ';' before closing function ')':");
@@ -420,10 +427,13 @@ public class Parser {
 
             // if reached seperator skip token
             if (scanner.currentToken.tokenStr.equals(",")) {
+                scanner.getNext();
                 continue;
             }
 
             ResultValue res = expr();
+
+
 
             sb.append(res.strValue);
             sb.append(" ");
@@ -431,7 +441,7 @@ public class Parser {
         }
 
         // ensure print function ends in ';'
-        if (!scanner.getNext().equals(";")) {
+        if (!scanner.currentToken.tokenStr.equals(";")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Did not reach ';' at end of function call:");
         }
 
@@ -715,28 +725,18 @@ public class Parser {
 
 
     private ResultValue evalCond() throws PickleException {
+
+
+        ResultValue res = null;
         scanner.getNext();
 
-        ResultValue res01 = null;
-        ResultValue res02 = null;
+        res = expr();
 
-        // if started with an operator this is the boolean "not" so don't collect first ResultValue
-        if (scanner.currentToken.primClassif != Classif.OPERATOR) {
-            res01 = expr();
-        }
-
-        String operatorStr = scanner.currentToken.tokenStr;
-        Token operatorToken = scanner.currentToken;
-
-        scanner.getNext();
-
-        res02 = expr();
-
-        if (!scanner.getNext().equals(":")) {
+        if (!scanner.currentToken.tokenStr.equals(":")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Conditions must be followed by ':' token :");
         }
 
-        ResultValue tempResult;
+        /*ResultValue tempResult;
         Bool bOp1;
         Bool bOp2;
 
@@ -776,13 +776,13 @@ public class Parser {
                 break;
             default:
                 throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Invalid comparator token");
-        }
+        }*/
 
-        if (bShowExpr)
-            System.out.printf("...%s %s %s is %s\n", res01.strValue, operatorStr, res02.strValue, tempResult.strValue);
+        /*if (bShowExpr)
+            System.out.printf("...%s %s %s is %s\n", res.strValue, operatorStr, res02.strValue, res.strValue);*/
 
 
-        return tempResult;
+        return res;
     }
 
 
