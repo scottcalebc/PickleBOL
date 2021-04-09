@@ -391,7 +391,7 @@ public class Scanner {
 
             //todo: classify operator
             classifyOperator(tokenStr);
-            //System.out.printf("Operator: %s Precedence: %d Stack Precedence: %d\n", tokenStr, nextToken.operatorPrecedence.tokenPrecedence, nextToken.operatorPrecedence.stackPrecedence);
+
         }
 
         // use symbol table to label primary and sub classification of builtin, operators, and control
