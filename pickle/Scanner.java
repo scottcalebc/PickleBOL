@@ -391,7 +391,7 @@ public class Scanner {
 
             //todo: classify operator
             classifyOperator(tokenStr);
-            System.out.printf("Operator: %s Precedence: %d Stack Precedence: %d\n", tokenStr, nextToken.precedence, nextToken.stkPrecedence);
+            //System.out.printf("Operator: %s Precedence: %d Stack Precedence: %d\n", tokenStr, nextToken.operatorPrecedence.tokenPrecedence, nextToken.operatorPrecedence.stackPrecedence);
         }
 
         // use symbol table to label primary and sub classification of builtin, operators, and control
@@ -477,34 +477,34 @@ public class Scanner {
         switch (tokenStr) {
 
             case "(":
-                nextToken.precedence = 15;
-                nextToken.stkPrecedence = 2;
+                nextToken.operatorPrecedence = OperatorPrecedence.PAREN;
+
                 break;
             case "-":
                 if (currentToken.primClassif != Classif.OPERAND) {
-                    nextToken.precedence = 12;
-                    nextToken.stkPrecedence = 12;
+                    nextToken.operatorPrecedence = OperatorPrecedence.UNARYMINUS;
+
                 } else {
-                    nextToken.precedence = 8;
-                    nextToken.stkPrecedence = 8;
+                    nextToken.operatorPrecedence = OperatorPrecedence.ADDMINUS;
+
                 }
                 break;
             case "^":
-                nextToken.precedence = 11;
-                nextToken.stkPrecedence = 10;
+                nextToken.operatorPrecedence = OperatorPrecedence.POWER;
+
                 break;
             case "*":
             case "/":
-                nextToken.precedence = 9;
-                nextToken.stkPrecedence = 9;
+                nextToken.operatorPrecedence = OperatorPrecedence.MULTIPLYDIVIDE;
+
                 break;
             case "+":
-                nextToken.precedence = 8;
-                nextToken.stkPrecedence = 8;
+                nextToken.operatorPrecedence = OperatorPrecedence.ADDMINUS;
+
                 break;
             case "#":
-                nextToken.precedence = 7;
-                nextToken.stkPrecedence = 7;
+                nextToken.operatorPrecedence = OperatorPrecedence.CONCAT;
+
                 break;
             case "<":
             case ">":
@@ -514,21 +514,21 @@ public class Scanner {
             case "!=":
             case "in":
             case "notin":
-                nextToken.precedence = 6;
-                nextToken.stkPrecedence = 6;
+                nextToken.operatorPrecedence = OperatorPrecedence.BOOLEANOPS;
+
                 break;
             case "not":
-                nextToken.precedence = 5;
-                nextToken.stkPrecedence = 5;
+                nextToken.operatorPrecedence = OperatorPrecedence.NOT;
+
                 break;
             case "and":
             case "or":
-                nextToken.precedence = 4;
-                nextToken.stkPrecedence = 4;
+                nextToken.operatorPrecedence = OperatorPrecedence.ANDOR;
+
                 break;
             default:
-                nextToken.precedence = 0;
-                nextToken.stkPrecedence = 0;
+                nextToken.operatorPrecedence = OperatorPrecedence.NONE;
+
         }
 
 
