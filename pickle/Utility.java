@@ -120,7 +120,8 @@ public class Utility {
      * @return the Target ResultList with the newly assigned values
      * @throws ResultListException
      */
-    public static ResultList assignArrayToArray(Parser parser, ResultList targetArray, ResultList sourceArray) throws ResultListException {
+    public static ResultList assignArrayToArray(Parser parser, ResultList targetArray, ResultList sourceArray) throws ResultListException
+    {
         ResultValue emptyValue = new ResultValue("", SubClassif.EMPTY);
         // copy items from source to target until:
         //         target array is full
@@ -153,7 +154,8 @@ public class Utility {
      * @return ResultList that is the created array
      * @throws ResultListException if the Result List could not be created.
      */
-    public static ResultList assignScalarToArray(Parser parser, ResultValue value, int size) throws ResultListException {
+    public static ResultList assignScalarToArray(Parser parser, ResultValue value, int size) throws ResultListException
+    {
         // Create List of ResultValues to become ResultList
         ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>(size);
         // Assign same value to all indexes of list

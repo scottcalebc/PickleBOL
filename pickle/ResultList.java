@@ -27,7 +27,8 @@ public class ResultList
      * @param dataType  DataType of Array
      * @throws ResultListException if provided ResultValue list is not homogeneous.
      */
-    public ResultList(Parser parser, ArrayList<ResultValue> arrayList, int size, SubClassif dataType) throws ResultListException {
+    public ResultList(Parser parser, ArrayList<ResultValue> arrayList, int size, SubClassif dataType) throws ResultListException
+    {
         // Verify that all items in the given list share the same data type
         checkHomogeneous(parser, arrayList, dataType);
         // Store the provided items into this ResultList object.
@@ -91,6 +92,8 @@ public class ResultList
         this.arrayList.set(normalizedIndex, value);
         // Verify the ResultList
         checkHomogeneous(parser, this.arrayList, this.dataType);
+        // Update the ResultLists allocated size
+        updateAllocatedSize(parser);
         // Return this ResultList with the newly assigned Value
         return this;
     }
@@ -130,7 +133,8 @@ public class ResultList
      * @param dataType  Data Type that all ResultValues should be
      * @throws ResultListException if the provided index is out of bounds.
      */
-    private void checkHomogeneous(Parser parser, ArrayList<ResultValue> arrayList, SubClassif dataType) throws ResultListException {
+    private void checkHomogeneous(Parser parser, ArrayList<ResultValue> arrayList, SubClassif dataType) throws ResultListException
+    {
         // Verify that each item in the list is the same Data Type
         for (int i = 0; i < arrayList.size(); i++)
         {
@@ -150,11 +154,28 @@ public class ResultList
      * @param parser Parser object
      * @throws ResultListException on failure to set item in array.
      */
-    private void fillEmptyValues(Parser parser) throws ResultListException {
+    private void fillEmptyValues(Parser parser) throws ResultListException
+    {
         ResultValue emptyValue = new ResultValue("", SubClassif.EMPTY);
         for (int i = allocatedSize-1; i<capacity; i++)
         {
             this.setItem(parser, i, emptyValue);
         }
+    }
+
+    /**
+     * Updates this ResultLists allocated size by finding the subscript
+     * of the last non-empty element.
+     *
+     * @param parser
+     */
+    private void updateAllocatedSize(Parser parser)
+    {
+        int i;
+        for (i = capacity-1; i>=0; i--)
+        {
+            if (arrayList.get(i).dataType != SubClassif.EMPTY) break;
+        }
+        allocatedSize = i+1;
     }
 }
