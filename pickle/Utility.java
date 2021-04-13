@@ -1,5 +1,7 @@
 package pickle;
 
+import java.util.ArrayList;
+
 /**
  * Utility class provides various utility functions for Scanner class.
  *
@@ -9,6 +11,10 @@ package pickle;
  * <p>
  * All operation and comparison functions return ResultValues containing
  * the data type and string value of the operation's or comparison's result.
+ *
+ * <p> Array Operations:
+ *      Array to Array Assignment.
+ *      Array scalar Assignment.
  *
  * <p> Operate on Numerics:
  *     Cast to Integer, Cast to Double,
@@ -67,6 +73,96 @@ public class Utility {
      */
     public static void skipTo(Scanner scanner, String token) throws PickleException {
         while (!scanner.getNext().equals(token));
+    }
+
+    // ====================== ARRAY FUNCTIONS ======================
+    // =============================================================
+
+    /**
+     * Returns the subscript of the highest populated element + 1 as a ResultValue.
+     * This is the ResultLists allocated size.
+     *
+     * @param parser Parser Object
+     * @param array  ResultList Array
+     * @return ResultValue that is the ELEM index
+     */
+    public static ResultValue builtInELEM(Parser parser, ResultList array)
+    {
+        return new ResultValue(Integer.toString(array.allocatedSize), SubClassif.INTEGER);
+    }
+
+    /**
+     * Returns the value of the declared number of elements as a ResultValue.
+     * This is the ResultLists capacity.
+     *
+     * @param parser Parser Object
+     * @param array  ResultList Array
+     * @return ResultValue that is the MAXELEM index
+     */
+    public static ResultValue builtInMAXELEM(Parser parser, ResultList array)
+    {
+        return new ResultValue(Integer.toString(array.capacity), SubClassif.INTEGER);
+    }
+
+    /**
+     * Assigns an Array to an Array.
+     *
+     * <p> If a larger array is copied into a smaller array,
+     * the smaller array is filled with the corresponding elements of the larger array.
+     *
+     * <p> If a smaller array is copied into a larger array,
+     * the larger array is filled with the corresponding elements of the smaller array,
+     * and the remaining portion of the larger array is filled with empty values.
+     *
+     * @param parser      Parser Object
+     * @param targetArray ResultList that is target
+     * @param sourceArray ResultList to copy to target.
+     * @return the Target ResultList with the newly assigned values
+     * @throws ResultListException
+     */
+    public static ResultList assignArrayToArray(Parser parser, ResultList targetArray, ResultList sourceArray) throws ResultListException {
+        ResultValue emptyValue = new ResultValue("", SubClassif.EMPTY);
+        // copy items from source to target until:
+        //         target array is full
+        //      or source array has no more items
+        for (int i = 0; i < targetArray.capacity; i++)
+        {
+            // if the sourceArray has more items, copy value
+            if (i < sourceArray.allocatedSize)
+            {
+                // assign source value at index i to target index
+                targetArray.setItem(parser, i, sourceArray.getItem(parser, i));
+            }
+            // sourceArray has no more items, fill rest of target with empty values
+            else
+            {
+                targetArray.setItem(parser, i, emptyValue);
+            }
+        }
+        return targetArray;
+    }
+
+    /**
+     * Assigns a scalar to an Array.
+     *
+     * <p> Creates an array in which every element is filled with the same value.
+     *
+     * @param parser Parser Object
+     * @param value  ResultValue to assign to every element
+     * @param size   Size of the array to be created
+     * @return ResultList that is the created array
+     * @throws ResultListException if the Result List could not be created.
+     */
+    public static ResultList assignScalarToArray(Parser parser, ResultValue value, int size) throws ResultListException {
+        // Create List of ResultValues to become ResultList
+        ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>(size);
+        // Assign same value to all indexes of list
+        for (int i = 0; i < size; i++)
+        {
+            arrayList.add(value);
+        }
+        // return the ResultList
+        return new ResultList(parser, arrayList, size, value.dataType);
     }
 
     // ==================== TYPE COERCIONS =====================

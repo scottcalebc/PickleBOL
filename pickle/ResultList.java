@@ -5,10 +5,9 @@ import java.util.ArrayList;
 /**
  * This class Represents Arrays as lists of ResultValues.
  *
- * TODO: Array to Array assignment
- *       - Larger assigned to smaller copies enough to fill smaller
- *       - Smaller assigned to larger copies only used elements.
- *       Array Scalar assignment (array = 0)
+ * <p> Provides the following methods:
+ *      getItem - retrieve a ResultValue from the ResultList
+ *      setItem - set a ResultValue to the ResultList
  */
 public class ResultList
 {
@@ -36,6 +35,8 @@ public class ResultList
         this.allocatedSize = arrayList.size();
         this.dataType = dataType;
         this.arrayList = arrayList;
+        // assign the rest of the ArrayList to be Empty ResultValues
+        fillEmptyValues(parser);
     }
 
     /**
@@ -61,6 +62,37 @@ public class ResultList
                                      "Array index Out of Bounds.");
         }
         return arrayList.get(normalizedIndex);
+    }
+
+    /**
+     * Assigns the ResultValue at the given index in the ResultList.
+     *
+     * <p> Supports negative indexing (e.g. index of -1 is last item in list)
+     *
+     * @param parser Parser object
+     * @param index  index of ResultValue to retrieve
+     * @param value  ResultValue to assign to index
+     * @return ResultList that is new List
+     * @throws ResultListException if index is out of bounds
+     */
+    public ResultList setItem(Parser parser, int index, ResultValue value) throws ResultListException
+    {
+        int normalizedIndex;
+        // if the index is negative translate it to the corresponding positive index
+        if (index < 0) normalizedIndex = normalizeIndex(parser, index);
+        else normalizedIndex = index;
+        // throw error if index is out of bounds.
+        if (normalizedIndex > this.capacity)
+        {
+            throw new ResultListException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    "Array index Out of Bounds.");
+        }
+        // Assign the ResultValue to the given index
+        this.arrayList.set(normalizedIndex, value);
+        // Verify the ResultList
+        checkHomogeneous(parser, this.arrayList, this.dataType);
+        // Return this ResultList with the newly assigned Value
+        return this;
     }
 
     /**
@@ -91,6 +123,8 @@ public class ResultList
      * Ensures that a provided ResultValue array consists of all the same data types.
      * (guarantee a Homogeneous array)
      *
+     * All items in an Array must share the same data type or be EMPTY.
+     *
      * @param parser    Parser object
      * @param arrayList List of ResultValues to verify data type
      * @param dataType  Data Type that all ResultValues should be
@@ -100,11 +134,27 @@ public class ResultList
         // Verify that each item in the list is the same Data Type
         for (int i = 0; i < arrayList.size(); i++)
         {
-            if (dataType != arrayList.get(i).dataType)
+            // if arrayList[i] datatype is not EMPTY or the same type as the Array
+            if (dataType != arrayList.get(i).dataType && arrayList.get(i).dataType != SubClassif.EMPTY)
             {
                 throw new ResultListException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                         "Array item is of incompatible type.");
             }
+        }
+    }
+
+    /**
+     * Fill a ResultList's array with emptyValues.
+     * This ensures that any non-allocated indexes are Empty.
+     *
+     * @param parser Parser object
+     * @throws ResultListException on failure to set item in array.
+     */
+    private void fillEmptyValues(Parser parser) throws ResultListException {
+        ResultValue emptyValue = new ResultValue("", SubClassif.EMPTY);
+        for (int i = allocatedSize-1; i<capacity; i++)
+        {
+            this.setItem(parser, i, emptyValue);
         }
     }
 }
