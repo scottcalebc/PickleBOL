@@ -19,13 +19,13 @@ public class ResultList
     /**
      * Constructs an Array of ResultValues as a ResultList object.
      *
-     * <p> Will verify that all ResultValues are Homogoneous.
+     * <p> Will verify that all ResultValues are Homogeneous.
      *
      * @param parser    Parser object
      * @param arrayList ArrayList of ResultValues to store as ResultList
      * @param size      Capacity of Array
      * @param dataType  DataType of Array
-     * @throws ResultListException if provided ResultValue list is not homogoneous.
+     * @throws ResultListException if provided ResultValue list is not homogeneous.
      */
     public ResultList(Parser parser, ArrayList<ResultValue> arrayList, int size, SubClassif dataType) throws ResultListException {
         // Verify that all items in the given list share the same data type
