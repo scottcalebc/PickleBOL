@@ -57,7 +57,7 @@ public class ResultList
         if (index < 0) normalizedIndex = normalizeIndex(parser, index);
         else normalizedIndex = index;
         // throw error if index is out of bounds.
-        if (normalizedIndex > this.capacity-1 || normalizedIndex < 0)
+        if (normalizedIndex > this.capacity-1)
         {
             throw new ResultListException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                                      "Array index Out of Bounds.");
@@ -83,7 +83,7 @@ public class ResultList
         if (index < 0) normalizedIndex = normalizeIndex(parser, index);
         else normalizedIndex = index;
         // throw error if index is out of bounds.
-        if (normalizedIndex > this.capacity-1 || normalizedIndex < 0)
+        if (normalizedIndex > this.capacity-1)
         {
             throw new ResultListException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                     "Array index Out of Bounds.");
