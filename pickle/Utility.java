@@ -71,7 +71,7 @@ public class Utility {
      *
      * </p>
      * @param token
-     * @throws PickleException
+     * @throws PickleException if scanner.getNext() failes
      */
     public static void skipTo(Scanner scanner, String token) throws PickleException {
         while (!scanner.getNext().equals(token));
@@ -95,6 +95,8 @@ public class Utility {
 
     /**
      * Returns the char at a given index of a string as a ResultValue
+     *
+     * <p> Supports negative indexing of strings (e.g. -1 is last char)
      *
      * @param parser      Parser Object
      * @param resultValue String as ResultValue
@@ -121,6 +123,19 @@ public class Utility {
         return new ResultValue(Character.toString(resultValue.strValue.charAt(normalizedIndex)), SubClassif.STRING);
     }
 
+    /**
+     * Assigns a String value starting at a given index to a String.
+     * Returns the newly assigned string as a ResultValue
+     *
+     * <p> Supports negative indexing of strings (e.g. -1 is last char)
+     *
+     * @param parser Parser object
+     * @param str1   String ResultValue to assign to
+     * @param str2   String ResultValue to be assigned at the index
+     * @param index  Starting position to assign the String
+     * @return ResultValue of type string
+     * @throws StringException if index is out of bounds
+     */
     public static ResultValue assignAtIndex(Parser parser, ResultValue str1, ResultValue str2, int index) throws StringException
     {
         // Normalize the index if it is negative
