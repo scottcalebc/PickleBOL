@@ -104,18 +104,35 @@ public class Utility {
      */
     public static ResultValue valueAtIndex(Parser parser, ResultValue resultValue, int index) throws StringException
     {
-        if (index < 0 || index >= resultValue.strValue.length())
+        // Normalize the index if it is negative
+        int normalizedIndex;
+        if (index < 0)
+        {
+            normalizedIndex = resultValue.strValue.length() + index;
+        }
+        else normalizedIndex = index;
+
+        // verify boundaries of string
+        if (normalizedIndex < 0 || normalizedIndex >= resultValue.strValue.length())
         {
             throw new StringException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                                       "String subscript out of bounds.");
         }
-        return new ResultValue(Character.toString(resultValue.strValue.charAt(index)), SubClassif.STRING);
+        return new ResultValue(Character.toString(resultValue.strValue.charAt(normalizedIndex)), SubClassif.STRING);
     }
 
     public static ResultValue assignAtIndex(Parser parser, ResultValue str1, ResultValue str2, int index) throws StringException
     {
+        // Normalize the index if it is negative
+        int normalizedIndex;
+        if (index < 0)
+        {
+            normalizedIndex = str1.strValue.length() + index;
+        }
+        else normalizedIndex = index;
+
         // verify boundaries of string
-        if (index < 0 || index >= str1.strValue.length())
+        if (normalizedIndex < 0 || normalizedIndex >= str1.strValue.length())
         {
             throw new StringException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                     "String subscript out of bounds.");
@@ -125,7 +142,7 @@ public class Utility {
         int iStr1Pos;
         int iStr2Pos = 0;
         // for each index of string 1
-        for(iStr1Pos = index; iStr1Pos < str1.strValue.length() ; iStr1Pos++)
+        for(iStr1Pos = normalizedIndex; iStr1Pos < str1.strValue.length() ; iStr1Pos++)
         {
             // replace the str1[iStr1Pos] char with str2[iStr2Pos] char
             newStringBuild.setCharAt(iStr1Pos, str2.strValue.charAt(iStr2Pos));
@@ -136,7 +153,7 @@ public class Utility {
         // if there are remaining chars to add from string 2
         if(iStr2Pos < str2.strValue.length())
         {
-            newStringBuild.append(str2.strValue.substring(iStr2Pos, str2.strValue.length()));
+            newStringBuild.append(str2.strValue.substring(iStr2Pos));
         }
         // return the newly constructed string
         return new ResultValue(newStringBuild.toString(), SubClassif.STRING);
