@@ -390,6 +390,8 @@ public class Scanner {
             nextToken.primClassif = Classif.OPERATOR;
 
             //todo: classify operator
+            classifyOperator(tokenStr);
+
         }
 
         // use symbol table to label primary and sub classification of builtin, operators, and control
@@ -469,6 +471,68 @@ public class Scanner {
 
         // return current token string after any modifications to attach to token
         return tokenStr;
+    }
+
+    public void classifyOperator(String tokenStr) {
+        switch (tokenStr) {
+
+            case "(":
+                nextToken.operatorPrecedence = OperatorPrecedence.PAREN;
+
+                break;
+            case "-":
+                if (currentToken.primClassif != Classif.OPERAND) {
+                    nextToken.operatorPrecedence = OperatorPrecedence.UNARYMINUS;
+
+                } else {
+                    nextToken.operatorPrecedence = OperatorPrecedence.ADDMINUS;
+
+                }
+                break;
+            case "^":
+                nextToken.operatorPrecedence = OperatorPrecedence.POWER;
+
+                break;
+            case "*":
+            case "/":
+                nextToken.operatorPrecedence = OperatorPrecedence.MULTIPLYDIVIDE;
+
+                break;
+            case "+":
+                nextToken.operatorPrecedence = OperatorPrecedence.ADDMINUS;
+
+                break;
+            case "#":
+                nextToken.operatorPrecedence = OperatorPrecedence.CONCAT;
+
+                break;
+            case "<":
+            case ">":
+            case "<=":
+            case ">=":
+            case "==":
+            case "!=":
+            case "in":
+            case "notin":
+                nextToken.operatorPrecedence = OperatorPrecedence.BOOLEANOPS;
+
+                break;
+            case "not":
+                nextToken.operatorPrecedence = OperatorPrecedence.NOT;
+
+                break;
+            case "and":
+            case "or":
+                nextToken.operatorPrecedence = OperatorPrecedence.ANDOR;
+
+                break;
+            default:
+                nextToken.operatorPrecedence = OperatorPrecedence.NONE;
+
+        }
+
+
+
     }
 
 

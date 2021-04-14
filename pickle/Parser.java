@@ -1,5 +1,7 @@
 package pickle;
 
+import java.util.ArrayList;
+
 public class Parser {
 
     protected Scanner        scanner;               // scanner pointer
@@ -124,6 +126,7 @@ public class Parser {
 
         // if assignment occuring grab expression into result value
         if (scanner.getNext().equals("=")) {
+            scanner.getNext();
             res = expr();
         }
 
@@ -184,8 +187,8 @@ public class Parser {
         res = expr();           //get expression value
 
         // ensure assignment ends in ';'
-        if (!scanner.getNext().equals(";")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statment must end in ';':");
+        if (!scanner.currentToken.tokenStr.equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
         }
 
         res = assign(varStr, res);  //save value to symbol
@@ -206,152 +209,26 @@ public class Parser {
      * @throws PickleException
      */
     private ResultValue expr() throws PickleException {
-        /*System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);*/
-
-        ResultValue res = new ResultValue("", SubClassif.EMPTY);
-
-        Numeric nOp1 = null;
-        Numeric nOp2 = null;
-
-        switch (scanner.currentToken.primClassif) {
-            case OPERATOR:
-                if (!scanner.currentToken.tokenStr.equals("-")) {
-                    break;
-                }
-                if (scanner.nextToken.primClassif != Classif.OPERAND) {
-                    throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Token must be of type Operand for unary minus");
-                }
-                scanner.getNext();
-                if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
-                    STEntry symbolEntry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
-
-                    if (symbolEntry.primClassif == Classif.EMPTY) {
-                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol does not exist:");
-                    }
-
-                    if (symbolEntry.primClassif != Classif.OPERAND) {
-                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol is not operand type:");
-                    }
+        //System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
 
 
-                    res = this.storageManager.getVariable(symbolEntry.symbol);
 
-                    if (res.dataType != SubClassif.INTEGER && res.dataType != SubClassif.FLOAT) {
-                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot perform unary minus on non-numeric operand identifier:");
-                    }
+        ArrayList<Token> out = Expr.postFixExpr(this);
 
-                    nOp1 = new Numeric(this, res, "-", "first operand for unary minus");
-                } else if (scanner.currentToken.subClassif == SubClassif.INTEGER) {
-                    
-                    nOp1 = new Numeric(this, new ResultValue(scanner.currentToken.tokenStr, SubClassif.INTEGER), "-", "first operand for unary minus");
-                } else if (scanner.currentToken.subClassif == SubClassif.FLOAT) {
-                    nOp1 = new Numeric(this, new ResultValue(scanner.currentToken.tokenStr, SubClassif.FLOAT), "-", "first operand for unary minus");
-                } else {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot convert non-numeric data to numeric:");
-                }
+        ResultValue ans = Expr.evaluatePostFix(this, out);
 
-
-                res = Utility.unaryMinus(this, nOp1);
-
-                break;
-            case OPERAND:
-                    switch (scanner.currentToken.subClassif){
-                        case IDENTIFIER:
-                            // get value of Identifier and check for more expressions following
-                            STEntry symbolEntry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
-
-                            if (symbolEntry.primClassif == Classif.EMPTY) {
-                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol does not exist:");
-                            }
-
-                            if (symbolEntry.primClassif != Classif.OPERAND) {
-                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol is not operand type:");
-                            }
-
-
-                            res = this.storageManager.getVariable(symbolEntry.symbol);
-                            break;
-                        case FLOAT:
-                            res = new ResultValue(scanner.currentToken.tokenStr, SubClassif.FLOAT);
-                            break;
-                        case INTEGER:
-                            // get value of number and check for more values later
-                            res = new ResultValue(scanner.currentToken.tokenStr, SubClassif.INTEGER);
-                            break;
-                        case STRING:
-                            return new ResultValue(scanner.currentToken.tokenStr, SubClassif.STRING);
-                        case BOOLEAN:
-                            return new ResultValue(scanner.currentToken.tokenStr, SubClassif.BOOLEAN);
-                    }
-
+        // code to see postfix expression and evaluated answer
+        /*System.out.printf("Postfix: ");
+        for(Token token : out) {
+            System.out.printf("%s ", token.tokenStr);
         }
 
+        System.out.println();
 
-        //if next token is seperator then just return current result value
-        if (scanner.nextToken.primClassif != Classif.SEPARATOR) {
-            scanner.getNext();
+        System.out.printf("Evalueted to answer: %s\n", ans.strValue);*/
 
-            if (scanner.currentToken.primClassif != Classif.OPERATOR) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Token must be operator or ';'");
-            }
+        return ans;
 
-            // if operator is comparator just return to evalCond
-            switch (scanner.currentToken.tokenStr) {
-                case ">":
-                case "<":
-                case ">=":
-                case "<=":
-                case "==":
-                case "!=":
-                case "and":
-                case "or":
-                case "not":
-                    return res;
-            }
-
-            String operatorStr = scanner.currentToken.tokenStr;
-            Token operatorToken = scanner.currentToken;
-            scanner.getNext();
-            ResultValue res2 = expr();
-
-            if (res2.dataType != SubClassif.FLOAT && res2.dataType != SubClassif.INTEGER) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot perform numeric operation on non-numeric data type:");
-            }
-
-
-            nOp1 = new Numeric(this, res, operatorStr, "first operand");
-            nOp2 = new Numeric(this, res2, operatorStr, "second operand");
-
-            // perform specific numeric operation
-            switch (operatorStr) {
-                case "+":
-                    res = Utility.add(this, nOp1, nOp2);
-                    break;
-                case "-":
-                    res = Utility.subtract(this, nOp1, nOp2);
-                    break;
-                case "*":
-                    res = Utility.multiply(this, nOp1, nOp2);
-                    break;
-                case "/":
-                    res = Utility.divide(this, nOp1, nOp2);
-                    break;
-                case "^":
-                    res = Utility.power(this, nOp1, nOp2);
-                    break;
-                default:
-                    throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Cannot perform operation with invalid OPERATOR:");
-
-            }
-
-            if (bShowExpr)
-                System.out.printf("...%s %s %s is %s\n", nOp1.strValue, operatorStr, nOp2.strValue, res.strValue);
-
-
-        }
-
-        // does not check for end of statement as this is only evaluating expressions
-        return res;
 
     }
 
@@ -396,7 +273,7 @@ public class Parser {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function does not start with '(' token:");
         }
 
-        while(!scanner.getNext().equals(")")) {
+        while(!scanner.currentToken.tokenStr.equals(";")) {
             // if reached ';' before end of parameters
             if (scanner.currentToken.tokenStr.equals(";")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Reached ';' before closing function ')':");
@@ -404,10 +281,13 @@ public class Parser {
 
             // if reached seperator skip token
             if (scanner.currentToken.tokenStr.equals(",")) {
+                scanner.getNext();
                 continue;
             }
 
             ResultValue res = expr();
+
+
 
             sb.append(res.strValue);
             sb.append(" ");
@@ -415,7 +295,7 @@ public class Parser {
         }
 
         // ensure print function ends in ';'
-        if (!scanner.getNext().equals(";")) {
+        if (!scanner.currentToken.tokenStr.equals(";")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Did not reach ';' at end of function call:");
         }
 
@@ -699,74 +579,18 @@ public class Parser {
 
 
     private ResultValue evalCond() throws PickleException {
+
+
+        ResultValue res = null;
         scanner.getNext();
 
-        ResultValue res01 = null;
-        ResultValue res02 = null;
+        res = expr();
 
-        // if started with an operator this is the boolean "not" so don't collect first ResultValue
-        if (scanner.currentToken.primClassif != Classif.OPERATOR) {
-            res01 = expr();
-        }
-
-        String operatorStr = scanner.currentToken.tokenStr;
-        Token operatorToken = scanner.currentToken;
-
-        scanner.getNext();
-
-        res02 = expr();
-
-        if (!scanner.getNext().equals(":")) {
+        if (!scanner.currentToken.tokenStr.equals(":")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Conditions must be followed by ':' token :");
         }
 
-        ResultValue tempResult;
-        Bool bOp1;
-        Bool bOp2;
-
-        // Switch to perform specific Utility boolean check
-        switch (operatorStr) {
-            case ">":
-                tempResult = Utility.greaterThan(this, res01, res02);
-                break;
-            case "<":
-                tempResult = Utility.lessThan(this, res01, res02);
-                break;
-            case ">=":
-                tempResult = Utility.greaterThanOrEqualTo(this, res01, res02);
-                break;
-            case "<=":
-                tempResult = Utility.lessThanOrEqualTo(this, res01, res02);
-                break;
-            case "==":
-                tempResult = Utility.equal(this, res01, res02);
-                break;
-            case "!=":
-                tempResult = Utility.notEqual(this, res01, res02);
-                break;
-            case "and":
-                bOp1 = new Bool(this, res01);
-                bOp2 = new Bool(this, res02);
-                tempResult = Utility.boolAnd(this, bOp1, bOp2);
-                break;
-            case "or":
-                bOp1 = new Bool(this, res01);
-                bOp2 = new Bool(this, res02);
-                tempResult = Utility.boolOr(this, bOp1, bOp2);
-                break;
-            case "not":
-                bOp2 = new Bool(this, res02);
-                tempResult = Utility.boolNot(this, bOp2);
-                break;
-            default:
-                throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Invalid comparator token");
-        }
-
-        if (bShowExpr)
-            System.out.printf("...%s %s %s is %s\n", res01.strValue, operatorStr, res02.strValue, tempResult.strValue);
-
-
-        return tempResult;
+        return res;
     }
 
 
