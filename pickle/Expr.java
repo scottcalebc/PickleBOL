@@ -162,17 +162,17 @@ public class Expr {
                                 res = Utility.notEqual(parser, resValues[1], resValues[0]);
                                 break;
                             case "and":
-                                bOp1 = new Bool(parser.scanner, resValues[1]);
-                                bOp2 = new Bool(parser.scanner, resValues[0]);
+                                bOp1 = new Bool(parser, resValues[1]);
+                                bOp2 = new Bool(parser, resValues[0]);
                                 res = Utility.boolAnd(parser, bOp1, bOp2);
                                 break;
                             case "or":
-                                bOp1 = new Bool(parser.scanner, resValues[1]);
-                                bOp2 = new Bool(parser.scanner, resValues[0]);
+                                bOp1 = new Bool(parser, resValues[1]);
+                                bOp2 = new Bool(parser, resValues[0]);
                                 res = Utility.boolOr(parser, bOp1, bOp2);
                                 break;
                             case "not":
-                                bOp2 = new Bool(parser.scanner, resValues[0]);
+                                bOp2 = new Bool(parser, resValues[0]);
                                 res = Utility.boolNot(parser, bOp2);
 
                                 if (i >= 1) {
@@ -241,11 +241,11 @@ public class Expr {
                 }
 
 
-                n = new Numeric(parser.scanner, res, operator, desc);
+                n = new Numeric(parser, res, operator, desc);
                 break;
             case INTEGER:
             case FLOAT:
-                n = new Numeric(parser.scanner, res, operator, desc);
+                n = new Numeric(parser, res, operator, desc);
         }
 
         return n;
