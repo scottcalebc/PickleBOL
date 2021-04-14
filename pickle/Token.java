@@ -25,6 +25,10 @@ public class Token
      * relative to zero.
      */
     public int iColPos = 0;
+
+    public OperatorPrecedence operatorPrecedence;
+
+
     
     public Token(String value)
     {
