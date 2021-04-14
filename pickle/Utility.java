@@ -123,6 +123,8 @@ public class Utility {
     public static ResultList assignArrayToArray(Parser parser, ResultList targetArray, ResultList sourceArray) throws ResultListException
     {
         ResultValue emptyValue = new ResultValue("", SubClassif.EMPTY);
+        ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>();
+
         // copy items from source to target until:
         //         target array is full
         //      or source array has no more items
@@ -132,15 +134,17 @@ public class Utility {
             if (i < sourceArray.allocatedSize)
             {
                 // assign source value at index i to target index
-                targetArray.setItem(parser, i, sourceArray.getItem(parser, i));
+                arrayList.add(sourceArray.getItem(parser, i));
             }
             // sourceArray has no more items, fill rest of target with empty values
             else
             {
-                targetArray.setItem(parser, i, emptyValue);
+                arrayList.add(emptyValue);
             }
         }
-        return targetArray;
+        ResultList res = new ResultList(parser, arrayList, targetArray.capacity, targetArray.dataType);
+
+        return res;
     }
 
     /**

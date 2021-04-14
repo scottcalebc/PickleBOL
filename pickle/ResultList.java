@@ -40,6 +40,16 @@ public class ResultList
         fillEmptyValues(parser);
     }
 
+    @Override
+    public String toString() {
+        return "ResultList{" +
+                "dataType=" + dataType +
+                ", arrayList=" + arrayList +
+                ", capacity=" + capacity +
+                ", allocatedSize=" + allocatedSize +
+                '}';
+    }
+
     /**
      * Retrieves the ResultValue at the given index in the ResultList.
      *
@@ -156,10 +166,11 @@ public class ResultList
      */
     private void fillEmptyValues(Parser parser) throws ResultListException
     {
+        if (allocatedSize == capacity) return;
         ResultValue emptyValue = new ResultValue("", SubClassif.EMPTY);
-        for (int i = allocatedSize-1; i<capacity; i++)
+        while(arrayList.size() != capacity)
         {
-            this.setItem(parser, i, emptyValue);
+            this.arrayList.add(emptyValue);
         }
     }
 
@@ -172,7 +183,7 @@ public class ResultList
     private void updateAllocatedSize(Parser parser)
     {
         int i;
-        for (i = capacity-1; i>=0; i--)
+        for (i = arrayList.size()-1; i>=0; i--)
         {
             if (arrayList.get(i).dataType != SubClassif.EMPTY) break;
         }
