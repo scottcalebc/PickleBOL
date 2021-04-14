@@ -9,7 +9,11 @@ public class Expr {
         ArrayList<Token> postfix = new ArrayList<Token>();
         Stack<Token> stack = new Stack<Token>();
 
-        while(!parser.scanner.currentToken.tokenStr.equals(",") && !parser.scanner.currentToken.tokenStr.equals(";") && !parser.scanner.currentToken.tokenStr.equals(":")) {
+        while(!parser.scanner.currentToken.tokenStr.equals(",")
+                && !parser.scanner.currentToken.tokenStr.equals(";")
+                && !parser.scanner.currentToken.tokenStr.equals(":")
+                && !parser.scanner.currentToken.tokenStr.equals("to")
+                && !parser.scanner.currentToken.tokenStr.equals("by")) {
 
             switch (parser.scanner.currentToken.primClassif) {
                 case OPERAND:

@@ -60,12 +60,12 @@ public class Parser {
                 functionStmt();
                 break;
             case CONTROL:
-                controlStmt();
+                controlStmt(true);
                 break;
             case OPERATOR:
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot evaluate starting on operator:");
             default:
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown token to evaluate:");
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown token to evaluate");
         }
 
 
@@ -78,7 +78,7 @@ public class Parser {
      * @return                  generic ResultValue
      * @throws PickleException
      */
-    private ResultValue controlStmt() throws PickleException {
+    private ResultValue controlStmt(Boolean bExec) throws PickleException {
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
 
         switch (scanner.currentToken.subClassif) {
@@ -89,11 +89,13 @@ public class Parser {
 
                 switch (flowStr) {
                     case "if":
-                        res = ifStmt(true);
+                        res = ifStmt(bExec);
                         break;
                     case "while":
-                        res = whileStmt(true);
+                        res = whileStmt(bExec);
                         break;
+                    case "for":
+                        res = forStmt(bExec);
 
                 }
         }
@@ -420,13 +422,7 @@ public class Parser {
                 scanner.getNext();
 
                 if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
-                    switch (scanner.currentToken.tokenStr) {
-                        case "if":
-                            ifStmt(bExec);
-                            break;
-                        case "while":
-                            whileStmt(bExec);
-                    }
+                    controlStmt(false);
                 }
             }
         }
@@ -572,6 +568,143 @@ public class Parser {
 
 
         return resTemp;
+
+    }
+
+
+    private ResultValue forStmt(Boolean bExec) throws PickleException {
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+
+        if (bExec) {
+            scanner.getNext();
+            if (scanner.currentToken.primClassif != Classif.OPERAND && scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
+                // TODO: 4/13/2021 fix exception
+                throw new PickleException();
+            }
+            String controlVar = scanner.currentToken.tokenStr;
+            if (scanner.getNext().equals("=")) {
+                result = countingFor(controlVar);
+            }
+
+
+
+
+        } else {
+            Utility.skipTo(scanner, ":");
+            result = statements(false);
+
+            if (!result.terminatingString.equals("endfor")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endfor");
+            }
+
+            if (!scanner.getNext().equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';'");
+            }
+        }
+
+        return result;
+    }
+
+
+    private ResultValue countingFor(String controlVar) throws PickleException {
+        STEntry entry = symbolTable.getSymbol(controlVar);
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+
+        if (entry.primClassif == Classif.EMPTY) {
+            symbolTable.putSymbol(controlVar,
+                    new STIdentifier(controlVar,
+                            Classif.OPERAND,
+                            SubClassif.INTEGER,
+                            "none",
+                            "local",
+                            0));
+
+
+        }
+        STIdentifier controlVarSymbol = (STIdentifier) symbolTable.getSymbol(controlVar);
+
+        scanner.getNext();
+        
+        if (scanner.currentToken.primClassif != Classif.OPERAND && 
+                (scanner.currentToken.subClassif != SubClassif.FLOAT || scanner.currentToken.subClassif != SubClassif.INTEGER)) {
+            // TODO: 4/13/2021 parser error since assigning non-numeric
+            throw new PickleException();
+        }
+
+        ResultValue startValue = expr();
+
+        if (!scanner.currentToken.tokenStr.equals("to")) {
+            // TODO: 4/13/2021 parser error incorrect for setup
+            throw new PickleException();
+        }
+
+        scanner.getNext();
+        ResultValue limit = expr();
+
+        ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
+
+        if (scanner.currentToken.tokenStr.equals("by")) {
+            scanner.getNext();
+            incrementBy = expr();
+        }
+
+        ResultValue zero =  new ResultValue("0", SubClassif.INTEGER);
+
+        if (Utility.lessThan(this, incrementBy, zero).strValue.equals("T")) {
+            // TODO: 4/13/2021 throw less than zero error
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Increment msut be positive integer");
+        }
+
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            // TODO: 4/13/2021 parse error for statement not ending in ':'
+            throw new PickleException();
+        }
+        int iSavedLineNr = scanner.currentToken.iSourceLineNr;
+        int iSavedColPos = scanner.currentToken.iColPos;
+
+        storageManager.updateVariable(controlVar, startValue);
+
+        Numeric nOp1;
+        Numeric nOp2;
+
+        nOp2 = new Numeric(scanner, incrementBy, "+", "Incrementing by value");
+
+
+
+
+
+        while (Utility.lessThan(this, startValue, limit).strValue.equals("T")) {
+            // evaluate statments
+            result = statements(true);
+
+            if (!result.terminatingString.equals("endfor")) {
+                // TODO: 4/13/2021 throw parser error for loop didn't end in endfor
+                throw new PickleException();
+            }
+
+            nOp1 = new Numeric(scanner, startValue, "+", "Incrementing startValue");
+
+
+            startValue = Utility.add(this, nOp1, nOp2);
+            storageManager.updateVariable(controlVar, startValue);
+
+            scanner.setPosition(iSavedLineNr, iSavedColPos);
+            scanner.getNext();
+        }
+
+        result= statements(false);
+
+        if (!result.terminatingString.equals("endfor")) {
+            // TODO: 4/13/2021 throw error
+            throw new PickleException();
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            throw new PickleException();
+        }
+
+        return result;
 
     }
 
