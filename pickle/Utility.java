@@ -10,6 +10,14 @@ package pickle;
  * All operation and comparison functions return ResultValues containing
  * the data type and string value of the operation's or comparison's result.
  *
+ * <p> Operate on Strings:
+ *     Concatenate String
+ *     Get Character at Subscript
+ *     Assign String to String starting at index
+ *     Assign Char to String at index
+ *     Built-In LENGTH()
+ *     Built-In SPACES()
+ *
  * <p> Operate on Numerics:
  *     Cast to Integer, Cast to Double,
  *     Add, Subtract, Unary Minus, Multiply, Divide, and Power operations.
@@ -63,10 +71,134 @@ public class Utility {
      *
      * </p>
      * @param token
-     * @throws PickleException
+     * @throws PickleException if scanner.getNext() failes
      */
     public static void skipTo(Scanner scanner, String token) throws PickleException {
         while (!scanner.getNext().equals(token));
+    }
+
+    // ==================== STRING OPERATIONS =====================
+    // =============================================================
+
+    /**
+     * Concatenates two strings together and returns a Result Value.
+     *
+     * @param parser Parser Object
+     * @param op1    String 1 ResultValue
+     * @param op2    String 2 ResultValue
+     * @return ResultValue of type String
+     */
+    public static ResultValue concatenateString(Parser parser, ResultValue op1, ResultValue op2)
+    {
+        return new ResultValue(op1.strValue + op2.strValue, SubClassif.STRING);
+    }
+
+    /**
+     * Returns the char at a given index of a string as a ResultValue
+     *
+     * <p> Supports negative indexing of strings (e.g. -1 is last char)
+     *
+     * @param parser      Parser Object
+     * @param resultValue String as ResultValue
+     * @param index       index of string to retrieve
+     * @return ResultValue of type String
+     * @throws StringException if index is out of bounds
+     */
+    public static ResultValue valueAtIndex(Parser parser, ResultValue resultValue, int index) throws StringException
+    {
+        // Normalize the index if it is negative
+        int normalizedIndex;
+        if (index < 0)
+        {
+            normalizedIndex = resultValue.strValue.length() + index;
+        }
+        else normalizedIndex = index;
+
+        // verify boundaries of string
+        if (normalizedIndex < 0 || normalizedIndex >= resultValue.strValue.length())
+        {
+            throw new StringException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                                      "String subscript out of bounds.");
+        }
+        return new ResultValue(Character.toString(resultValue.strValue.charAt(normalizedIndex)), SubClassif.STRING);
+    }
+
+    /**
+     * Assigns a String value starting at a given index to a String.
+     * Returns the newly assigned string as a ResultValue
+     *
+     * <p> Supports negative indexing of strings (e.g. -1 is last char)
+     *
+     * @param parser Parser object
+     * @param str1   String ResultValue to assign to
+     * @param str2   String ResultValue to be assigned at the index
+     * @param index  Starting position to assign the String
+     * @return ResultValue of type string
+     * @throws StringException if index is out of bounds
+     */
+    public static ResultValue assignAtIndex(Parser parser, ResultValue str1, ResultValue str2, int index) throws StringException
+    {
+        // Normalize the index if it is negative
+        int normalizedIndex;
+        if (index < 0)
+        {
+            normalizedIndex = str1.strValue.length() + index;
+        }
+        else normalizedIndex = index;
+
+        // verify boundaries of string
+        if (normalizedIndex < 0 || normalizedIndex >= str1.strValue.length())
+        {
+            throw new StringException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    "String subscript out of bounds.");
+        }
+        // replace each of the chars in the string with the new strings chars
+        StringBuilder newStringBuild = new StringBuilder(str1.strValue);
+        int iStr1Pos;
+        int iStr2Pos = 0;
+        // for each index of string 1
+        for(iStr1Pos = normalizedIndex; iStr1Pos < str1.strValue.length() ; iStr1Pos++)
+        {
+            // replace the str1[iStr1Pos] char with str2[iStr2Pos] char
+            newStringBuild.setCharAt(iStr1Pos, str2.strValue.charAt(iStr2Pos));
+            iStr2Pos++; // increment string 2 position
+            // if reached end of str2 end loop
+            if (iStr2Pos == str2.strValue.length()) break;
+        }
+        // if there are remaining chars to add from string 2
+        if(iStr2Pos < str2.strValue.length())
+        {
+            newStringBuild.append(str2.strValue.substring(iStr2Pos));
+        }
+        // return the newly constructed string
+        return new ResultValue(newStringBuild.toString(), SubClassif.STRING);
+    }
+
+    /**
+     * Returns the number of characters in a given string as a ResultValue of type Integer.
+     *
+     * @param parser      Parser Object
+     * @param resultValue String as a ResultValue
+     * @return ResultValue of Type INTEGER which is the length of the string.
+     */
+    public static ResultValue builtInLENGTH(Parser parser, ResultValue resultValue)
+    {
+        return new ResultValue(Integer.toString(resultValue.strValue.length()), SubClassif.INTEGER);
+    }
+
+    /**
+     * Returns "T" if the given ResultValue of Type String is empty or contains only spaces.
+     * Otherwise returns "F". Value is returned as a ResultValue of type Boolean.
+     *
+     * @param parser      Parser Object
+     * @param resultValue String as a ResultValue
+     * @return A ResultValue of type BOOLEAN
+     */
+    public static ResultValue builtInSPACES(Parser parser, ResultValue resultValue)
+    {
+        if (resultValue.strValue.trim().isEmpty() || resultValue.strValue == null)
+            return new ResultValue("T", SubClassif.BOOLEAN);
+        else return new ResultValue("F", SubClassif.BOOLEAN);
     }
 
     // ==================== TYPE COERCIONS =====================

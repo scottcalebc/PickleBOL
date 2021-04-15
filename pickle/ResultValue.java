@@ -22,4 +22,13 @@ public class ResultValue {
         this.dataType = dataType;
         this.terminatingString = terminatingString;
     }
+
+    @Override
+    public String toString() {
+        return "ResultValue{" +
+                "dataType=" + dataType +
+                ", strValue='" + strValue + '\'' +
+                ", terminatingString='" + terminatingString + '\'' +
+                '}';
+    }
 }
