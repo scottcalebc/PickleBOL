@@ -212,6 +212,7 @@ public class Parser {
         //System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
 
 
+
         ArrayList<Token> out = Expr.postFixExpr(this);
 
         ResultValue ans = Expr.evaluatePostFix(this, out);
@@ -323,9 +324,9 @@ public class Parser {
 
         // conversion from specified types to declared type
         if (symbolEntry.dclType == SubClassif.FLOAT) {
-            res = Utility.castNumericToDouble(this, new Numeric(scanner, res, "", "cast to declared type"));
+            res = Utility.castNumericToDouble(this, new Numeric(this, res, "", "cast to declared type"));
         } if (symbolEntry.dclType == SubClassif.INTEGER) {
-            res = Utility.castNumericToInt(this, new Numeric(scanner, res, "", "cast to declared type"));
+            res = Utility.castNumericToInt(this, new Numeric(this, res, "", "cast to declared type"));
         }
 
         // store value
@@ -588,7 +589,6 @@ public class Parser {
         if (!scanner.currentToken.tokenStr.equals(":")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Conditions must be followed by ':' token :");
         }
-
 
         return res;
     }
