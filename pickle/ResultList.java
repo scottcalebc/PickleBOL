@@ -9,7 +9,7 @@ import java.util.ArrayList;
  *      getItem - retrieve a ResultValue from the ResultList
  *      setItem - set a ResultValue to the ResultList
  */
-public class ResultList
+public class ResultList implements Result
 {
     public SubClassif dataType;         // DataType of Array
     ArrayList<ResultValue> arrayList;   // List of ResultValues

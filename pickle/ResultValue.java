@@ -4,7 +4,7 @@ package pickle;
  * The ResultValue class represents the result of an interpreter function.
  *
  */
-public class ResultValue {
+public class ResultValue implements Result {
     // TODO: finish this class
     //type, value, structure, terminating string
     public SubClassif dataType;

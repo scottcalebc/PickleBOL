@@ -93,7 +93,7 @@ public class Expr {
                                 throw new PickleException();
                             }
 
-                            resValues[i] = parser.storageManager.getVariable(resValues[i].strValue);
+                            resValues[i] = (ResultValue) parser.storageManager.getVariable(resValues[i].strValue);
                         }
 
                         i++;
@@ -216,7 +216,7 @@ public class Expr {
                 throw new PickleException();
             }
 
-            res = parser.storageManager.getVariable(res.strValue);
+            res = (ResultValue) parser.storageManager.getVariable(res.strValue);
         }
 
         return res;
@@ -235,7 +235,7 @@ public class Expr {
                     throw new PickleException();
                 }
 
-                res = parser.storageManager.getVariable(res.strValue);
+                res = (ResultValue) parser.storageManager.getVariable(res.strValue);
                 if (res.dataType != SubClassif.INTEGER && res.dataType != SubClassif.FLOAT) {
                     throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Cannot perform unary minus on non-numeric operand identifier:");
                 }
