@@ -585,10 +585,23 @@ public class Parser {
             if (scanner.getNext().equals("=")) {
                 result = countingFor(controlVar);
             }
-
-
-
-
+            else if (scanner.getNext().equals("in")) {
+                //branch to either charStringFor() or itemArrayFor() depending on if controlVar is a char
+                if (scanner.currentToken.subClassif == SubClassif.STRING) {
+                    charStringFor(controlVar);
+                }
+                else {
+                    throw new PickleException(); //TODO - this is a placeholder since we not finish it yet
+                    itemArrayFor(controlVar);
+                }
+            }
+            else if (scanner.getNext().equals("from")) {
+                result = stringDelimiterFor(controlVar);
+            }
+            else {
+                //TODO: fix exception - for loop type not recognized error or smth man idk
+                throw new PickleException();
+            }
         } else {
             Utility.skipTo(scanner, ":");
             result = statements(false);
@@ -605,6 +618,176 @@ public class Parser {
         return result;
     }
 
+    private ResultValue charStringFor(String controlVar) throws PickleException {
+        STEntry entry = symbolTable.getSymbol(controlVar);
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+
+        if (entry.primClassif == Classif.EMPTY) {
+            symbolTable.putSymbol(controlVar,
+                    new STIdentifier(controlVar,
+                            Classif.OPERAND,
+                            SubClassif.STRING,
+                            "none",
+                            "local",
+                            0));
+
+
+        }
+
+        STIdentifier controlVarSymbol = (STIdentifier) symbolTable.getSymbol(controlVar);
+
+        scanner.getNext();
+
+        ResultValue limit = expr(); //get value of limit
+
+        if (limit.dataType != SubClassif.STRING) {
+            //TODO fix exception - limit type needs to be of a string
+            throw new PickleException();
+        }
+
+        ResultValue startValue = Utility.valueAtIndex(this, limit, 0); //set up iterating char value
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            // TODO: fix exception - error for statement not ending in ':'
+            throw new PickleException();
+        }
+
+        //save off current position to loop
+        int iSavedLineNr = scanner.currentToken.iSourceLineNr;
+        int iSavedColPos = scanner.currentToken.iColPos;
+
+        storageManager.updateVariable(controlVar, startValue);
+
+        ResultValue currPos = new ResultValue("0", SubClassif.INTEGER);
+
+        ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
+
+        Numeric nOp1, nOp2;
+        nOp2 = new Numeric(scanner, incrementBy, "+", "Incrementing by value");
+
+        while(Utility.lessThan(this, currPos, limit.strValue.length())) {
+            // evaluate loop statements
+            result = statements(true);
+
+            if (!result.terminatingString.equals("endfor")) {
+                //TODO: fix exception - should be a for loop's terminating thingy
+                throw new PickleException();
+            }
+
+            nOp1 = new Numeric(scanner, currPos, "+", "Incrementing char pos");
+
+            currPos = Utility.add(this, nOp1, nOp2);
+            startValue = Utility.valueAtIndex(this, limit, Integer.parseInt(currPos.strValue)); //increment char value
+
+            storageManager.updateVariable(controlVar, startValue);
+
+            scanner.setPosition(iSavedLineNr, iSavedColPos);
+            scanner.getNext();
+        }
+
+        result = statements(false);
+
+        if (!result.terminatingString.equals("endfor")) {
+            //TODO: fix exception - end should be here
+            throw new PickleException();
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            //TODO: fix exception - ; should be here
+            throw new PickleException();
+        }
+
+        return result;
+    }
+
+    private ResultValue itemArrayFor(String controlVar) throws  PickleException {
+        STEntry entry = symbolTable.getSymbol(controlVar);
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+
+        if (entry.primClassif == Classif.EMPTY) {
+            symbolTable.putSymbol(controlVar,
+                    new STIdentifier(controlVar,
+                            Classif.OPERAND,
+                            SubClassif.VOID, //TODO - ish
+                            "none",
+                            "local",
+                            0));
+
+
+        }
+
+        STIdentifier controlVarSymbol = (STIdentifier) symbolTable.getSymbol(controlVar);
+
+        scanner.getNext();
+
+        ResultList limit = expr(); //get value of limit
+
+        if (limit.dataType != controlVarSymbol.dclType) { //TODO - might need to fix this if too
+            //TODO fix exception - limit type needs to be the same as the array elements
+            throw new PickleException();
+        }
+
+        ResultValue startValue = limit.getItem(this, 0); //set up iterating char value
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            // TODO: fix exception - error for statement not ending in ':'
+            throw new PickleException();
+        }
+
+        //save off current position to loop
+        int iSavedLineNr = scanner.currentToken.iSourceLineNr;
+        int iSavedColPos = scanner.currentToken.iColPos;
+
+        storageManager.updateVariable(controlVar, startValue);
+
+        ResultValue currPos = new ResultValue("0", SubClassif.INTEGER);
+
+        ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
+
+        Numeric nOp1, nOp2;
+        nOp2 = new Numeric(scanner, incrementBy, "+", "Incrementing by value");
+
+        while(Utility.lessThan(this, currPos, limit.allocatedSize)) {
+            // evaluate loop statements
+            result = statements(true);
+
+            if (!result.terminatingString.equals("endfor")) {
+                //TODO: fix exception - should be a for loop's terminating thingy
+                throw new PickleException();
+            }
+
+            nOp1 = new Numeric(scanner, currPos, "+", "Incrementing array pos");
+
+            currPos = Utility.add(this, nOp1, nOp2);
+            startValue = limit.getItem(this, Integer.parseInt(currPos.strValue)); //increment char value
+
+            storageManager.updateVariable(controlVar, startValue);
+
+            scanner.setPosition(iSavedLineNr, iSavedColPos);
+            scanner.getNext();
+        }
+
+        result = statements(false);
+
+        if (!result.terminatingString.equals("endfor")) {
+            //TODO: fix exception - end should be here
+            throw new PickleException();
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            //TODO: fix exception - ; should be here
+            throw new PickleException();
+        }
+
+        return result;
+    }
+
+    private ResultValue stringDelimiterFor(String controlVar) throws  PickleException {
+        STEntry entry = symbolTable.getSymbol(controlVar);
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        //TODO function body
+        return result;
+    }
 
     private ResultValue countingFor(String controlVar) throws PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
@@ -625,7 +808,7 @@ public class Parser {
 
         scanner.getNext();
         
-        if (scanner.currentToken.primClassif != Classif.OPERAND && 
+        if (scanner.currentToken.primClassif != Classif.OPERAND &&
                 (scanner.currentToken.subClassif != SubClassif.FLOAT || scanner.currentToken.subClassif != SubClassif.INTEGER)) {
             // TODO: 4/13/2021 parser error since assigning non-numeric
             throw new PickleException();
@@ -652,7 +835,7 @@ public class Parser {
 
         if (Utility.lessThan(this, incrementBy, zero).strValue.equals("T")) {
             // TODO: 4/13/2021 throw less than zero error
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Increment msut be positive integer");
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Increment must be positive integer");
         }
 
 
