@@ -2,6 +2,8 @@ package pickle;
 
 public enum OperatorPrecedence {
     NONE(0,0),
+    FUNC(16, 2),
+    ARRAY(16, 0),
     PAREN(15, 2),
     UNARYMINUS(12, 12),
     POWER(11, 10),

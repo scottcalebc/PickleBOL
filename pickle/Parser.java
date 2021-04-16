@@ -216,7 +216,14 @@ public class Parser {
 
 
 
+
         ArrayList<Token> out = Expr.postFixExpr(this);
+        System.out.printf("Postfix: ");
+        for(Token token : out) {
+            System.out.printf("%s ", token.tokenStr);
+        }
+
+        System.out.println();
 
         Result ans = Expr.evaluatePostFix(this, out);
 
@@ -994,7 +1001,7 @@ public class Parser {
     private ResultValue evalCond() throws PickleException {
 
 
-        ResultValue res = null;
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
         scanner.getNext();
 
         try {
@@ -1003,7 +1010,7 @@ public class Parser {
             throw p;
         } catch (Exception e) {
             // TODO: 4/15/2021 Bool are only ResultValue
-            throw new PickleException();
+            throw e;
         }
 
         if (!scanner.currentToken.tokenStr.equals(":")) {

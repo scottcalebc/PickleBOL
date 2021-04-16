@@ -23,6 +23,7 @@ public class Expr {
                     break;
                 case OPERATOR:
                     while (!stack.empty()) {
+                        System.out.printf("%s\n", stack.peek().tokenStr);
                         System.out.printf("Checking precedence:\n\t'%s'\t'%s'\n\t'%d'\t'%d'\n",
                                 parser.scanner.currentToken.tokenStr,
                                 stack.peek().tokenStr,
@@ -46,22 +47,46 @@ public class Expr {
                                 break;
                             case ")":
                                 if (!stack.empty()) {
-                                    while (!stack.empty()) {
+                                    while (!stack.empty() ) {
                                         Token popped = stack.pop();
                                         if (popped.tokenStr.equals("(")) {
                                             break;
                                         }
                                         postfix.add(popped);
+
+                                        if (popped.primClassif == Classif.FUNCTION) {
+                                            break;
+                                        }
                                     }
+
+
+
                                     break;
+                                }
+                            case ",":
+                                if (!stack.empty()) {
+                                    Token popped = stack.pop();
+                                    while (!stack.empty() && popped.primClassif != Classif.FUNCTION) {
+                                        postfix.add(popped);
+                                        popped = stack.pop();
+                                    }
+                                    stack.push(popped);
                                 }
                             default:
                                 // TODO: 4/8/2021 throw error for invalid seperator in expression
+                                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid seperator in expression");
                         }
 
                         break;
+                case FUNCTION:
+                        stack.push(parser.scanner.currentToken);
+                        if (!parser.scanner.getNext().equals("(")) {
+                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Functions must be followed by a '(' token");
+                        }
+                        break;
                 default:
                     // TODO: 4/8/2021 throw error for invalid token in expression
+                    throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid token in expression");
 
             }
 
@@ -86,6 +111,70 @@ public class Expr {
                 case OPERAND:
                     stack.push(new ResultValue(token.tokenStr, token.subClassif));
                     break;
+
+                case FUNCTION:
+                    ResultValue param;
+                    switch (token.tokenStr) {
+                        case "LENGTH":
+                            param = stack.pop();
+
+                            if (param.dataType == SubClassif.IDENTIFIER) {
+                                STEntry entry = parser.symbolTable.getSymbol(param.strValue);
+
+                                if (entry.primClassif == Classif.EMPTY){
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                }
+                                STIdentifier id = (STIdentifier) entry;
+                                Result tmp = parser.storageManager.getVariable(id.symbol);
+
+                                if (tmp instanceof ResultValue) {
+                                    param = (ResultValue) tmp;
+                                } else {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value of variable cannot be array");
+                                }
+                            }
+
+                            if (param.dataType != SubClassif.STRING) {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot call length on non-string  value");
+                            } else {
+                                res = Utility.builtInLENGTH(parser, param);
+                            }
+                            break;
+
+                        case "SPACES":
+                            param = stack.pop();
+
+                            if (param.dataType == SubClassif.IDENTIFIER) {
+                                STEntry entry = parser.symbolTable.getSymbol(param.strValue);
+
+                                if (entry.primClassif == Classif.EMPTY){
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                }
+                                STIdentifier id = (STIdentifier) entry;
+                                Result tmp = parser.storageManager.getVariable(id.symbol);
+
+                                if (tmp instanceof ResultValue) {
+                                    param = (ResultValue) tmp;
+                                } else {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value of variable cannot be array");
+                                }
+                            }
+
+                            if (param.dataType != SubClassif.STRING) {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot call length on non-string  value");
+                            } else {
+                                res = Utility.builtInSPACES(parser, param);
+                            }
+                            break;
+
+
+                        default:
+                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Have not implemented function to be used in expressions");
+
+                    }
+                    stack.push(res);
+                    break;
+
                 case OPERATOR:
                     ResultValue[] resValues = new ResultValue[2];
                     int i = 0;
@@ -197,6 +286,7 @@ public class Expr {
                     if (parser.bShowExpr) {
                         switch (token.operatorPrecedence) {
                             case UNARYMINUS:
+                            case NOT:
                                 break;
                             default:
                                 System.out.printf("... %s %s %s is %s\n", resValues[1].strValue, token.tokenStr, resValues[0].strValue, res.strValue);

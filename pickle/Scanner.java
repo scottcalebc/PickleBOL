@@ -381,6 +381,10 @@ public class Scanner {
                 nextToken.primClassif = Classif.EOF;
             }
 
+            if (tokenStr.equals("(") || tokenStr.equals(")")) {
+                nextToken.operatorPrecedence = OperatorPrecedence.PAREN;
+            }
+
             // todo: classify separator?
         }
 
@@ -411,9 +415,16 @@ public class Scanner {
             else if (entry instanceof  STFunction)
             {
                 nextToken.subClassif = SubClassif.BUILTIN;
+                nextToken.operatorPrecedence = OperatorPrecedence.FUNC;
+
+
             } else if (nextToken.primClassif == Classif.OPERAND){
                 tokenStr = classifyOperand(tokenStr);
+            } else  if (nextToken.primClassif == Classif.OPERATOR) {
+                classifyOperator(tokenStr);
             }
+
+
         }
 
         else
@@ -479,11 +490,6 @@ public class Scanner {
 
     public void classifyOperator(String tokenStr) {
         switch (tokenStr) {
-
-            case "(":
-                nextToken.operatorPrecedence = OperatorPrecedence.PAREN;
-
-                break;
             case "-":
                 if (currentToken.primClassif != Classif.OPERAND) {
                     nextToken.operatorPrecedence = OperatorPrecedence.UNARYMINUS;
