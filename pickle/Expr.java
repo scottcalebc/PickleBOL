@@ -13,7 +13,8 @@ public class Expr {
                 && !parser.scanner.currentToken.tokenStr.equals(";")
                 && !parser.scanner.currentToken.tokenStr.equals(":")
                 && !parser.scanner.currentToken.tokenStr.equals("to")
-                && !parser.scanner.currentToken.tokenStr.equals("by")) {
+                && !parser.scanner.currentToken.tokenStr.equals("by")
+                && !parser.scanner.currentToken.tokenStr.equals("=")) {
 
             switch (parser.scanner.currentToken.primClassif) {
                 case OPERAND:
@@ -183,6 +184,9 @@ public class Expr {
                                     stack.push(resValues[1]);
                                 }
 
+                                break;
+                            case "#":
+                                res = Utility.concatenateString(parser, resValues[1], resValues[0]);
                                 break;
                             default:
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot perform operation with invalid OPERATOR");
