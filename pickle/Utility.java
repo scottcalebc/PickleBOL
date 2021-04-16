@@ -164,17 +164,17 @@ public class Utility {
      * @return ResultList that is the created array
      * @throws ResultListException if the Result List could not be created.
      */
-    public static ResultList assignScalarToArray(Parser parser, ResultValue value, int size) throws ResultListException
-    {
+    public static ResultList assignScalarToArray(Parser parser, ResultValue value, int size) throws ResultListException {
         // Create List of ResultValues to become ResultList
         ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>(size);
         // Assign same value to all indexes of list
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             arrayList.add(value);
         }
         // return the ResultList
         return new ResultList(parser, arrayList, size, value.dataType);
+
+    }
     // ==================== STRING OPERATIONS =====================
     // =============================================================
 
