@@ -182,6 +182,9 @@ public class Parser {
         }
         else {
             res = (ResultValue) expr(); //get value in square brackets
+            if (res.dataType != SubClassif.INTEGER) {
+                res = Utility.castNumericToInt(new Numeric(res, "+", "expr ret value"));
+            }
             resList.capacity = Integer.parseInt(res.strValue);
             if (scanner.currentToken.tokenStr == ";") { //no assignment just declaration of bounded array
                 resList.allocatedSize = 0;
@@ -272,6 +275,10 @@ public class Parser {
         }
         else {
             ResultValue val = (ResultValue) expr();
+            if (val.dataType != array.dataType) {
+                //TODO - fix exception
+                throw new PickleException();
+            }
             res = Utility.assignScalarToArray(this, val, array.capacity);
         }
         return res;
