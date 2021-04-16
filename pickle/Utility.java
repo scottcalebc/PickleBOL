@@ -1,5 +1,7 @@
 package pickle;
 
+import java.util.ArrayList;
+
 /**
  * Utility class provides various utility functions for Scanner class.
  *
@@ -10,7 +12,18 @@ package pickle;
  * All operation and comparison functions return ResultValues containing
  * the data type and string value of the operation's or comparison's result.
  *
- * <p> Operate on Numerics:
+ * <p> Array Operations:
+ *      Array to Array Assignment.
+ *      Array scalar Assignment.
+ * <p> String Operations:
+ *     Concatenate String
+ *     Get Character at Subscript
+ *     Assign String to String starting at index
+ *     Assign Char to String at index
+ *     Built-In LENGTH()
+ *     Built-In SPACES()
+ *
+ * <p> Numeric Operations:
  *     Cast to Integer, Cast to Double,
  *     Add, Subtract, Unary Minus, Multiply, Divide, and Power operations.
  *
@@ -63,10 +76,227 @@ public class Utility {
      *
      * </p>
      * @param token
-     * @throws PickleException
+     * @throws PickleException if scanner.getNext() failes
      */
     public static void skipTo(Scanner scanner, String token) throws PickleException {
         while (!scanner.getNext().equals(token));
+    }
+    // ====================== ARRAY FUNCTIONS ======================
+    // =============================================================
+
+    /**
+     * Returns the subscript of the highest populated element + 1 as a ResultValue.
+     * This is the ResultLists allocated size.
+     *
+     * @param parser Parser Object
+     * @param array  ResultList Array
+     * @return ResultValue that is the ELEM index
+     */
+    public static ResultValue builtInELEM(Parser parser, ResultList array)
+    {
+        return new ResultValue(Integer.toString(array.allocatedSize), SubClassif.INTEGER);
+    }
+
+    /**
+     * Returns the value of the declared number of elements as a ResultValue.
+     * This is the ResultLists capacity.
+     *
+     * @param parser Parser Object
+     * @param array  ResultList Array
+     * @return ResultValue that is the MAXELEM index
+     */
+    public static ResultValue builtInMAXELEM(Parser parser, ResultList array)
+    {
+        return new ResultValue(Integer.toString(array.capacity), SubClassif.INTEGER);
+    }
+
+    /**
+     * Assigns an Array to an Array.
+     *
+     * <p> If a larger array is copied into a smaller array,
+     * the smaller array is filled with the corresponding elements of the larger array.
+     *
+     * <p> If a smaller array is copied into a larger array,
+     * the larger array is filled with the corresponding elements of the smaller array,
+     * and the remaining portion of the larger array is filled with empty values.
+     *
+     * @param parser      Parser Object
+     * @param targetArray ResultList that is target
+     * @param sourceArray ResultList to copy to target.
+     * @return the Target ResultList with the newly assigned values
+     * @throws ResultListException
+     */
+    public static ResultList assignArrayToArray(Parser parser, ResultList targetArray, ResultList sourceArray) throws ResultListException
+    {
+        ResultValue emptyValue = new ResultValue("", SubClassif.EMPTY);
+        ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>();
+
+        // copy items from source to target until:
+        //         target array is full
+        //      or source array has no more items
+        for (int i = 0; i < targetArray.capacity; i++)
+        {
+            // if the sourceArray has more items, copy value
+            if (i < sourceArray.allocatedSize)
+            {
+                // assign source value at index i to target index
+                arrayList.add(sourceArray.getItem(parser, i));
+            }
+            // sourceArray has no more items, fill rest of target with empty values
+            else
+            {
+                arrayList.add(emptyValue);
+            }
+        }
+        ResultList res = new ResultList(parser, arrayList, targetArray.capacity, targetArray.dataType);
+
+        return res;
+    }
+
+    /**
+     * Assigns a scalar to an Array.
+     *
+     * <p> Creates an array in which every element is filled with the same value.
+     *
+     * @param parser Parser Object
+     * @param value  ResultValue to assign to every element
+     * @param size   Size of the array to be created
+     * @return ResultList that is the created array
+     * @throws ResultListException if the Result List could not be created.
+     */
+    public static ResultList assignScalarToArray(Parser parser, ResultValue value, int size) throws ResultListException
+    {
+        // Create List of ResultValues to become ResultList
+        ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>(size);
+        // Assign same value to all indexes of list
+        for (int i = 0; i < size; i++)
+        {
+            arrayList.add(value);
+        }
+        // return the ResultList
+        return new ResultList(parser, arrayList, size, value.dataType);
+    // ==================== STRING OPERATIONS =====================
+    // =============================================================
+
+    /**
+     * Concatenates two strings together and returns a Result Value.
+     *
+     * @param parser Parser Object
+     * @param op1    String 1 ResultValue
+     * @param op2    String 2 ResultValue
+     * @return ResultValue of type String
+     */
+    public static ResultValue concatenateString(Parser parser, ResultValue op1, ResultValue op2)
+    {
+        return new ResultValue(op1.strValue + op2.strValue, SubClassif.STRING);
+    }
+
+    /**
+     * Returns the char at a given index of a string as a ResultValue
+     *
+     * <p> Supports negative indexing of strings (e.g. -1 is last char)
+     *
+     * @param parser      Parser Object
+     * @param resultValue String as ResultValue
+     * @param index       index of string to retrieve
+     * @return ResultValue of type String
+     * @throws StringException if index is out of bounds
+     */
+    public static ResultValue valueAtIndex(Parser parser, ResultValue resultValue, int index) throws StringException
+    {
+        // Normalize the index if it is negative
+        int normalizedIndex;
+        if (index < 0)
+        {
+            normalizedIndex = resultValue.strValue.length() + index;
+        }
+        else normalizedIndex = index;
+
+        // verify boundaries of string
+        if (normalizedIndex < 0 || normalizedIndex >= resultValue.strValue.length())
+        {
+            throw new StringException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                                      "String subscript out of bounds.");
+        }
+        return new ResultValue(Character.toString(resultValue.strValue.charAt(normalizedIndex)), SubClassif.STRING);
+    }
+
+    /**
+     * Assigns a String value starting at a given index to a String.
+     * Returns the newly assigned string as a ResultValue
+     *
+     * <p> Supports negative indexing of strings (e.g. -1 is last char)
+     *
+     * @param parser Parser object
+     * @param str1   String ResultValue to assign to
+     * @param str2   String ResultValue to be assigned at the index
+     * @param index  Starting position to assign the String
+     * @return ResultValue of type string
+     * @throws StringException if index is out of bounds
+     */
+    public static ResultValue assignAtIndex(Parser parser, ResultValue str1, ResultValue str2, int index) throws StringException
+    {
+        // Normalize the index if it is negative
+        int normalizedIndex;
+        if (index < 0)
+        {
+            normalizedIndex = str1.strValue.length() + index;
+        }
+        else normalizedIndex = index;
+
+        // verify boundaries of string
+        if (normalizedIndex < 0 || normalizedIndex >= str1.strValue.length())
+        {
+            throw new StringException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    "String subscript out of bounds.");
+        }
+        // replace each of the chars in the string with the new strings chars
+        StringBuilder newStringBuild = new StringBuilder(str1.strValue);
+        int iStr1Pos;
+        int iStr2Pos = 0;
+        // for each index of string 1
+        for(iStr1Pos = normalizedIndex; iStr1Pos < str1.strValue.length() ; iStr1Pos++)
+        {
+            // replace the str1[iStr1Pos] char with str2[iStr2Pos] char
+            newStringBuild.setCharAt(iStr1Pos, str2.strValue.charAt(iStr2Pos));
+            iStr2Pos++; // increment string 2 position
+            // if reached end of str2 end loop
+            if (iStr2Pos == str2.strValue.length()) break;
+        }
+        // if there are remaining chars to add from string 2
+        if(iStr2Pos < str2.strValue.length())
+        {
+            newStringBuild.append(str2.strValue.substring(iStr2Pos));
+        }
+        // return the newly constructed string
+        return new ResultValue(newStringBuild.toString(), SubClassif.STRING);
+    }
+
+    /**
+     * Returns the number of characters in a given string as a ResultValue of type Integer.
+     *
+     * @param parser      Parser Object
+     * @param resultValue String as a ResultValue
+     * @return ResultValue of Type INTEGER which is the length of the string.
+     */
+    public static ResultValue builtInLENGTH(Parser parser, ResultValue resultValue)
+    {
+        return new ResultValue(Integer.toString(resultValue.strValue.length()), SubClassif.INTEGER);
+    }
+
+    /**
+     * Returns "T" if the given ResultValue of Type String is empty or contains only spaces.
+     * Otherwise returns "F". Value is returned as a ResultValue of type Boolean.
+     *
+     * @param parser      Parser Object
+     * @param resultValue String as a ResultValue
+     * @return A ResultValue of type BOOLEAN
+     */
+    public static ResultValue builtInSPACES(Parser parser, ResultValue resultValue)
+    {
+        if (resultValue.strValue.trim().isEmpty() || resultValue.strValue == null)
+            return new ResultValue("T", SubClassif.BOOLEAN);
+        else return new ResultValue("F", SubClassif.BOOLEAN);
     }
 
     // ==================== TYPE COERCIONS =====================
@@ -426,8 +656,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "==", "test equal");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "==", "test equal");
+            Numeric nOp1 = new Numeric(parser, resVal1, "==", "test equal");
+            Numeric nOp2 = new Numeric(parser, resVal2, "==", "test equal");
 
             // Compare the values
             boolean bResult;
@@ -498,8 +728,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "!=", "test not equal");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "!=", "test not equal");
+            Numeric nOp1 = new Numeric(parser, resVal1, "!=", "test not equal");
+            Numeric nOp2 = new Numeric(parser, resVal2, "!=", "test not equal");
 
 
             // Compare the values
@@ -571,8 +801,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "<", "test less than");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "<", "test less than");
+            Numeric nOp1 = new Numeric(parser, resVal1, "<", "test less than");
+            Numeric nOp2 = new Numeric(parser, resVal2, "<", "test less than");
 
             // Compare the values
             boolean bResult;
@@ -644,8 +874,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, ">", "test greater than");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, ">", "test greater than");
+            Numeric nOp1 = new Numeric(parser, resVal1, ">", "test greater than");
+            Numeric nOp2 = new Numeric(parser, resVal2, ">", "test greater than");
 
             // Compare the values
             boolean bResult;
@@ -716,8 +946,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, "<=", "test less than or equal");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, "<=", "test less than or equal");
+            Numeric nOp1 = new Numeric(parser, resVal1, "<=", "test less than or equal");
+            Numeric nOp2 = new Numeric(parser, resVal2, "<=", "test less than or equal");
 
             // Compare the values
             boolean bResult;
@@ -789,8 +1019,8 @@ public class Utility {
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
-            Numeric nOp1 = new Numeric(parser.scanner, resVal1, ">=", "test greater than or equal");
-            Numeric nOp2 = new Numeric(parser.scanner, resVal2, ">=", "test greater than or equal");
+            Numeric nOp1 = new Numeric(parser, resVal1, ">=", "test greater than or equal");
+            Numeric nOp2 = new Numeric(parser, resVal2, ">=", "test greater than or equal");
 
             // Compare the values
             boolean bResult;

@@ -97,7 +97,7 @@ public class Expr {
                                 throw new PickleException();
                             }
 
-                            resValues[i] = parser.storageManager.getVariable(resValues[i].strValue);
+                            resValues[i] = (ResultValue) parser.storageManager.getVariable(resValues[i].strValue);
                         }
 
                         i++;
@@ -166,17 +166,17 @@ public class Expr {
                                 res = Utility.notEqual(parser, resValues[1], resValues[0]);
                                 break;
                             case "and":
-                                bOp1 = new Bool(parser.scanner, resValues[1]);
-                                bOp2 = new Bool(parser.scanner, resValues[0]);
+                                bOp1 = new Bool(parser, resValues[1]);
+                                bOp2 = new Bool(parser, resValues[0]);
                                 res = Utility.boolAnd(parser, bOp1, bOp2);
                                 break;
                             case "or":
-                                bOp1 = new Bool(parser.scanner, resValues[1]);
-                                bOp2 = new Bool(parser.scanner, resValues[0]);
+                                bOp1 = new Bool(parser, resValues[1]);
+                                bOp2 = new Bool(parser, resValues[0]);
                                 res = Utility.boolOr(parser, bOp1, bOp2);
                                 break;
                             case "not":
-                                bOp2 = new Bool(parser.scanner, resValues[0]);
+                                bOp2 = new Bool(parser, resValues[0]);
                                 res = Utility.boolNot(parser, bOp2);
 
                                 if (i >= 1) {
@@ -220,7 +220,7 @@ public class Expr {
                 throw new PickleException();
             }
 
-            res = parser.storageManager.getVariable(res.strValue);
+            res = (ResultValue) parser.storageManager.getVariable(res.strValue);
         }
 
         return res;
@@ -239,17 +239,17 @@ public class Expr {
                     throw new PickleException();
                 }
 
-                res = parser.storageManager.getVariable(res.strValue);
+                res = (ResultValue) parser.storageManager.getVariable(res.strValue);
                 if (res.dataType != SubClassif.INTEGER && res.dataType != SubClassif.FLOAT) {
                     throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Cannot perform unary minus on non-numeric operand identifier:");
                 }
 
 
-                n = new Numeric(parser.scanner, res, operator, desc);
+                n = new Numeric(parser, res, operator, desc);
                 break;
             case INTEGER:
             case FLOAT:
-                n = new Numeric(parser.scanner, res, operator, desc);
+                n = new Numeric(parser, res, operator, desc);
         }
 
         return n;
