@@ -79,12 +79,13 @@ public class Parser {
      * @return                  generic ResultValue
      * @throws PickleException
      */
-    private ResultValue controlStmt(Boolean bExec) throws PickleException {
-        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+    private Result controlStmt(Boolean bExec) throws PickleException {
+        Result res = new ResultValue("", SubClassif.EMPTY);
 
         switch (scanner.currentToken.subClassif) {
             case DECLARE:
                 res = declareStmt();
+                break;
             case FLOW:
                 String flowStr = scanner.currentToken.tokenStr;
 
@@ -97,8 +98,12 @@ public class Parser {
                         break;
                     case "for":
                         res = forStmt(bExec);
+                        break;
 
                 }
+                break;
+            default:
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown Control token");
         }
 
         return res;
@@ -183,10 +188,10 @@ public class Parser {
         else {
             res = (ResultValue) expr(); //get value in square brackets
             if (res.dataType != SubClassif.INTEGER) {
-                res = Utility.castNumericToInt(new Numeric(res, "+", "expr ret value"));
+                res = Utility.castNumericToInt(this, new Numeric(this, res, "+", "expr ret value"));
             }
             resList.capacity = Integer.parseInt(res.strValue);
-            if (scanner.currentToken.tokenStr == ";") { //no assignment just declaration of bounded array
+            if (scanner.currentToken.tokenStr.equals(";")) { //no assignment just declaration of bounded array
                 resList.allocatedSize = 0;
                 symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
                 storageManager.updateVariable(varStr, resList);
@@ -194,21 +199,28 @@ public class Parser {
             }
         }
 
-        if (scanner.currentToken.tokenStr != "=") { //we may have a problem, dont know what lamo
+        if (!scanner.currentToken.tokenStr.equals("=")) { //we may have a problem, dont know what lamo
             throw new PickleException();
         }
 
         //loop though elements
         while(!scanner.getNext().equals(";")) {
-            if (scanner.currentToken.tokenStr == ",") { //skip comma
+            if (scanner.currentToken.tokenStr.equals(",")) { //skip comma
                 continue;
             }
-            if (scanner.currentToken.subClassif != arrType) {
-                throw new PickleException("Expected " + declareTypeStr + ", but found " + scanner.currentToken.subClassif.name);
-            }
             currRes = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
+
+            if (scanner.currentToken.subClassif != arrType) {
+             if (scanner.currentToken.subClassif == SubClassif.INTEGER && arrType == SubClassif.FLOAT) {
+                 currRes = Utility.castNumericToDouble(this, new Numeric(this, currRes, "", "Casting to Float"));
+             } else if (scanner.currentToken.subClassif == SubClassif.FLOAT && arrType == SubClassif.INTEGER) {
+                 currRes = Utility.castNumericToInt(this, new Numeric(this, currRes, "", "Casting to Integer"));
+             }
+            }
+
+
             values.add(currRes);
-            if (scanner.nextToken.tokenStr != "," && scanner.nextToken.tokenStr != ";") {
+            if (!scanner.nextToken.tokenStr.equals(",")  && !scanner.nextToken.tokenStr.equals(";")) {
                 throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Expected a sperator");
             }
         }
@@ -233,7 +245,7 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue assignmentStmt() throws PickleException {
+    private Result assignmentStmt() throws PickleException {
         Result res;
 
         if (scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
