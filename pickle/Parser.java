@@ -167,7 +167,7 @@ public class Parser {
         return res;
     }
 
-    private ResultList declareArrayStmt(String varStr, String declareTypeStr) throws PickleException {
+    private Result declareArrayStmt(String varStr, String declareTypeStr) throws PickleException {
         ResultList resList;
         ResultValue res, currRes;
         SubClassif arrType = getDataType(declareTypeStr);
