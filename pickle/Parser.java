@@ -111,7 +111,7 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue declareStmt() throws PickleException {
+    private Result declareStmt() throws PickleException {
         ResultValue res;
 
         String declareTypeStr = scanner.currentToken.tokenStr;
@@ -124,6 +124,11 @@ public class Parser {
         }
 
         String varStr = scanner.currentToken.tokenStr;
+
+        if (scanner.nextToken.tokenStr.equals("[")) {
+            scanner.getNext();
+            return declareArrayStmt(varStr, declareTypeStr);
+        }
 
         res = new ResultValue(varStr, SubClassif.EMPTY);
 
@@ -162,6 +167,61 @@ public class Parser {
         return res;
     }
 
+    private ResultList declareArrayStmt(String varStr, String declareTypeStr) throws PickleException {
+        ResultList resList;
+        ResultValue res, currRes;
+        SubClassif arrType = getDataType(declareTypeStr);
+        ArrayList<ResultValue> values = new ArrayList<ResultValue>();
+
+        resList = new ResultList(this, new ArrayList<ResultValue>(), 0, arrType);
+
+        if (scanner.getNext().equals("]")) { //if square brackets contain no value
+            if (!scanner.getNext().equals("=")) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Excpeted assignment values for unbounded array");
+            }
+        }
+        else {
+            res = (ResultValue) expr(); //get value in square brackets
+            resList.capacity = Integer.parseInt(res.strValue);
+            if (scanner.currentToken.tokenStr == ";") { //no assignment just declaration of bounded array
+                resList.allocatedSize = 0;
+                symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
+                storageManager.updateVariable(varStr, resList);
+                return resList;
+            }
+        }
+
+        if (scanner.currentToken.tokenStr != "=") { //we may have a problem, dont know what lamo
+            throw new PickleException();
+        }
+
+        //loop though elements
+        while(!scanner.getNext().equals(";")) {
+            if (scanner.currentToken.tokenStr == ",") { //skip comma
+                continue;
+            }
+            if (scanner.currentToken.subClassif != arrType) {
+                throw new PickleException("Expected " + declareTypeStr + ", but found " + scanner.currentToken.subClassif.name);
+            }
+            currRes = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
+            values.add(currRes);
+            if (scanner.nextToken.tokenStr != "," && scanner.nextToken.tokenStr != ";") {
+                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Expected a sperator");
+            }
+        }
+
+        resList.arrayList = values;
+        resList.allocatedSize = values.size();
+        if (resList.capacity == 0) {
+            resList.capacity = values.size();
+        }
+
+        symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
+        storageManager.updateVariable(varStr, resList);
+
+        return resList;
+    }
+
     /**
      * Executes assignment statements
      * <p>
@@ -174,17 +234,21 @@ public class Parser {
         Result res;
 
         if (scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
-
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Operand must be of type IDENTIFIER to assign values");
         }
 
         String varStr = scanner.currentToken.tokenStr;
 
+        if (((STIdentifier) symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
+            if (!scanner.getNext().equals("=")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Second token in assignment statement must be \"=\" Operator");
+            }
+            return assignArrayStmt(varStr);
+        }
 
         if (scanner.nextToken.primClassif != Classif.OPERATOR || !scanner.getNext().equals("=")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Second token in assignment statement must be \"=\" Operator");
         }
-
 
         scanner.getNext();      //get next token
         res = expr();           //get expression value
@@ -196,12 +260,22 @@ public class Parser {
 
         res = assign(varStr, res);  //save value to symbol
 
-
-
-
         return (ResultValue) res;
     }
 
+    private ResultList assignArrayStmt(String varString) throws PickleException {
+        ResultList array = (ResultList) storageManager.getVariable(varString);
+        ResultList res;
+        scanner.getNext(); //skip to asignee dude guy expr 🤵
+        if (((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr == ";") { //just an array to array
+            res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(varString));
+        }
+        else {
+            ResultValue val = (ResultValue) expr();
+            res = Utility.assignScalarToArray(this, val, array.capacity);
+        }
+        return res;
+    }
 
     /**
      * Parsers and executes expressions
@@ -273,7 +347,6 @@ public class Parser {
         return res;
     }
 
-
     /**
      * BUILTIN print function
      * <p>
@@ -341,7 +414,6 @@ public class Parser {
         return res;
     }
 
-
     /**
      * Parsers and executes assign statements
      * <p></p>
@@ -379,7 +451,6 @@ public class Parser {
 
         return (ResultValue) res;
     }
-
 
     /**
      * Executes debug statements setting debug flags for parser
@@ -611,7 +682,6 @@ public class Parser {
         return resTemp;
 
     }
-
 
     private ResultValue forStmt(Boolean bExec) throws PickleException {
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
@@ -989,14 +1059,9 @@ public class Parser {
 
     }
 
-
-
     private ResultValue evalCond() throws PickleException {
-
-
         ResultValue res = null;
         scanner.getNext();
-
         try {
             res = (ResultValue) expr();
         } catch (PickleException p) {
@@ -1012,7 +1077,6 @@ public class Parser {
 
         return res;
     }
-
 
     /**
      * Main Pickle Pickle Loop
