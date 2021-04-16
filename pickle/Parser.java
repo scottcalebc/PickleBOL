@@ -1,5 +1,6 @@
 package pickle;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
 
 public class Parser {
@@ -250,6 +251,19 @@ public class Parser {
                 case "print":
                     print();
                     break;
+                case "LENGTH":
+                    res = length();
+                    break;
+                case "SPACES":
+                    //res = spaces();
+                    break;
+                case "ELEM":
+                    //res = elem();
+                    break;
+                case "MAXELEM":
+                    //res = maxelem();
+                    break;
+
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "No function of name: ");
             }
@@ -303,6 +317,28 @@ public class Parser {
 
         //output string to terminal
         System.out.println(sb.toString());
+    }
+
+    private ResultValue length() throws PickleException {
+        scanner.getNext();
+        ResultValue res;
+        Token exprToken = scanner.currentToken;
+        try {
+
+            res = (ResultValue) expr();
+
+            if (res.dataType != SubClassif.STRING) {
+                throw new ScannerParserException(exprToken, scanner.sourceFileNm, "Cannot call builtin LENGTH on non-string expressions");
+            }
+
+            res = Utility.builtInLENGTH(this, res);
+        } catch (PickleException p) {
+            throw p;
+        } catch (Exception e) {
+            throw new ScannerParserException(exprToken, scanner.sourceFileNm, "Cannot call builtin Length on arrays");
+        }
+
+        return res;
     }
 
 
