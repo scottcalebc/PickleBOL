@@ -320,6 +320,10 @@ public class Parser {
 
         Result ans = Expr.evaluatePostFix(this, out);
 
+        if (ans instanceof  ResultValue) {
+            System.out.printf("Evaluated to answer: %s\n", ((ResultValue)ans).strValue);
+        }
+
         // code to see postfix expression and evaluated answer
         /*System.out.printf("Postfix: ");
         for(Token token : out) {
