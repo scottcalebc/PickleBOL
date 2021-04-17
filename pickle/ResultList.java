@@ -1,7 +1,6 @@
 package pickle;
 
 import java.util.ArrayList;
-
 /**
  * This class Represents Arrays as lists of ResultValues.
  *
@@ -188,5 +187,18 @@ public class ResultList implements Result
             if (arrayList.get(i).dataType != SubClassif.EMPTY) break;
         }
         allocatedSize = i+1;
+    }
+
+    public String printResult() {
+        StringBuilder sb = new StringBuilder();
+        for (ResultValue res : arrayList) {
+            if (res.dataType != SubClassif.EMPTY) {
+                if (res == arrayList.get(arrayList.size() - 1))
+                    sb.append(res.printResult());
+                else
+                    sb.append(res.printResult() + " ");
+            }
+        }
+        return sb.toString();
     }
 }

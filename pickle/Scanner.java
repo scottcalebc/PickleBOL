@@ -7,7 +7,7 @@ import java.util.Arrays;
 public class Scanner {
 
     private final static String delimiters = " \t:;()'\"=!<>+-*/[]#,^\n";   // Terminate a token
-    private final static String operators = "+-*/<>=!^";                    // All operators
+    private final static String operators = "+-*/<>=!^#";                   // All operators
     private final static String separators = "(),:;[]";                     // All seperators
 
     protected ArrayList<String> sourceLineM;                                // List of all source file lines
@@ -351,6 +351,10 @@ public class Scanner {
             currentToken.printToken();
         }
 
+        if (nextToken.tokenStr.equals("")) {
+            currentToken.primClassif = Classif.EOF;
+        }
+
         return currentToken.tokenStr;
     }
 
@@ -375,6 +379,10 @@ public class Scanner {
             if (iSourceLineNr >= sourceLineM.size() && iColPos >= textCharM.length)
             {
                 nextToken.primClassif = Classif.EOF;
+            }
+
+            if (tokenStr.equals("(") || tokenStr.equals(")")) {
+                nextToken.operatorPrecedence = OperatorPrecedence.PAREN;
             }
 
             // todo: classify separator?
@@ -407,9 +415,16 @@ public class Scanner {
             else if (entry instanceof  STFunction)
             {
                 nextToken.subClassif = SubClassif.BUILTIN;
+                nextToken.operatorPrecedence = OperatorPrecedence.FUNC;
+
+
             } else if (nextToken.primClassif == Classif.OPERAND){
                 tokenStr = classifyOperand(tokenStr);
+            } else  if (nextToken.primClassif == Classif.OPERATOR) {
+                classifyOperator(tokenStr);
             }
+
+
         }
 
         else
@@ -475,13 +490,8 @@ public class Scanner {
 
     public void classifyOperator(String tokenStr) {
         switch (tokenStr) {
-
-            case "(":
-                nextToken.operatorPrecedence = OperatorPrecedence.PAREN;
-
-                break;
             case "-":
-                if (currentToken.primClassif != Classif.OPERAND) {
+                if (currentToken.primClassif != Classif.OPERAND && !currentToken.tokenStr.equals(")") && !currentToken.tokenStr.equals("]")) {
                     nextToken.operatorPrecedence = OperatorPrecedence.UNARYMINUS;
 
                 } else {

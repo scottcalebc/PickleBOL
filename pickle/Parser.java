@@ -79,12 +79,13 @@ public class Parser {
      * @return                  generic ResultValue
      * @throws PickleException
      */
-    private ResultValue controlStmt(Boolean bExec) throws PickleException {
-        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+    private Result controlStmt(Boolean bExec) throws PickleException {
+        Result res = new ResultValue("", SubClassif.EMPTY);
 
         switch (scanner.currentToken.subClassif) {
             case DECLARE:
                 res = declareStmt();
+                break;
             case FLOW:
                 String flowStr = scanner.currentToken.tokenStr;
 
@@ -97,8 +98,12 @@ public class Parser {
                         break;
                     case "for":
                         res = forStmt(bExec);
+                        break;
 
                 }
+                break;
+            default:
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown Control token");
         }
 
         return res;
@@ -111,7 +116,7 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue declareStmt() throws PickleException {
+    private Result declareStmt() throws PickleException {
         ResultValue res;
 
         String declareTypeStr = scanner.currentToken.tokenStr;
@@ -124,6 +129,11 @@ public class Parser {
         }
 
         String varStr = scanner.currentToken.tokenStr;
+
+        if (scanner.nextToken.tokenStr.equals("[")) {
+            scanner.getNext();
+            return declareArrayStmt(varStr, declareTypeStr);
+        }
 
         res = new ResultValue(varStr, SubClassif.EMPTY);
 
@@ -155,11 +165,80 @@ public class Parser {
 
         // if assignment being performed during declearation ensure to assign value before exiting
         if (res.dataType != SubClassif.EMPTY) {
-            res = assign(varStr, res);
+            assign(varStr, res);
         }
 
 
         return res;
+    }
+
+    private Result declareArrayStmt(String varStr, String declareTypeStr) throws PickleException {
+        ResultList resList;
+        ResultValue res, currRes;
+        SubClassif arrType = getDataType(declareTypeStr);
+        ArrayList<ResultValue> values = new ArrayList<ResultValue>();
+
+        resList = new ResultList(this, new ArrayList<ResultValue>(), 0, arrType);
+
+        if (scanner.getNext().equals("]")) { //if square brackets contain no value
+            if (!scanner.getNext().equals("=")) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Excpeted assignment values for unbounded array");
+            }
+        }
+        else {
+            res = (ResultValue) expr(); //get value in square brackets
+            if (res.dataType != SubClassif.INTEGER) {
+                res = Utility.castNumericToInt(this, new Numeric(this, res, "+", "expr ret value"));
+            }
+            resList.capacity = Integer.parseInt(res.strValue);
+            ResultValue empty = new ResultValue("", SubClassif.EMPTY);
+            for (int i = 0; i < resList.capacity; i++) {
+                resList.arrayList.add(empty);
+            }
+            if (scanner.currentToken.tokenStr.equals(";")) { //no assignment just declaration of bounded array
+                resList.allocatedSize = 0;
+                symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
+                storageManager.updateVariable(varStr, resList);
+                return resList;
+            }
+        }
+
+        if (!scanner.currentToken.tokenStr.equals("=")) { //we may have a problem, dont know what lamo
+            throw new PickleException();
+        }
+
+        //loop though elements
+        while(!scanner.getNext().equals(";")) {
+            if (scanner.currentToken.tokenStr.equals(",")) { //skip comma
+                continue;
+            }
+            currRes = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
+
+            if (scanner.currentToken.subClassif != arrType) {
+             if (scanner.currentToken.subClassif == SubClassif.INTEGER && arrType == SubClassif.FLOAT) {
+                 currRes = Utility.castNumericToDouble(this, new Numeric(this, currRes, "", "Casting to Float"));
+             } else if (scanner.currentToken.subClassif == SubClassif.FLOAT && arrType == SubClassif.INTEGER) {
+                 currRes = Utility.castNumericToInt(this, new Numeric(this, currRes, "", "Casting to Integer"));
+             }
+            }
+
+
+            values.add(currRes);
+            if (!scanner.nextToken.tokenStr.equals(",")  && !scanner.nextToken.tokenStr.equals(";")) {
+                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Expected a sperator");
+            }
+        }
+
+        resList.arrayList = values;
+        resList.allocatedSize = values.size();
+        if (resList.capacity == 0) {
+            resList.capacity = values.size();
+        }
+
+        symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
+        storageManager.updateVariable(varStr, resList);
+
+        return resList;
     }
 
     /**
@@ -170,24 +249,67 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue assignmentStmt() throws PickleException {
+    private Result assignmentStmt() throws PickleException {
         Result res;
 
         if (scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
-
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Operand must be of type IDENTIFIER to assign values");
         }
 
         String varStr = scanner.currentToken.tokenStr;
 
+        STEntry entry = symbolTable.getSymbol(scanner.currentToken.tokenStr);
 
-        if (scanner.nextToken.primClassif != Classif.OPERATOR || !scanner.getNext().equals("=")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Second token in assignment statement must be \"=\" Operator");
+        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
+            res =  assignArrayStmt(varStr);
+        } else if (scanner.nextToken.primClassif == Classif.OPERATOR && scanner.getNext().equals("=")) {
+
+            scanner.getNext();      //get next token
+            res = expr();           //get expression value
+
+        } else if (scanner.getNext().equals("[")) {
+
+
+            scanner.getNext(); // advance to Expression
+            ResultValue index;
+
+            try {
+                entry = symbolTable.getSymbol(varStr);
+
+                if (entry.primClassif == Classif.EMPTY) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into uninitialized string");
+                } else  if (((STIdentifier)entry).dclType != SubClassif.STRING) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into non array or non string variables");
+                }
+
+                ResultValue str = (ResultValue)storageManager.getVariable(varStr);
+
+                index = (ResultValue) expr();
+
+                if (index.dataType != SubClassif.INTEGER) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Index must be an Integer");
+                }
+
+                if (!scanner.currentToken.tokenStr.equals("=")) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must be followed by '=' '");
+                }
+
+                scanner.getNext(); // advance to next expression must be a string
+                res = (ResultValue)expr();
+
+
+
+                res = Utility.assignAtIndex(this, str, (ResultValue) res, Integer.parseInt(index.strValue) );
+
+            } catch (Exception e) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expression must be scalar value");
+            }
+
         }
 
-
-        scanner.getNext();      //get next token
-        res = expr();           //get expression value
+        else  {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid assignment");
+        }
 
         // ensure assignment ends in ';'
         if (!scanner.currentToken.tokenStr.equals(";")) {
@@ -195,13 +317,70 @@ public class Parser {
         }
 
         res = assign(varStr, res);  //save value to symbol
-
-
-
-
-        return (ResultValue) res;
+        return res;
     }
 
+    private ResultList assignArrayStmt(String varString) throws PickleException {
+        ResultList array = (ResultList) storageManager.getVariable(varString), res;
+        ResultValue val, assign;
+
+        if (scanner.getNext().equals("=")) { //total array assignment
+            scanner.getNext(); //skip to asignee dude guy expr 🤵
+
+            if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER && ((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr.equals(";")) { //just an array to array
+                res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(scanner.currentToken.tokenStr));
+                scanner.getNext();
+            }
+            else {
+                val = (ResultValue) expr();
+                if (val.dataType != array.dataType) {
+                    //TODO - fix exception
+                    throw new PickleException();
+                }
+                res = Utility.assignScalarToArray(this, val, array.capacity);
+            }
+        }
+        else if (scanner.currentToken.tokenStr.equals("[")) { //arr index assignment
+
+            scanner.getNext();
+            val = (ResultValue) expr(); //get index of array
+
+            if (!scanner.currentToken.tokenStr.equals("=")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Array assignment must be followed by '=' operator");
+            }
+
+            scanner.getNext();
+            assign = (ResultValue) expr();
+            if (val.dataType != SubClassif.INTEGER) {
+                val = Utility.castNumericToInt(this, new Numeric(this, val, "+", "value of array index"));
+            }
+
+
+            if (assign.dataType != SubClassif.STRING && assign.dataType != SubClassif.INTEGER && assign.dataType != SubClassif.FLOAT) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign data type " + assign.dataType.name() + " to array of data type " + array.dataType.name());
+            }
+
+            if (assign.dataType == SubClassif.FLOAT && array.dataType == SubClassif.INTEGER) {
+                assign = Utility.castNumericToInt(this, new Numeric(this, assign, "", "Coerce to Int"));
+            } else if (assign.dataType == SubClassif.INTEGER && array.dataType == SubClassif.FLOAT) {
+                assign = Utility.castNumericToDouble(this, new Numeric(this, assign, "", "Coerce to Float"));
+            }
+
+
+            array.setItem(this, Integer.parseInt(val.strValue), assign);
+            res = array;
+        }
+        else {
+            throw new PickleException();
+        }
+
+        if (!scanner.currentToken.tokenStr.equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
+        }
+
+
+        return res;
+    }
 
     /**
      * Parsers and executes expressions
@@ -214,21 +393,22 @@ public class Parser {
     private Result expr() throws PickleException {
         //System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
 
-
-
         ArrayList<Token> out = Expr.postFixExpr(this);
+
+        /* System.out.printf("Postfix: ");
+        for(Token token : out) {
+            System.out.printf("%s ", token.tokenStr);
+        }
+        System.out.println();*/
 
         Result ans = Expr.evaluatePostFix(this, out);
 
         // code to see postfix expression and evaluated answer
-        /*System.out.printf("Postfix: ");
-        for(Token token : out) {
-            System.out.printf("%s ", token.tokenStr);
-        }
 
-        System.out.println();
 
-        System.out.printf("Evalueted to answer: %s\n", ans.strValue);*/
+
+
+        /*System.out.printf("Evalueted to answer: %s\n", ((ResultValue)ans).strValue);*/
 
         return ans;
 
@@ -243,7 +423,7 @@ public class Parser {
      * @throws PickleException
      */
     private ResultValue functionStmt() throws PickleException {
-        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        Result res =  null;
 
         // check for builtin function if not throw error for identifier
         if (scanner.currentToken.subClassif == SubClassif.BUILTIN) {
@@ -252,16 +432,10 @@ public class Parser {
                     print();
                     break;
                 case "LENGTH":
-                    res = length();
-                    break;
                 case "SPACES":
-                    //res = spaces();
-                    break;
                 case "ELEM":
-                    //res = elem();
-                    break;
                 case "MAXELEM":
-                    //res = maxelem();
+                    res = expr();
                     break;
 
                 default:
@@ -270,9 +444,8 @@ public class Parser {
         }
 
 
-        return res;
+        return (ResultValue) res;
     }
-
 
     /**
      * BUILTIN print function
@@ -301,11 +474,11 @@ public class Parser {
                 continue;
             }
 
-            ResultValue res = (ResultValue) expr();
+            Result res = expr();
 
 
 
-            sb.append(res.strValue);
+            sb.append(res.printResult());
             sb.append(" ");
 
         }
@@ -341,7 +514,6 @@ public class Parser {
         return res;
     }
 
-
     /**
      * Parsers and executes assign statements
      * <p></p>
@@ -351,17 +523,22 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue assign(String varStr, Result res) throws PickleException{
+    private Result assign(String varStr, Result res) throws PickleException {
        /* if (res.dataType == SubClassif.EMPTY) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign empty value to identifier:");
         }*/
 
         // grab identifier from table to perform coercion if necessary
+        STEntry entry = this.symbolTable.getSymbol(varStr);
+
+        if (entry.primClassif == Classif.EMPTY) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign value to undeclared variable");
+        }
+
+
         STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);
 
         if (res instanceof ResultValue) {
-
-
             // conversion from specified types to declared type
             if (symbolEntry.dclType == SubClassif.FLOAT) {
                 res = Utility.castNumericToDouble(this, new Numeric(this, (ResultValue) res, "", "cast to declared type"));
@@ -377,9 +554,8 @@ public class Parser {
         if (bShowAssign)
             System.out.printf("... Assign result into '%s' is '%s'\n", varStr, ((ResultValue) res).strValue);
 
-        return (ResultValue) res;
+        return  res;
     }
-
 
     /**
      * Executes debug statements setting debug flags for parser
@@ -612,7 +788,6 @@ public class Parser {
 
     }
 
-
     private ResultValue forStmt(Boolean bExec) throws PickleException {
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
 
@@ -639,11 +814,10 @@ public class Parser {
                         throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be declared first");
                     }
 
-                    if (entry.dclType == SubClassif.STRING) {
+                    if (entry.dclType == SubClassif.STRING && !entry.structure.equals("array")) {
                         charStringFor(controlVar);
                     }
-                    else if (entry.dclType == SubClassif.INTEGER ||
-                            entry.dclType == SubClassif.FLOAT) {
+                    else if (entry.structure.equals("array")) {
                         itemArrayFor(controlVar);
                     } else  {
                         // TODO: 4/15/2021 cannot run for loop on any other types
@@ -707,7 +881,7 @@ public class Parser {
             limit = (ResultValue) end;
         } else {
             // TODO: 4/15/2021 cannot iterator over array in this loop
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use for char loop over array");
         }
 
         if (limit.dataType != SubClassif.STRING) {
@@ -780,8 +954,6 @@ public class Parser {
 
 
 
-        STIdentifier controlVarSymbol = (STIdentifier) symbolTable.getSymbol(controlVar);
-
         scanner.getNext();
 
 
@@ -804,9 +976,15 @@ public class Parser {
                             0));
 
 
-        } else if (limit.dataType != controlVarSymbol.dclType) { //TODO - might need to fix this if too
+        } else { //TODO - might need to fix this if too
             //TODO fix exception - limit type needs to be the same as the array elements
-            throw new PickleException();
+
+            STIdentifier id = (STIdentifier) symbolTable.getSymbol(controlVar);
+
+            if (limit.dataType != id.dclType) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use variable of non " + limit.dataType.name() + " type");
+            }
+
         }
 
         ResultValue startValue = limit.getItem(this, 0); //set up iterating char value
@@ -820,15 +998,28 @@ public class Parser {
         int iSavedLineNr = scanner.currentToken.iSourceLineNr;
         int iSavedColPos = scanner.currentToken.iColPos;
 
-        storageManager.updateVariable(controlVar, startValue);
+
 
         ResultValue currPos = new ResultValue("0", SubClassif.INTEGER);
         ResultValue maxPos = new ResultValue(String.valueOf(limit.allocatedSize), SubClassif.INTEGER);
 
         ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
 
+
+        startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+
         Numeric nOp1, nOp2;
         nOp2 = new Numeric(this, incrementBy, "+", "Incrementing by value");
+
+        while (startValue.dataType == SubClassif.EMPTY && Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+            nOp1 = new Numeric(this, currPos, "+", "Incrementing array pos");
+
+
+            currPos = Utility.add(this, nOp1, nOp2);
+            startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+        }
+
+        storageManager.updateVariable(controlVar, startValue);
 
         while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
             // evaluate loop statements
@@ -839,12 +1030,28 @@ public class Parser {
                 throw new PickleException();
             }
 
+
             nOp1 = new Numeric(this, currPos, "+", "Incrementing array pos");
 
-            currPos = Utility.add(this, nOp1, nOp2);
-            startValue = limit.getItem(this, Integer.parseInt(currPos.strValue)); //increment char value
 
-            storageManager.updateVariable(controlVar, startValue);
+            currPos = Utility.add(this, nOp1, nOp2);
+            if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+
+                startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+                while (startValue.dataType == SubClassif.EMPTY && Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+                    nOp1 = new Numeric(this, currPos, "+", "Incrementing array pos");
+
+
+                    currPos = Utility.add(this, nOp1, nOp2);
+                    if (Integer.parseInt(currPos.strValue) >= Integer.parseInt(maxPos.strValue))
+                        break;
+
+                    startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+                }
+
+                if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue))
+                    storageManager.updateVariable(controlVar, startValue);
+            }
 
             scanner.setPosition(iSavedLineNr, iSavedColPos);
             scanner.getNext();
@@ -864,6 +1071,8 @@ public class Parser {
 
         return result;
     }
+
+
 
     private ResultValue stringDelimiterFor(String controlVar) throws  PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
@@ -989,21 +1198,18 @@ public class Parser {
 
     }
 
-
-
     private ResultValue evalCond() throws PickleException {
 
 
-        ResultValue res = null;
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
         scanner.getNext();
-
         try {
             res = (ResultValue) expr();
         } catch (PickleException p) {
             throw p;
         } catch (Exception e) {
             // TODO: 4/15/2021 Bool are only ResultValue
-            throw new PickleException();
+            throw e;
         }
 
         if (!scanner.currentToken.tokenStr.equals(":")) {
@@ -1012,7 +1218,6 @@ public class Parser {
 
         return res;
     }
-
 
     /**
      * Main Pickle Pickle Loop
