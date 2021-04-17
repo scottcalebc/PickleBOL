@@ -191,6 +191,10 @@ public class Parser {
                 res = Utility.castNumericToInt(this, new Numeric(this, res, "+", "expr ret value"));
             }
             resList.capacity = Integer.parseInt(res.strValue);
+            ResultValue empty = new ResultValue("", SubClassif.EMPTY);
+            for (int i = 0; i < resList.capacity; i++) {
+                resList.arrayList.add(empty);
+            }
             if (scanner.currentToken.tokenStr.equals(";")) { //no assignment just declaration of bounded array
                 resList.allocatedSize = 0;
                 symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
