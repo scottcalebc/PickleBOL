@@ -491,7 +491,7 @@ public class Scanner {
     public void classifyOperator(String tokenStr) {
         switch (tokenStr) {
             case "-":
-                if (currentToken.primClassif != Classif.OPERAND) {
+                if (currentToken.primClassif != Classif.OPERAND && !currentToken.tokenStr.equals(")") && !currentToken.tokenStr.equals("]")) {
                     nextToken.operatorPrecedence = OperatorPrecedence.UNARYMINUS;
 
                 } else {

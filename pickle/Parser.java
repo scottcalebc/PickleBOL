@@ -258,7 +258,9 @@ public class Parser {
 
         String varStr = scanner.currentToken.tokenStr;
 
-        if (((STIdentifier) symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
+        STEntry entry = symbolTable.getSymbol(scanner.currentToken.tokenStr);
+
+        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
             res =  assignArrayStmt(varStr);
         } else if (scanner.nextToken.primClassif == Classif.OPERATOR && scanner.getNext().equals("=")) {
 
@@ -272,7 +274,7 @@ public class Parser {
             ResultValue index;
 
             try {
-                STEntry entry = symbolTable.getSymbol(varStr);
+                entry = symbolTable.getSymbol(varStr);
 
                 if (entry.primClassif == Classif.EMPTY) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into uninitialized string");
@@ -392,17 +394,21 @@ public class Parser {
         //System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
 
         ArrayList<Token> out = Expr.postFixExpr(this);
-        Result ans = Expr.evaluatePostFix(this, out);
 
-        // code to see postfix expression and evaluated answer
-        /*System.out.printf("Postfix: ");
+        /* System.out.printf("Postfix: ");
         for(Token token : out) {
             System.out.printf("%s ", token.tokenStr);
         }
+        System.out.println();*/
 
-        System.out.println();
+        Result ans = Expr.evaluatePostFix(this, out);
 
-        System.out.printf("Evalueted to answer: %s\n", ans.strValue);*/
+        // code to see postfix expression and evaluated answer
+
+
+
+
+        /*System.out.printf("Evalueted to answer: %s\n", ((ResultValue)ans).strValue);*/
 
         return ans;
 
@@ -523,6 +529,13 @@ public class Parser {
         }*/
 
         // grab identifier from table to perform coercion if necessary
+        STEntry entry = this.symbolTable.getSymbol(varStr);
+
+        if (entry.primClassif == Classif.EMPTY) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign value to undeclared variable");
+        }
+
+
         STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);
 
         if (res instanceof ResultValue) {
