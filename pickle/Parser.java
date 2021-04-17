@@ -285,12 +285,13 @@ public class Parser {
                 res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(varString));
             }
             else {
-                ResultValue val = (ResultValue) expr();
+                val = (ResultValue) expr();
                 if (val.dataType != array.dataType) {
                     //TODO - fix exception
                     throw new PickleException();
                 }
                 res = Utility.assignScalarToArray(this, val, array.capacity);
+            }
         }
         else if (scanner.currentToken.tokenStr == "[") { //arr index assignment
             val = (ResultValue) expr(); //get index of array
