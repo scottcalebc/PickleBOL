@@ -1,8 +1,6 @@
 package pickle;
 
 import java.util.ArrayList;
-import java.util.StringBuilder;
-
 /**
  * This class Represents Arrays as lists of ResultValues.
  *

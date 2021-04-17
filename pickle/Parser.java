@@ -293,19 +293,46 @@ public class Parser {
                 res = Utility.assignScalarToArray(this, val, array.capacity);
             }
         }
-        else if (scanner.currentToken.tokenStr == "[") { //arr index assignment
+        else if (scanner.currentToken.tokenStr.equals("[")) { //arr index assignment
+
+            scanner.getNext();
             val = (ResultValue) expr(); //get index of array
+
+            if (!scanner.currentToken.tokenStr.equals("=")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Array assignment must be followed by '=' operator");
+            }
+
             scanner.getNext();
             assign = (ResultValue) expr();
             if (val.dataType != SubClassif.INTEGER) {
                 val = Utility.castNumericToInt(this, new Numeric(this, val, "+", "value of array index"));
             }
+
+            System.out.println(val.strValue);
+
+            if (assign.dataType != SubClassif.STRING && assign.dataType != SubClassif.INTEGER && assign.dataType != SubClassif.FLOAT) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign data type " + assign.dataType.name() + " to array of data type " + array.dataType.name());
+            }
+
+            if (assign.dataType == SubClassif.FLOAT && array.dataType == SubClassif.INTEGER) {
+                assign = Utility.castNumericToInt(this, new Numeric(this, assign, "", "Coerce to Int"));
+            } else if (assign.dataType == SubClassif.INTEGER && array.dataType == SubClassif.FLOAT) {
+                assign = Utility.castNumericToDouble(this, new Numeric(this, assign, "", "Coerce to Float"));
+            }
+
+
             array.setItem(this, Integer.parseInt(val.strValue), assign);
             res = array;
         }
         else {
             throw new PickleException();
         }
+
+        if (!scanner.currentToken.tokenStr.equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
+        }
+
+
         return res;
     }
 

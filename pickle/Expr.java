@@ -146,7 +146,22 @@ public class Expr {
                                 array = (ResultList)parser.storageManager.getVariable(token.tokenStr);
 
                                 if (index.dataType != SubClassif.INTEGER) {
-                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                    if (index.dataType == SubClassif.IDENTIFIER) {
+                                        STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
+                                            try {
+                                                index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                            } catch (Exception e) {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                            }
+                                        } else {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                        }
+                                    } else {
+
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                    }
                                 }
 
                                 tmp = array.getItem(parser, Integer.parseInt(index.strValue));
