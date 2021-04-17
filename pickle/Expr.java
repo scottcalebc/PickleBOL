@@ -177,7 +177,42 @@ public class Expr {
 
 
 
-                        } else {
+                        } else if (entry.primClassif != Classif.EMPTY && ((STIdentifier) entry).dclType == SubClassif.STRING) {
+                            ResultValue index = stack.pop();
+
+                            try {
+
+
+                                if (index.dataType != SubClassif.INTEGER) {
+                                    if (index.dataType == SubClassif.IDENTIFIER) {
+                                        STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
+                                            try {
+                                                index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                            } catch (Exception e) {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                            }
+                                        } else {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                        }
+                                    } else {
+
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                    }
+                                }
+
+                                ResultValue str = (ResultValue) parser.storageManager.getVariable(entry.symbol);
+
+                                tmp = Utility.valueAtIndex(parser, str, Integer.parseInt(index.strValue));
+
+                            } catch (Exception e) {
+
+                            }
+
+                        }
+
+                        else {
                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot index on empty array");
                         }
 
@@ -212,8 +247,12 @@ public class Expr {
                                 } else {
                                     res = Utility.builtInLENGTH(parser, param);
                                 }
-                            } else {
-                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value of variable cannot be array");
+                            } else if (param.dataType == SubClassif.STRING) {
+                                res = Utility.builtInLENGTH(parser, param);
+                            }
+                            else {
+                                token.tokenStr = param.strValue;
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Parameter must be string constant or variable");
                             }
                             break;
 
@@ -241,8 +280,12 @@ public class Expr {
                                 } else {
                                     res = Utility.builtInSPACES(parser, param);
                                 }
-                            } else {
-                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value of variable cannot be array");
+                            } else if (param.dataType == SubClassif.STRING) {
+                                res = Utility.builtInLENGTH(parser, param);
+                            }
+                            else {
+                                token.tokenStr = param.strValue;
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Parameter must be string constant or variable");
                             }
                             break;
                         case "ELEM":

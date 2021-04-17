@@ -192,10 +192,12 @@ public class ResultList implements Result
     public String printResult() {
         StringBuilder sb = new StringBuilder();
         for (ResultValue res : arrayList) {
-            if (res == arrayList.get(arrayList.size() - 1))
-                sb.append(res.printResult());
-            else
-                sb.append(res.printResult() + ",");
+            if (res.dataType != SubClassif.EMPTY) {
+                if (res == arrayList.get(arrayList.size() - 1))
+                    sb.append(res.printResult());
+                else
+                    sb.append(res.printResult() + " ");
+            }
         }
         return sb.toString();
     }

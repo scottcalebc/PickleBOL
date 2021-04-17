@@ -468,7 +468,7 @@ public class Parser {
                 continue;
             }
 
-            ResultValue res = (ResultValue) expr();
+            Result res = expr();
 
 
 
@@ -801,11 +801,10 @@ public class Parser {
                         throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be declared first");
                     }
 
-                    if (entry.dclType == SubClassif.STRING) {
+                    if (entry.dclType == SubClassif.STRING && !entry.structure.equals("array")) {
                         charStringFor(controlVar);
                     }
-                    else if (entry.dclType == SubClassif.INTEGER ||
-                            entry.dclType == SubClassif.FLOAT) {
+                    else if (entry.structure.equals("array")) {
                         itemArrayFor(controlVar);
                     } else  {
                         // TODO: 4/15/2021 cannot run for loop on any other types
@@ -869,7 +868,7 @@ public class Parser {
             limit = (ResultValue) end;
         } else {
             // TODO: 4/15/2021 cannot iterator over array in this loop
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use for char loop over array");
         }
 
         if (limit.dataType != SubClassif.STRING) {
@@ -942,8 +941,6 @@ public class Parser {
 
 
 
-        STIdentifier controlVarSymbol = (STIdentifier) symbolTable.getSymbol(controlVar);
-
         scanner.getNext();
 
 
@@ -966,9 +963,15 @@ public class Parser {
                             0));
 
 
-        } else if (limit.dataType != controlVarSymbol.dclType) { //TODO - might need to fix this if too
+        } else { //TODO - might need to fix this if too
             //TODO fix exception - limit type needs to be the same as the array elements
-            throw new PickleException();
+
+            STIdentifier id = (STIdentifier) symbolTable.getSymbol(controlVar);
+
+            if (limit.dataType != id.dclType) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use variable of non " + limit.dataType.name() + " type");
+            }
+
         }
 
         ResultValue startValue = limit.getItem(this, 0); //set up iterating char value
@@ -982,15 +985,28 @@ public class Parser {
         int iSavedLineNr = scanner.currentToken.iSourceLineNr;
         int iSavedColPos = scanner.currentToken.iColPos;
 
-        storageManager.updateVariable(controlVar, startValue);
+
 
         ResultValue currPos = new ResultValue("0", SubClassif.INTEGER);
         ResultValue maxPos = new ResultValue(String.valueOf(limit.allocatedSize), SubClassif.INTEGER);
 
         ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
 
+
+        startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+
         Numeric nOp1, nOp2;
         nOp2 = new Numeric(this, incrementBy, "+", "Incrementing by value");
+
+        while (startValue.dataType == SubClassif.EMPTY && Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+            nOp1 = new Numeric(this, currPos, "+", "Incrementing array pos");
+
+
+            currPos = Utility.add(this, nOp1, nOp2);
+            startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+        }
+
+        storageManager.updateVariable(controlVar, startValue);
 
         while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
             // evaluate loop statements
@@ -1001,14 +1017,27 @@ public class Parser {
                 throw new PickleException();
             }
 
+
             nOp1 = new Numeric(this, currPos, "+", "Incrementing array pos");
 
+
             currPos = Utility.add(this, nOp1, nOp2);
-
             if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
-                startValue = limit.getItem(this, Integer.parseInt(currPos.strValue)); //increment char value
 
-                storageManager.updateVariable(controlVar, startValue);
+                startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+                while (startValue.dataType == SubClassif.EMPTY && Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+                    nOp1 = new Numeric(this, currPos, "+", "Incrementing array pos");
+
+
+                    currPos = Utility.add(this, nOp1, nOp2);
+                    if (Integer.parseInt(currPos.strValue) >= Integer.parseInt(maxPos.strValue))
+                        break;
+
+                    startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+                }
+
+                if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue))
+                    storageManager.updateVariable(controlVar, startValue);
             }
 
             scanner.setPosition(iSavedLineNr, iSavedColPos);
@@ -1029,6 +1058,8 @@ public class Parser {
 
         return result;
     }
+
+
 
     private ResultValue stringDelimiterFor(String controlVar) throws  PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
