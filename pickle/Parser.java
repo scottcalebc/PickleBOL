@@ -255,9 +255,6 @@ public class Parser {
         String varStr = scanner.currentToken.tokenStr;
 
         if (((STIdentifier) symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
-            if (!scanner.getNext().equals("=")) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Second token in assignment statement must be \"=\" Operator");
-            }
             return assignArrayStmt(varStr);
         }
 
@@ -279,19 +276,34 @@ public class Parser {
     }
 
     private ResultList assignArrayStmt(String varString) throws PickleException {
-        ResultList array = (ResultList) storageManager.getVariable(varString);
-        ResultList res;
-        scanner.getNext(); //skip to asignee dude guy expr 🤵
-        if (((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr == ";") { //just an array to array
-            res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(varString));
+        ResultList array = (ResultList) storageManager.getVariable(varString), res;
+        ResultValue val, assign;
+
+        if (scanner.getNext().equals("=")) { //total array assignment
+            scanner.getNext(); //skip to asignee dude guy expr 🤵
+            if (((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr == ";") { //just an array to array
+                res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(varString));
+            }
+            else {
+                ResultValue val = (ResultValue) expr();
+                if (val.dataType != array.dataType) {
+                    //TODO - fix exception
+                    throw new PickleException();
+                }
+                res = Utility.assignScalarToArray(this, val, array.capacity);
+        }
+        else if (scanner.currentToken.tokenStr == "[") { //arr index assignment
+            val = (ResultValue) expr(); //get index of array
+            scanner.getNext();
+            assign = (ResultValue) expr();
+            if (val.dataType != SubClassif.INTEGER) {
+                val = Utility.castNumericToInt(this, new Numeric(this, val, "+", "value of array index"));
+            }
+            array.setItem(this, Integer.parseInt(val.strValue), assign);
+            res = array;
         }
         else {
-            ResultValue val = (ResultValue) expr();
-            if (val.dataType != array.dataType) {
-                //TODO - fix exception
-                throw new PickleException();
-            }
-            res = Utility.assignScalarToArray(this, val, array.capacity);
+            throw new PickleException();
         }
         return res;
     }
@@ -453,7 +465,7 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue assign(String varStr, Result res) throws PickleException{
+    private ResultValue assign(String varStr, Result res) throws PickleException {
        /* if (res.dataType == SubClassif.EMPTY) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign empty value to identifier:");
         }*/
@@ -462,8 +474,6 @@ public class Parser {
         STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);
 
         if (res instanceof ResultValue) {
-
-
             // conversion from specified types to declared type
             if (symbolEntry.dclType == SubClassif.FLOAT) {
                 res = Utility.castNumericToDouble(this, new Numeric(this, (ResultValue) res, "", "cast to declared type"));

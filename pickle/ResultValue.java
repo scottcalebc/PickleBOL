@@ -22,6 +22,9 @@ public class ResultValue implements Result {
         this.dataType = dataType;
         this.terminatingString = terminatingString;
     }
+    public String printResult() {
+        return this.strValue;
+    }
 
     @Override
     public String toString() {
