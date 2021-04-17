@@ -22,6 +22,7 @@ public class Expr {
                     Token temp;
                     if (parser.scanner.nextToken.tokenStr.equals("[")) {
                         parser.scanner.currentToken.tokenStr = parser.scanner.currentToken.tokenStr.concat(parser.scanner.nextToken.tokenStr);
+                        parser.scanner.currentToken.operatorPrecedence = OperatorPrecedence.ARRAY;
                         stack.push(parser.scanner.currentToken);
                         parser.scanner.getNext();
                     } else {
@@ -30,13 +31,13 @@ public class Expr {
                     break;
                 case OPERATOR:
                     while (!stack.empty()) {
-                        System.out.printf("%s\n", stack.peek().tokenStr);
+                       /* System.out.printf("%s\n", stack.peek().tokenStr);
                         System.out.printf("Checking precedence:\n\t'%s'\t'%s'\n\t'%d'\t'%d'\n",
                                 parser.scanner.currentToken.tokenStr,
                                 stack.peek().tokenStr,
                                 parser.scanner.currentToken.operatorPrecedence.tokenPrecedence,
                                 stack.peek().operatorPrecedence.stackPrecedence);
-
+*/
                         if (parser.scanner.currentToken.operatorPrecedence.tokenPrecedence > stack.peek().operatorPrecedence.stackPrecedence) {
                             break;
                         }

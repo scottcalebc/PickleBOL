@@ -349,7 +349,6 @@ public class Parser {
                 val = Utility.castNumericToInt(this, new Numeric(this, val, "+", "value of array index"));
             }
 
-            System.out.println(val.strValue);
 
             if (assign.dataType != SubClassif.STRING && assign.dataType != SubClassif.INTEGER && assign.dataType != SubClassif.FLOAT) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign data type " + assign.dataType.name() + " to array of data type " + array.dataType.name());
@@ -388,22 +387,8 @@ public class Parser {
     private Result expr() throws PickleException {
         //System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
 
-
-
-
         ArrayList<Token> out = Expr.postFixExpr(this);
-        System.out.printf("Postfix: ");
-        for(Token token : out) {
-            System.out.printf("%s ", token.tokenStr);
-        }
-
-        System.out.println();
-
         Result ans = Expr.evaluatePostFix(this, out);
-
-        if (ans instanceof  ResultValue) {
-            System.out.printf("Evaluated to answer: %s\n", ((ResultValue)ans).strValue);
-        }
 
         // code to see postfix expression and evaluated answer
         /*System.out.printf("Postfix: ");
@@ -428,7 +413,7 @@ public class Parser {
      * @throws PickleException
      */
     private ResultValue functionStmt() throws PickleException {
-        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        Result res =  null;
 
         // check for builtin function if not throw error for identifier
         if (scanner.currentToken.subClassif == SubClassif.BUILTIN) {
@@ -437,16 +422,10 @@ public class Parser {
                     print();
                     break;
                 case "LENGTH":
-                    res = length();
-                    break;
                 case "SPACES":
-                    //res = spaces();
-                    break;
                 case "ELEM":
-                    //res = elem();
-                    break;
                 case "MAXELEM":
-                    //res = maxelem();
+                    res = expr();
                     break;
 
                 default:
@@ -455,7 +434,7 @@ public class Parser {
         }
 
 
-        return res;
+        return (ResultValue) res;
     }
 
     /**
@@ -489,7 +468,7 @@ public class Parser {
 
 
 
-            sb.append(res.strValue);
+            sb.append(res.printResult());
             sb.append(" ");
 
         }
