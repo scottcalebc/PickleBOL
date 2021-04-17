@@ -7,7 +7,7 @@ import java.util.Arrays;
 public class Scanner {
 
     private final static String delimiters = " \t:;()'\"=!<>+-*/[]#,^\n";   // Terminate a token
-    private final static String operators = "+-*/<>=!^";                    // All operators
+    private final static String operators = "+-*/<>=!^#";                   // All operators
     private final static String separators = "(),:;[]";                     // All seperators
 
     protected ArrayList<String> sourceLineM;                                // List of all source file lines
@@ -351,6 +351,10 @@ public class Scanner {
             currentToken.printToken();
         }
 
+        if (nextToken.tokenStr.equals("")) {
+            currentToken.primClassif = Classif.EOF;
+        }
+
         return currentToken.tokenStr;
     }
 
@@ -377,6 +381,10 @@ public class Scanner {
                 nextToken.primClassif = Classif.EOF;
             }
 
+            if (tokenStr.equals("(") || tokenStr.equals(")")) {
+                nextToken.operatorPrecedence = OperatorPrecedence.PAREN;
+            }
+
             // todo: classify separator?
         }
 
@@ -390,6 +398,8 @@ public class Scanner {
             nextToken.primClassif = Classif.OPERATOR;
 
             //todo: classify operator
+            classifyOperator(tokenStr);
+
         }
 
         // use symbol table to label primary and sub classification of builtin, operators, and control
@@ -405,9 +415,16 @@ public class Scanner {
             else if (entry instanceof  STFunction)
             {
                 nextToken.subClassif = SubClassif.BUILTIN;
+                nextToken.operatorPrecedence = OperatorPrecedence.FUNC;
+
+
             } else if (nextToken.primClassif == Classif.OPERAND){
                 tokenStr = classifyOperand(tokenStr);
+            } else  if (nextToken.primClassif == Classif.OPERATOR) {
+                classifyOperator(tokenStr);
             }
+
+
         }
 
         else
@@ -469,6 +486,63 @@ public class Scanner {
 
         // return current token string after any modifications to attach to token
         return tokenStr;
+    }
+
+    public void classifyOperator(String tokenStr) {
+        switch (tokenStr) {
+            case "-":
+                if (currentToken.primClassif != Classif.OPERAND && !currentToken.tokenStr.equals(")") && !currentToken.tokenStr.equals("]")) {
+                    nextToken.operatorPrecedence = OperatorPrecedence.UNARYMINUS;
+
+                } else {
+                    nextToken.operatorPrecedence = OperatorPrecedence.ADDMINUS;
+
+                }
+                break;
+            case "^":
+                nextToken.operatorPrecedence = OperatorPrecedence.POWER;
+
+                break;
+            case "*":
+            case "/":
+                nextToken.operatorPrecedence = OperatorPrecedence.MULTIPLYDIVIDE;
+
+                break;
+            case "+":
+                nextToken.operatorPrecedence = OperatorPrecedence.ADDMINUS;
+
+                break;
+            case "#":
+                nextToken.operatorPrecedence = OperatorPrecedence.CONCAT;
+
+                break;
+            case "<":
+            case ">":
+            case "<=":
+            case ">=":
+            case "==":
+            case "!=":
+            case "in":
+            case "notin":
+                nextToken.operatorPrecedence = OperatorPrecedence.BOOLEANOPS;
+
+                break;
+            case "not":
+                nextToken.operatorPrecedence = OperatorPrecedence.NOT;
+
+                break;
+            case "and":
+            case "or":
+                nextToken.operatorPrecedence = OperatorPrecedence.ANDOR;
+
+                break;
+            default:
+                nextToken.operatorPrecedence = OperatorPrecedence.NONE;
+
+        }
+
+
+
     }
 
 

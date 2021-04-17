@@ -1,5 +1,8 @@
 package pickle;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.util.ArrayList;
+
 public class Parser {
 
     protected Scanner        scanner;               // scanner pointer
@@ -58,12 +61,12 @@ public class Parser {
                 functionStmt();
                 break;
             case CONTROL:
-                controlStmt();
+                controlStmt(true);
                 break;
             case OPERATOR:
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot evaluate starting on operator:");
             default:
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown token to evaluate:");
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown token to evaluate");
         }
 
 
@@ -76,24 +79,31 @@ public class Parser {
      * @return                  generic ResultValue
      * @throws PickleException
      */
-    private ResultValue controlStmt() throws PickleException {
-        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+    private Result controlStmt(Boolean bExec) throws PickleException {
+        Result res = new ResultValue("", SubClassif.EMPTY);
 
         switch (scanner.currentToken.subClassif) {
             case DECLARE:
                 res = declareStmt();
+                break;
             case FLOW:
                 String flowStr = scanner.currentToken.tokenStr;
 
                 switch (flowStr) {
                     case "if":
-                        res = ifStmt(true);
+                        res = ifStmt(bExec);
                         break;
                     case "while":
-                        res = whileStmt(true);
+                        res = whileStmt(bExec);
+                        break;
+                    case "for":
+                        res = forStmt(bExec);
                         break;
 
                 }
+                break;
+            default:
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown Control token");
         }
 
         return res;
@@ -106,7 +116,7 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue declareStmt() throws PickleException {
+    private Result declareStmt() throws PickleException {
         ResultValue res;
 
         String declareTypeStr = scanner.currentToken.tokenStr;
@@ -120,11 +130,17 @@ public class Parser {
 
         String varStr = scanner.currentToken.tokenStr;
 
+        if (scanner.nextToken.tokenStr.equals("[")) {
+            scanner.getNext();
+            return declareArrayStmt(varStr, declareTypeStr);
+        }
+
         res = new ResultValue(varStr, SubClassif.EMPTY);
 
         // if assignment occuring grab expression into result value
         if (scanner.getNext().equals("=")) {
-            res = expr();
+            scanner.getNext();
+            res = (ResultValue) expr();
         }
 
         // Statement does not end in a semicolon
@@ -149,11 +165,80 @@ public class Parser {
 
         // if assignment being performed during declearation ensure to assign value before exiting
         if (res.dataType != SubClassif.EMPTY) {
-            res = assign(varStr, res);
+            assign(varStr, res);
         }
 
 
         return res;
+    }
+
+    private Result declareArrayStmt(String varStr, String declareTypeStr) throws PickleException {
+        ResultList resList;
+        ResultValue res, currRes;
+        SubClassif arrType = getDataType(declareTypeStr);
+        ArrayList<ResultValue> values = new ArrayList<ResultValue>();
+
+        resList = new ResultList(this, new ArrayList<ResultValue>(), 0, arrType);
+
+        if (scanner.getNext().equals("]")) { //if square brackets contain no value
+            if (!scanner.getNext().equals("=")) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Excpeted assignment values for unbounded array");
+            }
+        }
+        else {
+            res = (ResultValue) expr(); //get value in square brackets
+            if (res.dataType != SubClassif.INTEGER) {
+                res = Utility.castNumericToInt(this, new Numeric(this, res, "+", "expr ret value"));
+            }
+            resList.capacity = Integer.parseInt(res.strValue);
+            ResultValue empty = new ResultValue("", SubClassif.EMPTY);
+            for (int i = 0; i < resList.capacity; i++) {
+                resList.arrayList.add(empty);
+            }
+            if (scanner.currentToken.tokenStr.equals(";")) { //no assignment just declaration of bounded array
+                resList.allocatedSize = 0;
+                symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
+                storageManager.updateVariable(varStr, resList);
+                return resList;
+            }
+        }
+
+        if (!scanner.currentToken.tokenStr.equals("=")) { //we may have a problem, dont know what lamo
+            throw new PickleException();
+        }
+
+        //loop though elements
+        while(!scanner.getNext().equals(";")) {
+            if (scanner.currentToken.tokenStr.equals(",")) { //skip comma
+                continue;
+            }
+            currRes = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
+
+            if (scanner.currentToken.subClassif != arrType) {
+             if (scanner.currentToken.subClassif == SubClassif.INTEGER && arrType == SubClassif.FLOAT) {
+                 currRes = Utility.castNumericToDouble(this, new Numeric(this, currRes, "", "Casting to Float"));
+             } else if (scanner.currentToken.subClassif == SubClassif.FLOAT && arrType == SubClassif.INTEGER) {
+                 currRes = Utility.castNumericToInt(this, new Numeric(this, currRes, "", "Casting to Integer"));
+             }
+            }
+
+
+            values.add(currRes);
+            if (!scanner.nextToken.tokenStr.equals(",")  && !scanner.nextToken.tokenStr.equals(";")) {
+                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Expected a sperator");
+            }
+        }
+
+        resList.arrayList = values;
+        resList.allocatedSize = values.size();
+        if (resList.capacity == 0) {
+            resList.capacity = values.size();
+        }
+
+        symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
+        storageManager.updateVariable(varStr, resList);
+
+        return resList;
     }
 
     /**
@@ -164,38 +249,138 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue assignmentStmt() throws PickleException {
-        ResultValue res;
+    private Result assignmentStmt() throws PickleException {
+        Result res;
 
         if (scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
-
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Operand must be of type IDENTIFIER to assign values");
         }
 
         String varStr = scanner.currentToken.tokenStr;
 
+        STEntry entry = symbolTable.getSymbol(scanner.currentToken.tokenStr);
 
-        if (scanner.nextToken.primClassif != Classif.OPERATOR || !scanner.getNext().equals("=")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Second token in assignment statement must be \"=\" Operator");
+        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
+            res =  assignArrayStmt(varStr);
+        } else if (scanner.nextToken.primClassif == Classif.OPERATOR && scanner.getNext().equals("=")) {
+
+            scanner.getNext();      //get next token
+            res = expr();           //get expression value
+
+        } else if (scanner.getNext().equals("[")) {
+
+
+            scanner.getNext(); // advance to Expression
+            ResultValue index;
+
+            try {
+                entry = symbolTable.getSymbol(varStr);
+
+                if (entry.primClassif == Classif.EMPTY) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into uninitialized string");
+                } else  if (((STIdentifier)entry).dclType != SubClassif.STRING) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into non array or non string variables");
+                }
+
+                ResultValue str = (ResultValue)storageManager.getVariable(varStr);
+
+                index = (ResultValue) expr();
+
+                if (index.dataType != SubClassif.INTEGER) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Index must be an Integer");
+                }
+
+                if (!scanner.currentToken.tokenStr.equals("=")) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must be followed by '=' '");
+                }
+
+                scanner.getNext(); // advance to next expression must be a string
+                res = (ResultValue)expr();
+
+
+
+                res = Utility.assignAtIndex(this, str, (ResultValue) res, Integer.parseInt(index.strValue) );
+
+            } catch (Exception e) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expression must be scalar value");
+            }
+
         }
 
-
-        scanner.getNext();      //get next token
-        res = expr();           //get expression value
+        else  {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid assignment");
+        }
 
         // ensure assignment ends in ';'
-        if (!scanner.getNext().equals(";")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statment must end in ';':");
+        if (!scanner.currentToken.tokenStr.equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
         }
 
         res = assign(varStr, res);  //save value to symbol
+        return res;
+    }
+
+    private ResultList assignArrayStmt(String varString) throws PickleException {
+        ResultList array = (ResultList) storageManager.getVariable(varString), res;
+        ResultValue val, assign;
+
+        if (scanner.getNext().equals("=")) { //total array assignment
+            scanner.getNext(); //skip to asignee dude guy expr 🤵
+
+            if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER && ((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr.equals(";")) { //just an array to array
+                res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(scanner.currentToken.tokenStr));
+                scanner.getNext();
+            }
+            else {
+                val = (ResultValue) expr();
+                if (val.dataType != array.dataType) {
+                    //TODO - fix exception
+                    throw new PickleException();
+                }
+                res = Utility.assignScalarToArray(this, val, array.capacity);
+            }
+        }
+        else if (scanner.currentToken.tokenStr.equals("[")) { //arr index assignment
+
+            scanner.getNext();
+            val = (ResultValue) expr(); //get index of array
+
+            if (!scanner.currentToken.tokenStr.equals("=")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Array assignment must be followed by '=' operator");
+            }
+
+            scanner.getNext();
+            assign = (ResultValue) expr();
+            if (val.dataType != SubClassif.INTEGER) {
+                val = Utility.castNumericToInt(this, new Numeric(this, val, "+", "value of array index"));
+            }
 
 
+            if (assign.dataType != SubClassif.STRING && assign.dataType != SubClassif.INTEGER && assign.dataType != SubClassif.FLOAT) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign data type " + assign.dataType.name() + " to array of data type " + array.dataType.name());
+            }
+
+            if (assign.dataType == SubClassif.FLOAT && array.dataType == SubClassif.INTEGER) {
+                assign = Utility.castNumericToInt(this, new Numeric(this, assign, "", "Coerce to Int"));
+            } else if (assign.dataType == SubClassif.INTEGER && array.dataType == SubClassif.FLOAT) {
+                assign = Utility.castNumericToDouble(this, new Numeric(this, assign, "", "Coerce to Float"));
+            }
+
+
+            array.setItem(this, Integer.parseInt(val.strValue), assign);
+            res = array;
+        }
+        else {
+            throw new PickleException();
+        }
+
+        if (!scanner.currentToken.tokenStr.equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
+        }
 
 
         return res;
     }
-
 
     /**
      * Parsers and executes expressions
@@ -205,153 +390,28 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue expr() throws PickleException {
-        /*System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);*/
+    private Result expr() throws PickleException {
+        //System.out.printf("Called expr with tokenStr: %s\n", scanner.currentToken.tokenStr);
 
-        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        ArrayList<Token> out = Expr.postFixExpr(this);
 
-        Numeric nOp1 = null;
-        Numeric nOp2 = null;
-
-        switch (scanner.currentToken.primClassif) {
-            case OPERATOR:
-                if (!scanner.currentToken.tokenStr.equals("-")) {
-                    break;
-                }
-                if (scanner.nextToken.primClassif != Classif.OPERAND) {
-                    throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Token must be of type Operand for unary minus");
-                }
-                scanner.getNext();
-                if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
-                    STEntry symbolEntry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
-
-                    if (symbolEntry.primClassif == Classif.EMPTY) {
-                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol does not exist:");
-                    }
-
-                    if (symbolEntry.primClassif != Classif.OPERAND) {
-                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol is not operand type:");
-                    }
-
-
-                    res = this.storageManager.getVariable(symbolEntry.symbol);
-
-                    if (res.dataType != SubClassif.INTEGER && res.dataType != SubClassif.FLOAT) {
-                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot perform unary minus on non-numeric operand identifier:");
-                    }
-
-                    nOp1 = new Numeric(scanner, res, "-", "first operand for unary minus");
-                } else if (scanner.currentToken.subClassif == SubClassif.INTEGER) {
-                    
-                    nOp1 = new Numeric(scanner, new ResultValue(scanner.currentToken.tokenStr, SubClassif.INTEGER), "-", "first operand for unary minus");
-                } else if (scanner.currentToken.subClassif == SubClassif.FLOAT) {
-                    nOp1 = new Numeric(scanner, new ResultValue(scanner.currentToken.tokenStr, SubClassif.FLOAT), "-", "first operand for unary minus");
-                } else {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot convert non-numeric data to numeric:");
-                }
-
-
-                res = Utility.unaryMinus(scanner, nOp1);
-
-                break;
-            case OPERAND:
-                    switch (scanner.currentToken.subClassif){
-                        case IDENTIFIER:
-                            // get value of Identifier and check for more expressions following
-                            STEntry symbolEntry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
-
-                            if (symbolEntry.primClassif == Classif.EMPTY) {
-                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol does not exist:");
-                            }
-
-                            if (symbolEntry.primClassif != Classif.OPERAND) {
-                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol is not operand type:");
-                            }
-
-
-                            res = this.storageManager.getVariable(symbolEntry.symbol);
-                            break;
-                        case FLOAT:
-                            res = new ResultValue(scanner.currentToken.tokenStr, SubClassif.FLOAT);
-                            break;
-                        case INTEGER:
-                            // get value of number and check for more values later
-                            res = new ResultValue(scanner.currentToken.tokenStr, SubClassif.INTEGER);
-                            break;
-                        case STRING:
-                            return new ResultValue(scanner.currentToken.tokenStr, SubClassif.STRING);
-                        case BOOLEAN:
-                            return new ResultValue(scanner.currentToken.tokenStr, SubClassif.BOOLEAN);
-                    }
-
+        /* System.out.printf("Postfix: ");
+        for(Token token : out) {
+            System.out.printf("%s ", token.tokenStr);
         }
+        System.out.println();*/
+
+        Result ans = Expr.evaluatePostFix(this, out);
+
+        // code to see postfix expression and evaluated answer
 
 
-        //if next token is seperator then just return current result value
-        if (scanner.nextToken.primClassif != Classif.SEPARATOR) {
-            scanner.getNext();
-
-            if (scanner.currentToken.primClassif != Classif.OPERATOR) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Token must be operator or ';'");
-            }
-
-            // if operator is comparator just return to evalCond
-            switch (scanner.currentToken.tokenStr) {
-                case ">":
-                case "<":
-                case ">=":
-                case "<=":
-                case "==":
-                case "!=":
-                case "and":
-                case "or":
-                case "not":
-                    return res;
-            }
-
-            String operatorStr = scanner.currentToken.tokenStr;
-            Token operatorToken = scanner.currentToken;
-            scanner.getNext();
-            ResultValue res2 = expr();
-
-            if (res2.dataType != SubClassif.FLOAT && res2.dataType != SubClassif.INTEGER) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot perform numeric operation on non-numeric data type:");
-            }
 
 
-            nOp1 = new Numeric(scanner, res, operatorStr, "first operand");
-            nOp2 = new Numeric(scanner, res2, operatorStr, "second operand");
+        /*System.out.printf("Evalueted to answer: %s\n", ((ResultValue)ans).strValue);*/
 
-            // perform specific numeric operation
-            switch (operatorStr) {
-                case "+":
-                    res = Utility.add(scanner, nOp1, nOp2);
-                    break;
-                case "-":
-                    res = Utility.subtract(scanner, nOp1, nOp2);
-                    break;
-                case "*":
-                    res = Utility.multiply(scanner, nOp1, nOp2);
-                    break;
-                case "/":
-                    res = Utility.divide(scanner, nOp1, nOp2);
-                    break;
-                case "^":
-                    res = Utility.power(scanner, nOp1, nOp2);
-                    break;
-                default:
-                    throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Cannot perform operation with invalid OPERATOR:");
+        return ans;
 
-            }
-
-            if (bShowExpr)
-                System.out.printf("...%s %s %s is %s\n", nOp1.strValue, operatorStr, nOp2.strValue, res.strValue);
-
-
-        }
-
-        // does not check for end of statement as this is only evaluating expressions
-        return res;
 
     }
 
@@ -363,7 +423,7 @@ public class Parser {
      * @throws PickleException
      */
     private ResultValue functionStmt() throws PickleException {
-        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        Result res =  null;
 
         // check for builtin function if not throw error for identifier
         if (scanner.currentToken.subClassif == SubClassif.BUILTIN) {
@@ -371,15 +431,21 @@ public class Parser {
                 case "print":
                     print();
                     break;
+                case "LENGTH":
+                case "SPACES":
+                case "ELEM":
+                case "MAXELEM":
+                    res = expr();
+                    break;
+
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "No function of name: ");
             }
         }
 
 
-        return res;
+        return (ResultValue) res;
     }
-
 
     /**
      * BUILTIN print function
@@ -396,7 +462,7 @@ public class Parser {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function does not start with '(' token:");
         }
 
-        while(!scanner.getNext().equals(")")) {
+        while(!scanner.currentToken.tokenStr.equals(";")) {
             // if reached ';' before end of parameters
             if (scanner.currentToken.tokenStr.equals(";")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Reached ';' before closing function ')':");
@@ -404,18 +470,21 @@ public class Parser {
 
             // if reached seperator skip token
             if (scanner.currentToken.tokenStr.equals(",")) {
+                scanner.getNext();
                 continue;
             }
 
-            ResultValue res = expr();
+            Result res = expr();
 
-            sb.append(res.strValue);
+
+
+            sb.append(res.printResult());
             sb.append(" ");
 
         }
 
         // ensure print function ends in ';'
-        if (!scanner.getNext().equals(";")) {
+        if (!scanner.currentToken.tokenStr.equals(";")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Did not reach ';' at end of function call:");
         }
 
@@ -423,6 +492,27 @@ public class Parser {
         System.out.println(sb.toString());
     }
 
+    private ResultValue length() throws PickleException {
+        scanner.getNext();
+        ResultValue res;
+        Token exprToken = scanner.currentToken;
+        try {
+
+            res = (ResultValue) expr();
+
+            if (res.dataType != SubClassif.STRING) {
+                throw new ScannerParserException(exprToken, scanner.sourceFileNm, "Cannot call builtin LENGTH on non-string expressions");
+            }
+
+            res = Utility.builtInLENGTH(this, res);
+        } catch (PickleException p) {
+            throw p;
+        } catch (Exception e) {
+            throw new ScannerParserException(exprToken, scanner.sourceFileNm, "Cannot call builtin Length on arrays");
+        }
+
+        return res;
+    }
 
     /**
      * Parsers and executes assign statements
@@ -433,31 +523,39 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private ResultValue assign(String varStr, ResultValue res) throws PickleException{
-        if (res.dataType == SubClassif.EMPTY) {
+    private Result assign(String varStr, Result res) throws PickleException {
+       /* if (res.dataType == SubClassif.EMPTY) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign empty value to identifier:");
-        }
+        }*/
 
         // grab identifier from table to perform coercion if necessary
+        STEntry entry = this.symbolTable.getSymbol(varStr);
+
+        if (entry.primClassif == Classif.EMPTY) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign value to undeclared variable");
+        }
+
+
         STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);
 
-
-        // conversion from specified types to declared type
-        if (symbolEntry.dclType == SubClassif.FLOAT) {
-            res = Utility.castNumericToDouble(scanner, new Numeric(scanner, res, "", "cast to declared type"));
-        } if (symbolEntry.dclType == SubClassif.INTEGER) {
-            res = Utility.castNumericToInt(scanner, new Numeric(scanner, res, "", "cast to declared type"));
+        if (res instanceof ResultValue) {
+            // conversion from specified types to declared type
+            if (symbolEntry.dclType == SubClassif.FLOAT) {
+                res = Utility.castNumericToDouble(this, new Numeric(this, (ResultValue) res, "", "cast to declared type"));
+            }
+            if (symbolEntry.dclType == SubClassif.INTEGER) {
+                res = Utility.castNumericToInt(this, new Numeric(this, (ResultValue) res, "", "cast to declared type"));
+            }
         }
 
         // store value
         this.storageManager.updateVariable(varStr, res);
 
         if (bShowAssign)
-            System.out.printf("... Assign result into '%s' is '%s'\n", varStr, res.strValue);
+            System.out.printf("... Assign result into '%s' is '%s'\n", varStr, ((ResultValue) res).strValue);
 
-        return res;
+        return  res;
     }
-
 
     /**
      * Executes debug statements setting debug flags for parser
@@ -541,31 +639,13 @@ public class Parser {
                 scanner.getNext();
 
                 if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
-                    switch (scanner.currentToken.tokenStr) {
-                        case "if":
-                            ifStmt(bExec);
-                            break;
-                        case "while":
-                            whileStmt(bExec);
-                    }
+                    controlStmt(false);
                 }
             }
         }
         
         res.terminatingString = scanner.getNext();
         return res;
-    }
-
-    /**
-     * Helper function to skip to end of if control block
-     * <p>
-     *
-     * </p>
-     * @param token
-     * @throws PickleException
-     */
-    private void skipTo(String token) throws PickleException {
-        while (!scanner.getNext().equals(token));
     }
 
     /**
@@ -604,7 +684,7 @@ public class Parser {
              }
         }
         else { //dont execute while
-            skipTo(":");
+            Utility.skipTo(scanner, ":");
             result = statements(false);
             if(!result.terminatingString.equals("endwhile")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
@@ -681,7 +761,7 @@ public class Parser {
         } else {
             // do not execute any statements for if or else block
 
-            skipTo(":");
+            Utility.skipTo(scanner, ":");
 
             resTemp = statements(false);
 
@@ -708,79 +788,436 @@ public class Parser {
 
     }
 
+    private ResultValue forStmt(Boolean bExec) throws PickleException {
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+
+        if (bExec) {
+            scanner.getNext();
+            if (scanner.currentToken.primClassif != Classif.OPERAND && scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
+                // TODO: 4/13/2021 fix exception
+                throw new PickleException();
+            }
+            String controlVar = scanner.currentToken.tokenStr;
+            scanner.getNext();
+            if (scanner.currentToken.tokenStr.equals("=")) {
+                result = countingFor(controlVar);
+            }
+            else if (scanner.currentToken.tokenStr.equals("in")) {
+                //branch to either charStringFor() or itemArrayFor() depending on if controlVar is a char
+                // TODO: 4/15/2021 check identifier to be String or Array
 
 
-    private ResultValue evalCond() throws PickleException {
-        scanner.getNext();
+                try {
+                    STIdentifier entry = (STIdentifier) this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
 
-        ResultValue res01 = null;
-        ResultValue res02 = null;
+                    if (entry.primClassif == Classif.EMPTY) {
+                        throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be declared first");
+                    }
 
-        // if started with an operator this is the boolean "not" so don't collect first ResultValue
-        if (scanner.currentToken.primClassif != Classif.OPERATOR) {
-            res01 = expr();
+                    if (entry.dclType == SubClassif.STRING && !entry.structure.equals("array")) {
+                        charStringFor(controlVar);
+                    }
+                    else if (entry.structure.equals("array")) {
+                        itemArrayFor(controlVar);
+                    } else  {
+                        // TODO: 4/15/2021 cannot run for loop on any other types
+                        throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be of type String, Int, Float to use for loop");
+                    }
+                } catch (PickleException p) {
+                    throw p;
+                } catch (Exception e) {
+                    throw e;
+                }
+
+
+                
+            }
+            else if (scanner.currentToken.tokenStr.equals("from")) {
+                result = stringDelimiterFor(controlVar);
+            }
+            else {
+                //TODO: fix exception - for loop type not recognized error or smth man idk
+                throw new PickleException();
+            }
+        } else {
+            Utility.skipTo(scanner, ":");
+            result = statements(false);
+
+            if (!result.terminatingString.equals("endfor")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endfor");
+            }
+
+            if (!scanner.getNext().equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';'");
+            }
         }
 
-        String operatorStr = scanner.currentToken.tokenStr;
-        Token operatorToken = scanner.currentToken;
+        return result;
+    }
+
+    private ResultValue charStringFor(String controlVar) throws PickleException {
+        STEntry entry = symbolTable.getSymbol(controlVar);
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+
+        if (entry.primClassif == Classif.EMPTY) {
+            symbolTable.putSymbol(controlVar,
+                    new STIdentifier(controlVar,
+                            Classif.OPERAND,
+                            SubClassif.STRING,
+                            "none",
+                            "local",
+                            0));
+
+
+        }
+
 
         scanner.getNext();
 
-        res02 = expr();
+        Result end = expr(); //get value of limit
+        ResultValue limit;
 
-        if (!scanner.getNext().equals(":")) {
+        if (end instanceof ResultValue) {
+            limit = (ResultValue) end;
+        } else {
+            // TODO: 4/15/2021 cannot iterator over array in this loop
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use for char loop over array");
+        }
+
+        if (limit.dataType != SubClassif.STRING) {
+            //TODO fix exception - limit type needs to be of a string
+            throw new PickleException();
+        }
+
+        ResultValue startValue = Utility.valueAtIndex(this, limit, 0); //set up iterating char value
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            // TODO: fix exception - error for statement not ending in ':'
+            throw new PickleException();
+        }
+
+        //save off current position to loop
+        int iSavedLineNr = scanner.currentToken.iSourceLineNr;
+        int iSavedColPos = scanner.currentToken.iColPos;
+
+        storageManager.updateVariable(controlVar, startValue);
+
+        ResultValue currPos = new ResultValue("0", SubClassif.INTEGER);
+        ResultValue maxPos = new ResultValue(String.valueOf(limit.strValue.length()), SubClassif.INTEGER);
+
+        ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
+
+        Numeric nOp1, nOp2;
+        nOp2 = new Numeric(this, incrementBy, "+", "Incrementing by value");
+
+        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
+            // evaluate loop statements
+            result = statements(true);
+
+            if (!result.terminatingString.equals("endfor")) {
+                //TODO: fix exception - should be a for loop's terminating thingy
+                throw new PickleException();
+            }
+
+            nOp1 = new Numeric(this, currPos, "+", "Incrementing char pos");
+
+
+            currPos = Utility.add(this, nOp1, nOp2);
+
+            if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+                startValue = Utility.valueAtIndex(this, limit, Integer.parseInt(currPos.strValue)); //increment char value
+                storageManager.updateVariable(controlVar, startValue);
+            }
+
+            scanner.setPosition(iSavedLineNr, iSavedColPos);
+            scanner.getNext();
+        }
+
+        result = statements(false);
+
+        if (!result.terminatingString.equals("endfor")) {
+            //TODO: fix exception - end should be here
+            throw new PickleException();
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            //TODO: fix exception - ; should be here
+            throw new PickleException();
+        }
+
+        return result;
+    }
+
+    private ResultValue itemArrayFor(String controlVar) throws  PickleException {
+        STEntry entry = symbolTable.getSymbol(controlVar);
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+
+
+
+        scanner.getNext();
+
+
+        Result end = expr();
+        ResultList limit;
+        if (end instanceof ResultList) {
+            limit = (ResultList) end;
+        } else {
+            throw new PickleException();
+        }
+
+
+        if (entry.primClassif == Classif.EMPTY) {
+            symbolTable.putSymbol(controlVar,
+                    new STIdentifier(controlVar,
+                            Classif.OPERAND,
+                            limit.dataType, //TODO - ish
+                            "none",
+                            "local",
+                            0));
+
+
+        } else { //TODO - might need to fix this if too
+            //TODO fix exception - limit type needs to be the same as the array elements
+
+            STIdentifier id = (STIdentifier) symbolTable.getSymbol(controlVar);
+
+            if (limit.dataType != id.dclType) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use variable of non " + limit.dataType.name() + " type");
+            }
+
+        }
+
+        ResultValue startValue = limit.getItem(this, 0); //set up iterating char value
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            // TODO: fix exception - error for statement not ending in ':'
+            throw new PickleException();
+        }
+
+        //save off current position to loop
+        int iSavedLineNr = scanner.currentToken.iSourceLineNr;
+        int iSavedColPos = scanner.currentToken.iColPos;
+
+
+
+        ResultValue currPos = new ResultValue("0", SubClassif.INTEGER);
+        ResultValue maxPos = new ResultValue(String.valueOf(limit.allocatedSize), SubClassif.INTEGER);
+
+        ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
+
+
+        startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+
+        Numeric nOp1, nOp2;
+        nOp2 = new Numeric(this, incrementBy, "+", "Incrementing by value");
+
+        while (startValue.dataType == SubClassif.EMPTY && Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+            nOp1 = new Numeric(this, currPos, "+", "Incrementing array pos");
+
+
+            currPos = Utility.add(this, nOp1, nOp2);
+            startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+        }
+
+        storageManager.updateVariable(controlVar, startValue);
+
+        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
+            // evaluate loop statements
+            result = statements(true);
+
+            if (!result.terminatingString.equals("endfor")) {
+                //TODO: fix exception - should be a for loop's terminating thingy
+                throw new PickleException();
+            }
+
+
+            nOp1 = new Numeric(this, currPos, "+", "Incrementing array pos");
+
+
+            currPos = Utility.add(this, nOp1, nOp2);
+            if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+
+                startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+                while (startValue.dataType == SubClassif.EMPTY && Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+                    nOp1 = new Numeric(this, currPos, "+", "Incrementing array pos");
+
+
+                    currPos = Utility.add(this, nOp1, nOp2);
+                    if (Integer.parseInt(currPos.strValue) >= Integer.parseInt(maxPos.strValue))
+                        break;
+
+                    startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
+                }
+
+                if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue))
+                    storageManager.updateVariable(controlVar, startValue);
+            }
+
+            scanner.setPosition(iSavedLineNr, iSavedColPos);
+            scanner.getNext();
+        }
+
+        result = statements(false);
+
+        if (!result.terminatingString.equals("endfor")) {
+            //TODO: fix exception - end should be here
+            throw new PickleException();
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            //TODO: fix exception - ; should be here
+            throw new PickleException();
+        }
+
+        return result;
+    }
+
+
+
+    private ResultValue stringDelimiterFor(String controlVar) throws  PickleException {
+        STEntry entry = symbolTable.getSymbol(controlVar);
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        //TODO function body
+        return result;
+    }
+
+    private ResultValue countingFor(String controlVar) throws PickleException {
+        STEntry entry = symbolTable.getSymbol(controlVar);
+        ResultValue result;
+        ResultValue startValue;
+        ResultValue limit;
+        ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
+
+
+        if (entry.primClassif == Classif.EMPTY) {
+            symbolTable.putSymbol(controlVar,
+                    new STIdentifier(controlVar,
+                            Classif.OPERAND,
+                            SubClassif.INTEGER,
+                            "none",
+                            "local",
+                            0));
+
+
+        }
+
+
+        scanner.getNext();
+        
+        if (scanner.currentToken.primClassif != Classif.OPERAND &&
+                (scanner.currentToken.subClassif != SubClassif.FLOAT || scanner.currentToken.subClassif != SubClassif.INTEGER)) {
+            // TODO: 4/13/2021 parser error since assigning non-numeric
+            throw new PickleException();
+        }
+
+        try {
+            startValue = (ResultValue) expr();
+
+            if (!scanner.currentToken.tokenStr.equals("to")) {
+                // TODO: 4/13/2021 parser error incorrect for setup
+                throw new PickleException();
+            }
+
+            scanner.getNext();
+
+
+            limit = (ResultValue) expr();
+
+            if (scanner.currentToken.tokenStr.equals("by")) {
+                scanner.getNext();
+                incrementBy = (ResultValue) expr();
+
+            }
+
+        } catch (PickleException p) {
+            throw p;
+        } catch (Exception e) {
+            // TODO: 4/15/2021 must be ResultValue
+            throw new PickleException();
+        }
+
+
+
+        ResultValue zero =  new ResultValue("0", SubClassif.INTEGER);
+
+        if (Utility.lessThan(this, incrementBy, zero).strValue.equals("T")) {
+            // TODO: 4/13/2021 throw less than zero error
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Increment must be positive integer");
+        }
+
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            // TODO: 4/13/2021 parse error for statement not ending in ':'
+            throw new PickleException();
+        }
+        int iSavedLineNr = scanner.currentToken.iSourceLineNr;
+        int iSavedColPos = scanner.currentToken.iColPos;
+
+        storageManager.updateVariable(controlVar, startValue);
+
+        Numeric nOp1;
+        Numeric nOp2;
+
+        nOp2 = new Numeric(this, incrementBy, "+", "Incrementing by value");
+
+
+
+
+
+        while (Utility.lessThan(this, startValue, limit).strValue.equals("T")) {
+            // evaluate statments
+            result = statements(true);
+
+            if (!result.terminatingString.equals("endfor")) {
+                // TODO: 4/13/2021 throw parser error for loop didn't end in endfor
+                throw new PickleException();
+            }
+
+            nOp1 = new Numeric(this, startValue, "+", "Incrementing startValue");
+
+
+            startValue = Utility.add(this, nOp1, nOp2);
+            storageManager.updateVariable(controlVar, startValue);
+
+            scanner.setPosition(iSavedLineNr, iSavedColPos);
+            scanner.getNext();
+        }
+
+        result= statements(false);
+
+        if (!result.terminatingString.equals("endfor")) {
+            // TODO: 4/13/2021 throw error
+            throw new PickleException();
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            throw new PickleException();
+        }
+
+        return result;
+
+    }
+
+    private ResultValue evalCond() throws PickleException {
+
+
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        scanner.getNext();
+        try {
+            res = (ResultValue) expr();
+        } catch (PickleException p) {
+            throw p;
+        } catch (Exception e) {
+            // TODO: 4/15/2021 Bool are only ResultValue
+            throw e;
+        }
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Conditions must be followed by ':' token :");
         }
 
-        ResultValue tempResult;
-        Bool bOp1;
-        Bool bOp2;
-
-        // Switch to perform specific Utility boolean check
-        switch (operatorStr) {
-            case ">":
-                tempResult = Utility.greaterThan(scanner, res01, res02);
-                break;
-            case "<":
-                tempResult = Utility.lessThan(scanner, res01, res02);
-                break;
-            case ">=":
-                tempResult = Utility.greaterThanOrEqualTo(scanner, res01, res02);
-                break;
-            case "<=":
-                tempResult = Utility.lessThanOrEqualTo(scanner, res01, res02);
-                break;
-            case "==":
-                tempResult = Utility.equal(scanner, res01, res02);
-                break;
-            case "!=":
-                tempResult = Utility.notEqual(scanner, res01, res02);
-                break;
-            case "and":
-                bOp1 = new Bool(scanner, res01);
-                bOp2 = new Bool(scanner, res02);
-                tempResult = Utility.boolAnd(scanner, bOp1, bOp2);
-                break;
-            case "or":
-                bOp1 = new Bool(scanner, res01);
-                bOp2 = new Bool(scanner, res02);
-                tempResult = Utility.boolOr(scanner, bOp1, bOp2);
-                break;
-            case "not":
-                bOp2 = new Bool(scanner, res02);
-                tempResult = Utility.boolNot(scanner, bOp2);
-                break;
-            default:
-                throw new ScannerParserException(operatorToken, scanner.sourceFileNm, "Invalid comparator token");
-        }
-
-        if (bShowExpr)
-            System.out.printf("...%s %s %s is %s\n", res01.strValue, operatorStr, res02.strValue, tempResult.strValue);
-
-
-        return tempResult;
+        return res;
     }
-
 
     /**
      * Main Pickle Pickle Loop

@@ -16,9 +16,9 @@ public class Numeric {
      * Validates if a given ResultValue is an integer or float.
      *
      * If a ResultValue cannot be parsed into an integer or float,
-     * an error is raised via scanner.error()
+     * an error is raised.
      *
-     * @param scanner       Scanner object
+     * @param parser        Parser object
      * @param resValue      ResultValue that contains string to parse
      * @param operator      The operator string associated with this value
      * @param operandDesc   The description of the Operand ("1st Operand"/"2nd Operand")
@@ -26,13 +26,13 @@ public class Numeric {
      * @throws NumericConstantException if the string is not an int or float
      *                                  or the value cannot be parsed.
      */
-    public Numeric(Scanner scanner, ResultValue resValue, String operator, String operandDesc)
+    public Numeric(Parser parser, ResultValue resValue, String operator, String operandDesc)
             throws NumericConstantException
     {
         // store the given result value string
         strValue = resValue.strValue;
         // validate that the given resValue is a numeric, raise exception on failure
-        parseString(scanner, strValue);
+        parseString(parser, strValue);
     }
 
     /**
@@ -57,30 +57,30 @@ public class Numeric {
      *     2. If a string is one or more digits, a '.', and one or
      *     more digits, it is considered a float.
      *
-     * @param scanner   Scanner object
+     * @param parser    Parser object
      * @param str       String to parse
      *
      * @throws NumericConstantException if the string is not an int or float
      *                                  or the value cannot be parsed.
      */
-    private void parseString(Scanner scanner, String str) throws NumericConstantException
+    private void parseString(Parser parser, String str) throws NumericConstantException
     {
         // string is one or more digits
         if (str.matches("-?\\d+"))
         {
             dataType = SubClassif.INTEGER;
-            storeValue(scanner, str, dataType);
+            storeValue(parser.scanner, str, dataType);
         }
         // string is one or more digits, a '.', and one or more digits
         else if (str.matches("-?\\d+\\.?\\d+"))
         {
             dataType = SubClassif.FLOAT;
-            storeValue(scanner, str, dataType);
+            storeValue(parser.scanner, str, dataType);
         }
         // string is not an int or float
         else
         {
-            throw new NumericConstantException(scanner.currentToken, scanner.sourceFileNm);
+            throw new NumericConstantException(parser.scanner.currentToken, parser.scanner.sourceFileNm);
         }
     }
 
