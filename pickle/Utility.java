@@ -75,7 +75,7 @@ public class Utility {
      * <p>
      *
      * </p>
-     * @param token
+     * @param token token
      * @throws PickleException if scanner.getNext() failes
      */
     public static void skipTo(Scanner scanner, String token) throws PickleException {
@@ -148,9 +148,8 @@ public class Utility {
                 arrayList.add(emptyValue);
             }
         }
-        ResultList res = new ResultList(parser, arrayList, targetArray.capacity, targetArray.dataType);
 
-        return res;
+        return new ResultList(parser, arrayList, targetArray.capacity, targetArray.dataType);
     }
 
     /**
@@ -175,6 +174,66 @@ public class Utility {
         return new ResultList(parser, arrayList, size, value.dataType);
 
     }
+
+    /**
+     * Returns the sub-array (slice) of a ResultList object given a lowerbound and upperbound index.
+     * The lowerbound is inclusive and upperbound is exclusive.
+     *
+     * <p> Either of the lowerbound or upperbound indexes can be excluded by providing a negative index.
+     *
+     * <p> e.g. 1:
+     *     given array = [1, 2, 3, 4, 5]
+     *     newArray = (parser, array, 2, -1)
+     *     newArray = [3, 4, 5]
+     *
+     * <p> e.g. 2:
+     *     given array = [1, 2, 3, 4, 5]
+     *     newArray = (parser, array, -1, 3)
+     *     newArray = [1, 2, 3]
+     *
+     * <p> e.g. 3:
+     *     given array = [1, 2, 3, 4, 5]
+     *     newArray = (parser, array, 2, 4)
+     *     newArray = [3, 4]
+     *
+     * @param parser     Parser object
+     * @param array      ResultList to get slice of
+     * @param lowerBound Lowerbourd index of slice (inclusive)
+     * @param upperBound Upperbound index of slice (exclusive)
+     * @return ResultList that is the sub-array from lowerbound (inclusive) to upperbound (exclusive)
+     * @throws ResultListException if provided indexes are out of bounds
+     */
+    public static ResultList getArraySlice(Parser parser, ResultList array, int lowerBound, int upperBound) throws ResultListException
+    {
+        // translate any negative indexes into the proper index
+        // and calculate the size of the new array
+        int lb, ub, size;
+        lb = Math.max(lowerBound, 0);
+        ub = upperBound < 0 ? array.allocatedSize : upperBound;
+        size = ub - lb;
+
+        // verify that the provided upperbound and lowerbounds are valid
+        // lb cannot be greater than ub, lb and ub must be within arrays allocated size
+        if (lb > ub || lb > array.allocatedSize || ub > array.allocatedSize)
+        {
+            throw new ResultListException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    "Array slice invalid, index(es) out of bounds.");
+        }
+
+        // Create List of ResultValues to become ResultList
+        ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>(size);
+
+        // Copy the values from the given array to the new list
+        int j = lb;
+        for (int i = 0; i < size; i++) {
+            arrayList.add(array.getItem(parser, j));
+            j++;
+        }
+
+        // return the ResultList
+        return new ResultList(parser, arrayList, size, array.dataType);
+    }
+
     // ==================== STRING OPERATIONS =====================
     // =============================================================
 
@@ -297,6 +356,109 @@ public class Utility {
         if (resultValue.strValue.trim().isEmpty() || resultValue.strValue == null)
             return new ResultValue("T", SubClassif.BOOLEAN);
         else return new ResultValue("F", SubClassif.BOOLEAN);
+    }
+
+    /**
+     * Returns the substring (slice) of a ResultValue string object given a lowerbound and upperbound index.
+     * The lowerbound is inclusive and upperbound is exclusive.
+     *
+     * <p> Either of the lowerbound or upperbound indexes can be excluded by providing a negative index.
+     *
+     * <p> e.g. 1:
+     *     given string = "goodbye"
+     *     newString = (parser, string, 0, 4)
+     *     newString = "good"
+     *
+     * <p> e.g. 2:
+     *     given string = [1, 2, 3, 4, 5]
+     *     newString = (parser, string, -1, 4)
+     *     newString = "good"
+     *
+     * <p> e.g. 3:
+     *     given string = [1, 2, 3, 4, 5]
+     *     newString = (parser, string, 4, -1)
+     *     newString = "bye"
+     *
+     * @param parser     Parser object
+     * @param value      ResultValue String to be sliced
+     * @param lowerBound Lowerbound of slice (inclusive)
+     * @param upperBound Upperbound of slice (exclusive)
+     * @return new ResultValue string that is the slice of the given string from lowerbound (inclusive)
+     *         to upperbound (exclusive)
+     * @throws StringException if given index(es) are out of bounds
+     */
+    public static ResultValue getStringSlice(Parser parser, ResultValue value, int lowerBound, int upperBound) throws StringException
+    {
+        // translate any negative indexes into the proper index
+        // and calculate the size of the new array
+        int lb, ub, size;
+        lb = Math.max(lowerBound, 0);
+        ub = upperBound < 0 ? value.strValue.length() : upperBound;
+        size = ub - lb;
+
+        // verify that the provided upperbound and lowerbounds are valid
+        // lb cannot be greater than ub, lb and ub must be within arrays allocated size
+        if (lb > ub || lb > value.strValue.length() || ub > value.strValue.length())
+        {
+            throw new StringException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    "String slice invalid, index(es) out of bounds.");
+        }
+
+        // Create new string
+        StringBuilder newStringBuild = new StringBuilder("");
+
+        // Copy the values from the given string to the new string
+        int j = lb;
+        for (int i = 0; i < size; i++) {
+            newStringBuild.append(value.strValue.charAt(j));
+            j++;
+        }
+
+        // return the ResultList
+        return new ResultValue(newStringBuild.toString(), SubClassif.STRING);
+    }
+
+    /**
+     * Creates a new ResultValue string that is the result of replacing a slice of a string with a given value
+     * given a lowerbound and upperbound index. The lowerbound is inclusive and upperbound is exclusive.
+     *
+     * <p> see StringBuilder.replace()
+     *
+     * @param parser     Parser object
+     * @param target     ResultValue String to be sliced
+     * @param lowerBound Lowerbound of slice (inclusive)
+     * @param upperBound Upperbound of slice (exclusive)
+     * @param value      ResultValue String that is the value to be inserted
+     * @return new ResultValue string that is the slice of the given string from lowerbound (inclusive)
+     *         to upperbound (exclusive)
+     * @throws StringException if given index(es) are out of bounds
+     */
+    public static ResultValue getStringSliceAssign(Parser parser, ResultValue target, int lowerBound, int upperBound, ResultValue value)
+            throws StringException
+    {
+        // translate any negative indexes into the proper index
+        // and calculate the size of the new array
+        int lb, ub, size;
+        lb = Math.max(lowerBound, 0);
+        ub = upperBound < 0 ? target.strValue.length() : upperBound;
+        size = ub - lb;
+
+        // verify that the provided upperbound and lowerbounds are valid
+        // lb cannot be greater than ub, lb and ub must be within arrays allocated size
+        if (lb > ub || lb > target.strValue.length() || ub > target.strValue.length())
+        {
+            throw new StringException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    "String slice invalid, index(es) out of bounds.");
+        }
+
+        // Create new string
+        StringBuilder newStringBuild = new StringBuilder(target.strValue);
+
+        // replace the target string with the new value from lb to ub
+        newStringBuild.replace(lb, ub, value.strValue);
+
+        // return the ResultList
+        return new ResultValue(newStringBuild.toString(), SubClassif.STRING);
     }
 
     // ==================== TYPE COERCIONS =====================

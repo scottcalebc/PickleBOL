@@ -41,12 +41,17 @@ public class ResultList implements Result
 
     @Override
     public String toString() {
+        String arrayListString = "";
+        for(int i = 0; i < capacity; i++) {
+            arrayListString += "\n\t\t" + arrayList.get(i).toString();
+        }
+
         return "ResultList{" +
-                "dataType=" + dataType +
-                ", arrayList=" + arrayList +
-                ", capacity=" + capacity +
-                ", allocatedSize=" + allocatedSize +
-                '}';
+                "\n\tdataType=" + dataType +
+                ", \n\tarrayList=" + arrayListString +
+                ", \n\tcapacity=" + capacity +
+                ", \n\tallocatedSize=" + allocatedSize +
+                "\n}";
     }
 
     /**
