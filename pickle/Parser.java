@@ -141,6 +141,10 @@ public class Parser {
         if (scanner.getNext().equals("=")) {
             scanner.getNext();
             res = (ResultValue) expr();
+
+            if (declareTypeStr.equals("Date")) {
+                res = Date.validateDate(res.strValue);
+            }
         }
 
         // Statement does not end in a semicolon
@@ -1249,10 +1253,10 @@ public class Parser {
                 return SubClassif.BOOLEAN;
             case "String":
                 return SubClassif.STRING;
-            case "pickle.Date":
+            case "Date":
                 return SubClassif.DATE;
             default:
-                throw new PickleException();
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid Declaration type");
         }
     }
 }
