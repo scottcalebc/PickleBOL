@@ -9,12 +9,17 @@ public class Expr {
         ArrayList<Token> postfix = new ArrayList<Token>();
         Stack<Token> stack = new Stack<Token>();
 
-        while(!parser.scanner.currentToken.tokenStr.equals(",")
-                && !parser.scanner.currentToken.tokenStr.equals(";")
+        int funcBool = 0;
+
+        while(     !parser.scanner.currentToken.tokenStr.equals(";")
                 && !parser.scanner.currentToken.tokenStr.equals(":")
                 && !parser.scanner.currentToken.tokenStr.equals("to")
                 && !parser.scanner.currentToken.tokenStr.equals("by")
                 && !parser.scanner.currentToken.tokenStr.equals("=")) {
+
+            if (funcBool == 0 && parser.scanner.currentToken.tokenStr.equals(",")) {
+                break;
+            }
 
             switch (parser.scanner.currentToken.primClassif) {
                 case OPERAND:
@@ -79,6 +84,7 @@ public class Expr {
                                         popped = stack.pop();
                                     }
                                     stack.push(popped);
+                                    funcBool--;
                                 }
                                 break;
                             case "]":
@@ -104,6 +110,7 @@ public class Expr {
                         break;
                 case FUNCTION:
                         stack.push(parser.scanner.currentToken);
+                        funcBool++;
                         if (!parser.scanner.getNext().equals("(")) {
                             throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Functions must be followed by a '(' token");
                         }
@@ -222,6 +229,7 @@ public class Expr {
 
                 case FUNCTION:
                     ResultValue param;
+                    ResultValue param2;
                     ResultList paramM;
                     switch (token.tokenStr) {
                         case "LENGTH":
@@ -340,6 +348,118 @@ public class Expr {
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value of variable cannot be array");
                             }
+                            break;
+
+                        case "dateDiff":
+                            if ( stack.size() < 2) {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Did not supply enough parameters for function");
+                            }
+
+                            param2 = stack.pop();
+                            param = stack.pop();
+
+                            if (param.dataType == SubClassif.IDENTIFIER) {
+                                STEntry entry = parser.symbolTable.getSymbol(param.strValue);
+
+                                if (entry.primClassif == Classif.EMPTY) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                }
+                                STIdentifier id = (STIdentifier) entry;
+
+                                if (id.dclType != SubClassif.DATE) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use non-date value with dateDiff function");
+                                }
+
+                                try {
+                                    param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+                                } catch (Exception e) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
+                                }
+                            } else if (param.dataType == SubClassif.STRING) {
+                                param = Date.validateDate(param.strValue);
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");
+                            }
+
+                            if (param2.dataType == SubClassif.IDENTIFIER) {
+                                STEntry entry = parser.symbolTable.getSymbol(param2.strValue);
+
+                                if (entry.primClassif == Classif.EMPTY) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                }
+                                STIdentifier id = (STIdentifier) entry;
+
+                                if (id.dclType != SubClassif.DATE) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use non-date value with dateDiff function");
+                                }
+
+                                try {
+                                    param2 = (ResultValue) parser.storageManager.getVariable(id.symbol);
+                                } catch (Exception e) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
+                                }
+                            } else if (param2.dataType == SubClassif.STRING) {
+                                param2 = Date.validateDate(param2.strValue);
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");
+                            }
+
+                            res = Date.dateDiff(param, param2);
+
+                            break;
+                        case "dateAdj":
+                            if ( stack.size() < 2) {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Did not supply enough parameters for function");
+                            }
+
+                            param2 = stack.pop();
+                            param = stack.pop();
+
+                            if (param.dataType == SubClassif.IDENTIFIER) {
+                                STEntry entry = parser.symbolTable.getSymbol(param.strValue);
+
+                                if (entry.primClassif == Classif.EMPTY) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                }
+                                STIdentifier id = (STIdentifier) entry;
+
+                                if (id.dclType != SubClassif.DATE) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use non-date value with dateDiff function");
+                                }
+
+                                try {
+                                    param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+                                } catch (Exception e) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
+                                }
+                            } else if (param.dataType == SubClassif.STRING) {
+                                param = Date.validateDate(param.strValue);
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");
+                            }
+
+                            if (param2.dataType == SubClassif.IDENTIFIER) {
+                                STEntry entry = parser.symbolTable.getSymbol(param2.strValue);
+
+                                if (entry.primClassif == Classif.EMPTY) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
+                                }
+                                STIdentifier id = (STIdentifier) entry;
+
+                                if (id.dclType != SubClassif.INTEGER) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use non-integer value with dateAdj function");
+                                }
+
+                                try {
+                                    param2 = (ResultValue) parser.storageManager.getVariable(id.symbol);
+                                } catch (Exception e) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
+                                }
+                            } else if (param2.dataType != SubClassif.INTEGER) {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Integer constant or variable");
+                            }
+
+                            res = Date.dateAdj(param, param2);
                             break;
 
                         default:
