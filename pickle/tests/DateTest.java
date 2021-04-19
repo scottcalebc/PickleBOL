@@ -23,6 +23,8 @@ class DateTest {
             "1995-07-09"
     } ;
 
+
+
     private final int[] goodDateDiff = new int[] {
             701,
             -642,
@@ -117,7 +119,7 @@ class DateTest {
         for (int i = 0; i < goodDateStrings.length - 1; i++) {
 
             final int index = i;
-            ResultValue expected = new ResultValue(String.valueOf(goodDateDiff[index]*-1), SubClassif.INTEGER);
+            ResultValue expected = new ResultValue(String.valueOf(goodDateDiff[index]), SubClassif.INTEGER);
 
 
             assertDoesNotThrow(() -> {
@@ -153,5 +155,23 @@ class DateTest {
 
             });
         }
+    }
+
+
+    @Test
+    void dateAge() {
+        ResultValue expected = new ResultValue("2", SubClassif.INTEGER);
+
+        assertDoesNotThrow(() -> {
+            ResultValue date1 = new ResultValue("2017-02-01", SubClassif.STRING);
+            ResultValue date2 = new ResultValue("2015-02-01", SubClassif.STRING);
+
+            ResultValue received = Date.dateAge(date1, date2);
+
+            assertEquals(expected.strValue, received.strValue, "Error on dates: " + date1.strValue + " " + date2.strValue + "; Expected: " + expected.strValue + "; Received: " + received.strValue);
+            assertEquals(expected.dataType, received.dataType, "Error on dates: " + date1.strValue + " " + date2.strValue + "; Expected: " + expected.dataType.name() + "; Received: " + received.dataType.name());
+
+
+        });
     }
 }

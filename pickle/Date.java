@@ -137,4 +137,27 @@ public class Date {
         return validateDate(newDate);
 
     }
+
+
+    public static ResultValue dateAge(ResultValue date1, ResultValue date2) throws PickleException {
+        if (date1.dataType != SubClassif.DATE)
+            date1 = validateDate(date1.strValue);
+
+        if (date2.dataType != SubClassif.DATE)
+            date2 = validateDate(date2.strValue);
+
+        int date1Year = validateNumber(date1.strValue, 0, 4);
+        int date1Month = validateNumber(date1.strValue, 5, 7);
+
+        int date2Year = validateNumber(date2.strValue, 0, 4);
+        int date2Month = validateNumber(date2.strValue, 5, 7);
+
+        int out = date1Year - date2Year;
+
+        if (date1Month < date2Month) {
+            out--;
+        }
+
+        return new ResultValue(String.valueOf(out), SubClassif.INTEGER);
+    }
 }
