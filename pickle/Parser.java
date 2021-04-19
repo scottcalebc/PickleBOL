@@ -1249,7 +1249,7 @@ public class Parser {
                 return SubClassif.BOOLEAN;
             case "String":
                 return SubClassif.STRING;
-            case "Date":
+            case "pickle.Date":
                 return SubClassif.DATE;
             default:
                 throw new PickleException();

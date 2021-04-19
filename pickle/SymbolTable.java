@@ -66,7 +66,7 @@ public class SymbolTable {
 		this.globalST.put("Float", new STControl("Float", Classif.CONTROL, SubClassif.DECLARE));
 		this.globalST.put("String", new STControl("String", Classif.CONTROL, SubClassif.DECLARE));
 		this.globalST.put("Bool", new STControl("Bool", Classif.CONTROL, SubClassif.DECLARE));
-		this.globalST.put("Date", new STControl("Date", Classif.CONTROL, SubClassif.DECLARE));
+		this.globalST.put("pickle.Date", new STControl("pickle.Date", Classif.CONTROL, SubClassif.DECLARE));
 
 		this.globalST.put("and", new STEntry("and", Classif.OPERATOR));
 		this.globalST.put("or", new STEntry("or", Classif.OPERATOR));
