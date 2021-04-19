@@ -1,5 +1,9 @@
 package pickle;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class Date {
     private static final int[] iDaysPerMonth = new int[]{
         0, 31, 29, 31, 30, 31, 30, 31, 31, 30 , 31, 30, 31
@@ -76,7 +80,11 @@ public class Date {
             year = year - 1;
         }
 
-        return 365 * year + year / 4 - year / 100 + year / 400 + (month * 306 + 5) / 10 + (day);
+        return 365 * year
+                + year / 4 - year / 100
+                + year / 400
+                + (month * 306 + 5) / 10
+                + (day);
     }
 
 
@@ -93,8 +101,40 @@ public class Date {
         int julian1 = dateToJulian(date1.strValue);
         int julian2 = dateToJulian(date2.strValue);
 
+        System.out.printf("Date 1 str: %d; Date 2 str: %d\n", julian1, julian2);
+
 
         return new ResultValue(String.valueOf(julian1 - julian2), SubClassif.INTEGER);
+
+    }
+
+
+    public static ResultValue dateAdj(ResultValue date, ResultValue adjValue) throws PickleException {
+        if (date.dataType != SubClassif.DATE) {
+            date = validateDate(date.strValue);
+        }
+        if (adjValue.dataType != SubClassif.INTEGER) {
+            throw new PickleException();
+        }
+
+        SimpleDateFormat sDF = new SimpleDateFormat("yyy-MM-dd");
+
+        Calendar calendar = Calendar.getInstance();
+
+        try {
+            calendar.setTime(sDF.parse(date.strValue));
+        } catch (ParseException e) {
+           throw new PickleException();
+        }
+
+        calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(adjValue.strValue));
+
+
+        String newDate = sDF.format(calendar.getTime());
+
+
+
+        return validateDate(newDate);
 
     }
 }
