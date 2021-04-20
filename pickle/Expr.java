@@ -366,12 +366,16 @@ public class Expr {
                                 }
                                 STIdentifier id = (STIdentifier) entry;
 
-                                if (id.dclType != SubClassif.DATE) {
+                                if (id.dclType != SubClassif.DATE && id.dclType != SubClassif.STRING) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use non-date value with dateDiff function");
                                 }
 
                                 try {
                                     param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (id.dclType == SubClassif.STRING) {
+                                        param = Date.validateDate(param.strValue);
+                                    }
                                 } catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
                                 }
@@ -389,12 +393,16 @@ public class Expr {
                                 }
                                 STIdentifier id = (STIdentifier) entry;
 
-                                if (id.dclType != SubClassif.DATE) {
+                                if (id.dclType != SubClassif.DATE && id.dclType != SubClassif.STRING) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use non-date value with dateDiff function");
                                 }
 
                                 try {
                                     param2 = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (id.dclType == SubClassif.STRING) {
+                                        param2 = Date.validateDate(param2.strValue);
+                                    }
                                 } catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
                                 }
@@ -423,12 +431,16 @@ public class Expr {
                                 }
                                 STIdentifier id = (STIdentifier) entry;
 
-                                if (id.dclType != SubClassif.DATE) {
+                                if (id.dclType != SubClassif.DATE && id.dclType != SubClassif.STRING) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use non-date value with dateDiff function");
                                 }
 
                                 try {
                                     param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (id.dclType == SubClassif.STRING) {
+                                        param = Date.validateDate(param.strValue);
+                                    }
                                 } catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
                                 }
@@ -460,6 +472,72 @@ public class Expr {
                             }
 
                             res = Date.dateAdj(param, param2);
+                            break;
+
+                        case "dateAge":
+                            if ( stack.size() < 2) {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Did not supply enough parameters for function");
+                            }
+
+                            param2 = stack.pop();
+                            param = stack.pop();
+
+                            if (param.dataType == SubClassif.IDENTIFIER) {
+                                STEntry entry = parser.symbolTable.getSymbol(param.strValue);
+
+                                if (entry.primClassif == Classif.EMPTY) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                }
+                                STIdentifier id = (STIdentifier) entry;
+
+                                if (id.dclType != SubClassif.DATE && id.dclType != SubClassif.STRING) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use non-date value with dateDiff function");
+                                }
+
+                                try {
+                                    param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (id.dclType == SubClassif.STRING) {
+                                        param = Date.validateDate(param.strValue);
+                                    }
+                                } catch (Exception e) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
+                                }
+                            } else if (param.dataType == SubClassif.STRING) {
+                                param = Date.validateDate(param.strValue);
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");
+                            }
+
+                            if (param2.dataType == SubClassif.IDENTIFIER) {
+                                STEntry entry = parser.symbolTable.getSymbol(param2.strValue);
+
+                                if (entry.primClassif == Classif.EMPTY) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                }
+                                STIdentifier id = (STIdentifier) entry;
+
+                                if (id.dclType != SubClassif.DATE && id.dclType != SubClassif.STRING) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use non-date value with dateDiff function");
+                                }
+
+                                try {
+                                    param2 = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (id.dclType == SubClassif.STRING) {
+                                        param2 = Date.validateDate(param2.strValue);
+                                    }
+                                } catch (Exception e) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
+                                }
+                            } else if (param2.dataType == SubClassif.STRING) {
+                                param2 = Date.validateDate(param2.strValue);
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");
+                            }
+
+                            res = Date.dateAge(param, param2);
+
                             break;
 
                         default:

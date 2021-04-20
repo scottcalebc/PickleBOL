@@ -82,6 +82,7 @@ public class SymbolTable {
 		this.globalST.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1));		//TODO: acutal number?
 		this.globalST.put("dateDiff", new STFunction("dateDiff", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 2));
 		this.globalST.put("dateAdj", new STFunction("dateAdj", Classif.FUNCTION, SubClassif.DATE, SubClassif.BUILTIN, 2));
+		this.globalST.put("dateAge", new STFunction("dateAge", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 2));
 	}
 
 }
