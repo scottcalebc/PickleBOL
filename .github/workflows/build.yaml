@@ -31,10 +31,10 @@ jobs:
       - run: |
           mkdir out
           javac -d out pickle/*.java
-          java out/Pickle.pickle .github/p4/p4Array.txt
-          java out/Pickle.pickle .github/p4/p4Expr.txt
-          java out/Pickle.pickle .github/p4/p4Func.txt
-          java out/Pickle.pickle .github/p4/pString.txt
+          java out.Pickle .github/p4/p4Array.txt
+          java out.Pickle .github/p4/p4Expr.txt
+          java out.Pickle .github/p4/p4Func.txt
+          java out.Pickle .github/p4/pString.txt
 
 
 
