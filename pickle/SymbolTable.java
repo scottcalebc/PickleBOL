@@ -1,5 +1,6 @@
 package pickle;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SymbolTable {
@@ -74,12 +75,44 @@ public class SymbolTable {
 		this.globalST.put("in", new STEntry("in", Classif.OPERATOR));
 		this.globalST.put("notin", new STEntry("notin", Classif.OPERATOR));
 
-		this.globalST.put("print", new STFunction("print", Classif.FUNCTION, SubClassif.VOID, SubClassif.BUILTIN, VAR_ARGS));
-		this.globalST.put("LENGTH", new STFunction("LENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1)); 			//TODO: acutal number?
-		this.globalST.put("MAXLENGTH", new STFunction("MAXLENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1));	//TODO: acutal number?
-		this.globalST.put("SPACES", new STFunction("SPACES", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0));			//TODO: acutal number?
-		this.globalST.put("ELEM", new STFunction("ELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1));				//TODO: acutal number?
-		this.globalST.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1));		//TODO: acutal number?
+		this.globalST.put("print", new STFunction("print", Classif.FUNCTION, SubClassif.VOID, SubClassif.BUILTIN, VAR_ARGS, new Builtin() {
+			@Override
+			public ResultValue execute(ArrayList<Result> param) {
+				//return Utility.builtInPrint(param);
+				return null;
+			}
+		}));
+		this.globalST.put("LENGTH", new STFunction("LENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, new Builtin() {
+			@Override
+			public ResultValue execute(ArrayList<Result> param) {
+				return Utility.builtInLENGTH(param);
+			}
+		}));
+		this.globalST.put("MAXLENGTH", new STFunction("MAXLENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, new Builtin() {
+			@Override
+			public ResultValue execute(ArrayList<Result> param) {
+				//return Utility.builtInMAXLENGTH(param);
+				return null;
+			}
+		}));
+		this.globalST.put("SPACES", new STFunction("SPACES", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0, new Builtin() {
+			@Override
+			public ResultValue execute(ArrayList<Result> param) {
+				return Utility.builtInSPACES(param);
+			}
+		}));
+		this.globalST.put("ELEM", new STFunction("ELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, new Builtin() {
+			@Override
+			public ResultValue execute(ArrayList<Result> param) {
+				return Utility.builtInELEM(param);
+			}
+		}));
+		this.globalST.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, new Builtin() {
+			@Override
+			public ResultValue execute(ArrayList<Result> param) {
+				return Utility.builtInMAXELEM(param);
+			}
+		}));
 	}
 
 }

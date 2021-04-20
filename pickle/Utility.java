@@ -92,9 +92,9 @@ public class Utility {
      * @param array  ResultList Array
      * @return ResultValue that is the ELEM index
      */
-    public static ResultValue builtInELEM(Parser parser, ResultList array)
+    public static ResultValue builtInELEM(ArrayList<Result> params)
     {
-        return new ResultValue(Integer.toString(array.allocatedSize), SubClassif.INTEGER);
+        return new ResultValue(Integer.toString(((ResultList) params.get(0)).allocatedSize), SubClassif.INTEGER);
     }
 
     /**
@@ -105,9 +105,9 @@ public class Utility {
      * @param array  ResultList Array
      * @return ResultValue that is the MAXELEM index
      */
-    public static ResultValue builtInMAXELEM(Parser parser, ResultList array)
+    public static ResultValue builtInMAXELEM(ArrayList<Result> params)
     {
-        return new ResultValue(Integer.toString(array.capacity), SubClassif.INTEGER);
+        return new ResultValue(Integer.toString(((ResultList) params.get(0)).capacity), SubClassif.INTEGER);
     }
 
     /**
@@ -279,9 +279,9 @@ public class Utility {
      * @param resultValue String as a ResultValue
      * @return ResultValue of Type INTEGER which is the length of the string.
      */
-    public static ResultValue builtInLENGTH(Parser parser, ResultValue resultValue)
+    public static ResultValue builtInLENGTH(ArrayList<Result> param)
     {
-        return new ResultValue(Integer.toString(resultValue.strValue.length()), SubClassif.INTEGER);
+        return new ResultValue(Integer.toString(((ResultValue) param.get(0)).strValue.length()), SubClassif.INTEGER);
     }
 
     /**
@@ -292,9 +292,9 @@ public class Utility {
      * @param resultValue String as a ResultValue
      * @return A ResultValue of type BOOLEAN
      */
-    public static ResultValue builtInSPACES(Parser parser, ResultValue resultValue)
+    public static ResultValue builtInSPACES(ArrayList<Result> param)
     {
-        if (resultValue.strValue.trim().isEmpty() || resultValue.strValue == null)
+        if (((ResultValue) param.get(0)).strValue.trim().isEmpty() || ((ResultValue) param.get(0)).strValue == null)
             return new ResultValue("T", SubClassif.BOOLEAN);
         else return new ResultValue("F", SubClassif.BOOLEAN);
     }

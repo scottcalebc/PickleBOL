@@ -503,7 +503,6 @@ public class Parser {
             if (res.dataType != SubClassif.STRING) {
                 throw new ScannerParserException(exprToken, scanner.sourceFileNm, "Cannot call builtin LENGTH on non-string expressions");
             }
-
             res = Utility.builtInLENGTH(this, res);
         } catch (PickleException p) {
             throw p;
