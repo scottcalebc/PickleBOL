@@ -9,4 +9,4 @@ jobs:
         distribution: 'adopt'
         java-version: '11'
         check-latest: true
-    - run: java -cp java Pickle
+    - run: javac pickle/*.java
