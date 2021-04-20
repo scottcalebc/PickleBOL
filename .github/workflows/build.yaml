@@ -19,23 +19,22 @@ jobs:
 
 
   p4:
-    build:
-      runs-on: ubuntu-20.04
-      name: Program 4 run
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup-java@v2
-          with:
-            distribution: 'adopt'
-            java-version: '11'
-            check-latest: true
-        - run: |
-            mkdir out
-            javac -d out pickle/*.java
-            java out/Pickle.pickle .github/p4/p4Array.txt
-            java out/Pickle.pickle .github/p4/p4Expr.txt
-            java out/Pickle.pickle .github/p4/p4Func.txt
-            java out/Pickle.pickle .github/p4/pString.txt
+    runs-on: ubuntu-20.04
+    name: Program 4 run
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+          check-latest: true
+      - run: |
+          mkdir out
+          javac -d out pickle/*.java
+          java out/Pickle.pickle .github/p4/p4Array.txt
+          java out/Pickle.pickle .github/p4/p4Expr.txt
+          java out/Pickle.pickle .github/p4/p4Func.txt
+          java out/Pickle.pickle .github/p4/pString.txt
 
 
 
