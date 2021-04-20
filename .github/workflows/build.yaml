@@ -12,10 +12,7 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
           check-latest: true
-      - run: |
-          mkdir out
-          javac -d out pickle/*.java
-          ls -la
+      - run: javac pickle/*.java
 
 
   p4:
@@ -29,12 +26,11 @@ jobs:
           java-version: '11'
           check-latest: true
       - run: |
-          mkdir out
-          javac -d out pickle/*.java
-          java out.Pickle .github/p4/p4Array.txt
-          java out.Pickle .github/p4/p4Expr.txt
-          java out.Pickle .github/p4/p4Func.txt
-          java out.Pickle .github/p4/pString.txt
+          javac pickle/*.java
+          java pickle.Pickle .github/p4/p4Array.txt
+          java pickle.Pickle .github/p4/p4Expr.txt
+          java pickle.Pickle .github/p4/p4Func.txt
+          java pickle.Pickle .github/p4/pString.txt
 
 
 
