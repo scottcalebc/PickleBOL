@@ -30,7 +30,7 @@ jobs:
           java pickle.Pickle .github/p4/p4Array.txt
           java pickle.Pickle .github/p4/p4Expr.txt
           java pickle.Pickle .github/p4/p4Func.txt
-          java pickle.Pickle .github/p4/pString.txt
+          java pickle.Pickle .github/p4/p4String.txt
 
 
 
