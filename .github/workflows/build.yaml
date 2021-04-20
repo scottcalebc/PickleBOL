@@ -13,8 +13,8 @@ jobs:
           java-version: '11'
           check-latest: true
       - run: |
-        mkdir out
-        javac -d out pickle/*.java
+          mkdir out
+          javac -d out pickle/*.java
 
 
   test:
