@@ -101,11 +101,9 @@ public class Date {
         int julian1 = dateToJulian(date1.strValue);
         int julian2 = dateToJulian(date2.strValue);
 
-        System.out.printf("Date 1 str: %d; Date 2 str: %d\n", julian1, julian2);
-
+        //System.out.printf("Date 1 str: %d; Date 2 str: %d\n", julian1, julian2);
 
         return new ResultValue(String.valueOf(julian1 - julian2), SubClassif.INTEGER);
-
     }
 
 
