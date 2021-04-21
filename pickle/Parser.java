@@ -102,6 +102,18 @@ public class Parser {
                     case "for":
                         res = forStmt(execMode);
                         break;
+                    case "break":
+                        res.execMode = iExecMode.BREAK_EXEC;
+                        if (!scanner.getNext().equals(";")) {
+                            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Break statement must be followed by ';' ");
+                        }
+                        break;
+                    case "continue":
+                        res.execMode = iExecMode.CONTINUE_EXEC;
+                        if (!scanner.getNext().equals(";")) {
+                            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Continue statement must be followed by ';' ");
+                        }
+                        break;
 
                 }
                 break;
@@ -632,18 +644,31 @@ public class Parser {
      */
     private ResultValue statements(iExecMode execMode) throws PickleException {
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        res.execMode = execMode;
         //exec statements
-        if (execMode == iExecMode.EXECUTE) {
-            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
-                getNext(execMode);
+        if (res.execMode == iExecMode.EXECUTE) {
+            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END && res.execMode == iExecMode.EXECUTE) {
+                res = getNext(execMode);
             }
         }
-        else { // skip over statments and set flag to false for if and while clauses
+        else if (res.execMode == iExecMode.IGNORE_EXEC) { // skip over statments and set flag to false for if and while clauses
             while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
                 scanner.getNext();
 
                 if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
-                    res = controlStmt(execMode);
+                    controlStmt(execMode);
+                }
+            }
+        } else {
+            if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
+                controlStmt(execMode);
+            }
+
+            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
+                scanner.getNext();
+
+                if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
+                    controlStmt(execMode);
                 }
             }
         }
@@ -664,32 +689,55 @@ public class Parser {
 
         //set while position
         Token entryPosition = scanner.currentToken;
-        ResultValue result;
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        result.execMode = execMode;
 
         //execute while statement
         if (execMode == iExecMode.EXECUTE) {
             //while contition is true execute stmts
-             while (evalCond().strValue.equals("T")) {
+             while (evalCond().strValue.equals("T") &&
+                     (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC) ) {
                  result = statements(execMode);
+
+                 if (result.execMode == iExecMode.BREAK_EXEC) {
+                     break;
+                 } else if (result.execMode == iExecMode.CONTINUE_EXEC && !result.terminatingString.equals("endwhile")) {
+                     result = statements(iExecMode.IGNORE_EXEC);
+                 }
+
+
                  if(!result.terminatingString.equals("endwhile")) {
                      throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
                  }
+
+
+
                  //set position back to while
                  scanner.setPosition(entryPosition.iSourceLineNr, entryPosition.iColPos);
                  scanner.getNext();
              }
              //after while loop's condition is false, get back to the endwhile token
-             result = statements(execMode);
-             if(!result.terminatingString.equals("endwhile")) {
-                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
-             }
-             if (!scanner.getNext().equals(";")) {
-                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';':");
-             }
+
+            // need to pass result exec mode if hit continue or exec in the middle of parsing statements
+            // because on ignore execute statements() is expecting the scanner to be on the end of a line i.e. ':' or ';'
+            // thus because we are in the middle of statements we need to tell statements to pick up in the middle
+            if (result.execMode != execMode) {
+                result = statements(result.execMode);
+            } else {
+                result = statements(iExecMode.IGNORE_EXEC);
+            }
+
+            if (!result.terminatingString.equals("endwhile")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile :");
+            }
+            if (!scanner.getNext().equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';':");
+            }
+
         }
         else { //dont execute while
             Utility.skipTo(scanner, ":");
-            result = statements(execMode);
+            result = statements(iExecMode.IGNORE_EXEC);
             if(!result.terminatingString.equals("endwhile")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
             }
@@ -697,6 +745,11 @@ public class Parser {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';':");
             }
         }
+
+        //reset exec mode in event break or continue was returned on last iteration of while loop to consume break/continue
+        result.execMode = execMode;
+
+
         return result;
     }
 
@@ -710,6 +763,9 @@ public class Parser {
 
         ResultValue resCond;
         ResultValue resTemp;
+
+        ResultValue returnExec = new ResultValue("", SubClassif.EMPTY);
+        returnExec.execMode = execMode;
         
         if (execMode == iExecMode.EXECUTE) {
 
@@ -719,30 +775,32 @@ public class Parser {
                 // execute if block statements and skip else block if present
 
                 resTemp = statements(execMode);
+
+                if (resTemp.execMode != iExecMode.EXECUTE) {
+                    returnExec.execMode = resTemp.execMode;
+
+                    if (!resTemp.terminatingString.equals("else") && !resTemp.terminatingString.equals("endif"))
+                        resTemp = statements(resTemp.execMode);
+
+                }
                 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
                         throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
                     }
 
-                    resTemp = statements(execMode);
+                    resTemp = statements(iExecMode.IGNORE_EXEC);
                     
                 }
 
                 // ensure if statement ends with endif token
-                if (!resTemp.terminatingString.equals("endif")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
-                }
-                if (!scanner.getNext().equals(";")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token:");
-                }
 
 
             } else {
 
                 // skip if block and execute else statements
 
-                resTemp = statements(execMode);
+                resTemp = statements(iExecMode.IGNORE_EXEC);
 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
@@ -750,16 +808,20 @@ public class Parser {
                     }
 
                     resTemp = statements(execMode);
+
+                    if (resTemp.execMode != execMode) {
+                        returnExec.execMode = resTemp.execMode;
+
+                        resTemp = statements(resTemp.execMode);
+
+                    }
                 }
 
                 // ensure if statement ends with endif token
-                if (!resTemp.terminatingString.equals("endif")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
-                }
-                
-                if (!scanner.getNext().equals(";")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token:");
-                }
+
+            }
+            if (!resTemp.terminatingString.equals("endif")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an 'endif' after ':' ");
             }
 
         } else {
@@ -782,13 +844,13 @@ public class Parser {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an 'endif' after 'if' token:");
             }
 
-            if (!scanner.getNext().equals(";")) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token:");
-            }
+        }
+        if (!scanner.getNext().equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token:");
         }
 
 
-        return resTemp;
+        return returnExec;
 
     }
 
