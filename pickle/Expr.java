@@ -380,7 +380,7 @@ public class Expr {
                                 } catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
                                 }
-                            } else if (param.dataType == SubClassif.STRING) {
+                            } else if (param.dataType == SubClassif.STRING || param.dataType == SubClassif.DATE) {
                                 param = Date.validateDate(param.strValue);
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");
@@ -407,7 +407,7 @@ public class Expr {
                                 } catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
                                 }
-                            } else if (param2.dataType == SubClassif.STRING) {
+                            } else if (param2.dataType == SubClassif.STRING || param2.dataType == SubClassif.DATE) {
                                 param2 = Date.validateDate(param2.strValue);
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");
@@ -445,7 +445,7 @@ public class Expr {
                                 } catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
                                 }
-                            } else if (param.dataType == SubClassif.STRING) {
+                            } else if (param.dataType == SubClassif.STRING || param.dataType == SubClassif.DATE) {
                                 param = Date.validateDate(param.strValue);
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");
@@ -504,7 +504,7 @@ public class Expr {
                                 } catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
                                 }
-                            } else if (param.dataType == SubClassif.STRING) {
+                            } else if (param.dataType == SubClassif.STRING || param.dataType == SubClassif.DATE) {
                                 param = Date.validateDate(param.strValue);
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");
@@ -531,7 +531,7 @@ public class Expr {
                                 } catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
                                 }
-                            } else if (param2.dataType == SubClassif.STRING) {
+                            } else if (param2.dataType == SubClassif.STRING || param2.dataType == SubClassif.DATE) {
                                 param2 = Date.validateDate(param2.strValue);
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value was not Date constant or variable. Could not convert to date");

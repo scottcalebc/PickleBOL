@@ -282,7 +282,7 @@ public class Parser {
 
                 if (entry.primClassif == Classif.EMPTY) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into uninitialized string");
-                } else  if (((STIdentifier)entry).dclType != SubClassif.STRING) {
+                } else  if (((STIdentifier)entry).dclType != SubClassif.STRING && ((STIdentifier)entry).dclType != SubClassif.DATE) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into non array or non string variables");
                 }
 
@@ -305,6 +305,8 @@ public class Parser {
 
                 res = Utility.assignAtIndex(this, str, (ResultValue) res, Integer.parseInt(index.strValue) );
 
+            } catch (PickleException p) {
+                throw p;
             } catch (Exception e) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expression must be scalar value");
             }
