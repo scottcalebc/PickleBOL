@@ -46,9 +46,11 @@ public class Parser {
      *
      * @throws PickleException      exception explaining issues
      */
-    public void getNext() throws PickleException {
+    public ResultValue getNext(iExecMode execMode) throws PickleException {
         // get Next Statment, meaning get all tokens for a stmt
         scanner.getNext();
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        res.execMode = execMode;
         
         switch (scanner.currentToken.primClassif) {
             case OPERAND:
@@ -61,14 +63,14 @@ public class Parser {
                 functionStmt();
                 break;
             case CONTROL:
-                controlStmt(true);
-                break;
+                return controlStmt(execMode);
             case OPERATOR:
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot evaluate starting on operator:");
             default:
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown token to evaluate");
         }
 
+        return res;
 
     }
 
@@ -79,25 +81,26 @@ public class Parser {
      * @return                  generic ResultValue
      * @throws PickleException
      */
-    private Result controlStmt(Boolean bExec) throws PickleException {
-        Result res = new ResultValue("", SubClassif.EMPTY);
+    private ResultValue controlStmt(iExecMode execMode) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
 
         switch (scanner.currentToken.subClassif) {
             case DECLARE:
                 res = declareStmt();
+                res.execMode = execMode;
                 break;
             case FLOW:
                 String flowStr = scanner.currentToken.tokenStr;
 
                 switch (flowStr) {
                     case "if":
-                        res = ifStmt(bExec);
+                        res = ifStmt(execMode);
                         break;
                     case "while":
-                        res = whileStmt(bExec);
+                        res = whileStmt(execMode);
                         break;
                     case "for":
-                        res = forStmt(bExec);
+                        res = forStmt(execMode);
                         break;
 
                 }
@@ -116,7 +119,7 @@ public class Parser {
      * @return
      * @throws PickleException
      */
-    private Result declareStmt() throws PickleException {
+    private ResultValue declareStmt() throws PickleException {
         ResultValue res;
 
         String declareTypeStr = scanner.currentToken.tokenStr;
@@ -132,7 +135,8 @@ public class Parser {
 
         if (scanner.nextToken.tokenStr.equals("[")) {
             scanner.getNext();
-            return declareArrayStmt(varStr, declareTypeStr);
+            declareArrayStmt(varStr, declareTypeStr);
+            return new ResultValue(varStr, SubClassif.IDENTIFIER);
         }
 
         res = new ResultValue(varStr, SubClassif.EMPTY);
@@ -169,7 +173,7 @@ public class Parser {
         }
 
 
-        return res;
+        return new ResultValue(varStr, SubClassif.IDENTIFIER);
     }
 
     private Result declareArrayStmt(String varStr, String declareTypeStr) throws PickleException {
@@ -622,16 +626,16 @@ public class Parser {
      * <p>
      *
      * </p>
-     * @param bExec             Execute Flag
+     * @param execMode             Execute Flag
      * @return
      * @throws PickleException
      */
-    private ResultValue statements(boolean bExec) throws PickleException {
+    private ResultValue statements(iExecMode execMode) throws PickleException {
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
         //exec statements
-        if (bExec) {
+        if (execMode == iExecMode.EXECUTE) {
             while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
-                getNext();
+                getNext(execMode);
             }
         }
         else { // skip over statments and set flag to false for if and while clauses
@@ -639,7 +643,7 @@ public class Parser {
                 scanner.getNext();
 
                 if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
-                    controlStmt(false);
+                    res = controlStmt(execMode);
                 }
             }
         }
@@ -652,21 +656,21 @@ public class Parser {
      * Parses and executes while statement based on execute flag
      * <p></p>
      *
-     * @param bExec             Execute flag
+     * @param execMode             Execute flag
      * @return
      * @throws PickleException
      */
-    private ResultValue whileStmt(Boolean bExec) throws PickleException {
+    private ResultValue whileStmt(iExecMode execMode) throws PickleException {
 
         //set while position
         Token entryPosition = scanner.currentToken;
         ResultValue result;
 
         //execute while statement
-        if (bExec) {
+        if (execMode == iExecMode.EXECUTE) {
             //while contition is true execute stmts
              while (evalCond().strValue.equals("T")) {
-                 result = statements(true);
+                 result = statements(execMode);
                  if(!result.terminatingString.equals("endwhile")) {
                      throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
                  }
@@ -675,7 +679,7 @@ public class Parser {
                  scanner.getNext();
              }
              //after while loop's condition is false, get back to the endwhile token
-             result = statements(false);
+             result = statements(execMode);
              if(!result.terminatingString.equals("endwhile")) {
                  throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
              }
@@ -685,7 +689,7 @@ public class Parser {
         }
         else { //dont execute while
             Utility.skipTo(scanner, ":");
-            result = statements(false);
+            result = statements(execMode);
             if(!result.terminatingString.equals("endwhile")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
             }
@@ -698,30 +702,30 @@ public class Parser {
 
     /**
      * Parses and executes
-     * @param bExec
+     * @param execMode
      * @return
      * @throws PickleException
      */
-    private ResultValue ifStmt(Boolean bExec) throws PickleException {
+    private ResultValue ifStmt(iExecMode execMode) throws PickleException {
 
         ResultValue resCond;
         ResultValue resTemp;
         
-        if (bExec) {
+        if (execMode == iExecMode.EXECUTE) {
 
             resCond = evalCond();
             
             if (resCond.strValue.equals("T")) {
                 // execute if block statements and skip else block if present
 
-                resTemp = statements(true);
+                resTemp = statements(execMode);
                 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
                         throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
                     }
 
-                    resTemp = statements(false);
+                    resTemp = statements(execMode);
                     
                 }
 
@@ -738,14 +742,14 @@ public class Parser {
 
                 // skip if block and execute else statements
 
-                resTemp = statements(false);
+                resTemp = statements(execMode);
 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
                         throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
                     }
 
-                    resTemp = statements(true);
+                    resTemp = statements(execMode);
                 }
 
                 // ensure if statement ends with endif token
@@ -763,13 +767,13 @@ public class Parser {
 
             Utility.skipTo(scanner, ":");
 
-            resTemp = statements(false);
+            resTemp = statements(execMode);
 
             if (resTemp.terminatingString.equals("else")) {
                 if (!scanner.getNext().equals(":")) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
                 }
-                resTemp = statements(false);
+                resTemp = statements(execMode);
 
 
             }
@@ -788,10 +792,10 @@ public class Parser {
 
     }
 
-    private ResultValue forStmt(Boolean bExec) throws PickleException {
+    private ResultValue forStmt(iExecMode execMode) throws PickleException {
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
 
-        if (bExec) {
+        if (execMode == iExecMode.EXECUTE) {
             scanner.getNext();
             if (scanner.currentToken.primClassif != Classif.OPERAND && scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
                 // TODO: 4/13/2021 fix exception
@@ -800,7 +804,7 @@ public class Parser {
             String controlVar = scanner.currentToken.tokenStr;
             scanner.getNext();
             if (scanner.currentToken.tokenStr.equals("=")) {
-                result = countingFor(controlVar);
+                result = countingFor(controlVar, execMode);
             }
             else if (scanner.currentToken.tokenStr.equals("in")) {
                 //branch to either charStringFor() or itemArrayFor() depending on if controlVar is a char
@@ -815,10 +819,10 @@ public class Parser {
                     }
 
                     if (entry.dclType == SubClassif.STRING && !entry.structure.equals("array")) {
-                        charStringFor(controlVar);
+                        charStringFor(controlVar, execMode);
                     }
                     else if (entry.structure.equals("array")) {
-                        itemArrayFor(controlVar);
+                        itemArrayFor(controlVar, execMode);
                     } else  {
                         // TODO: 4/15/2021 cannot run for loop on any other types
                         throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be of type String, Int, Float to use for loop");
@@ -833,7 +837,7 @@ public class Parser {
                 
             }
             else if (scanner.currentToken.tokenStr.equals("from")) {
-                result = stringDelimiterFor(controlVar);
+                result = stringDelimiterFor(controlVar, execMode);
             }
             else {
                 //TODO: fix exception - for loop type not recognized error or smth man idk
@@ -841,7 +845,7 @@ public class Parser {
             }
         } else {
             Utility.skipTo(scanner, ":");
-            result = statements(false);
+            result = statements(execMode);
 
             if (!result.terminatingString.equals("endfor")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endfor");
@@ -855,7 +859,7 @@ public class Parser {
         return result;
     }
 
-    private ResultValue charStringFor(String controlVar) throws PickleException {
+    private ResultValue charStringFor(String controlVar, iExecMode execMode) throws PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
 
@@ -912,7 +916,7 @@ public class Parser {
 
         while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
             // evaluate loop statements
-            result = statements(true);
+            result = statements(execMode);
 
             if (!result.terminatingString.equals("endfor")) {
                 //TODO: fix exception - should be a for loop's terminating thingy
@@ -933,7 +937,7 @@ public class Parser {
             scanner.getNext();
         }
 
-        result = statements(false);
+        result = statements(iExecMode.IGNORE_EXEC);
 
         if (!result.terminatingString.equals("endfor")) {
             //TODO: fix exception - end should be here
@@ -948,7 +952,7 @@ public class Parser {
         return result;
     }
 
-    private ResultValue itemArrayFor(String controlVar) throws  PickleException {
+    private ResultValue itemArrayFor(String controlVar, iExecMode execMode) throws  PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
 
@@ -1023,7 +1027,7 @@ public class Parser {
 
         while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
             // evaluate loop statements
-            result = statements(true);
+            result = statements(execMode);
 
             if (!result.terminatingString.equals("endfor")) {
                 //TODO: fix exception - should be a for loop's terminating thingy
@@ -1057,7 +1061,7 @@ public class Parser {
             scanner.getNext();
         }
 
-        result = statements(false);
+        result = statements(iExecMode.IGNORE_EXEC);
 
         if (!result.terminatingString.equals("endfor")) {
             //TODO: fix exception - end should be here
@@ -1074,14 +1078,14 @@ public class Parser {
 
 
 
-    private ResultValue stringDelimiterFor(String controlVar) throws  PickleException {
+    private ResultValue stringDelimiterFor(String controlVar, iExecMode execMode) throws  PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
         //TODO function body
         return result;
     }
 
-    private ResultValue countingFor(String controlVar) throws PickleException {
+    private ResultValue countingFor(String controlVar, iExecMode execMode) throws PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
         ResultValue result;
         ResultValue startValue;
@@ -1164,9 +1168,9 @@ public class Parser {
 
 
 
-        while (Utility.lessThan(this, startValue, limit).strValue.equals("T")) {
+        while (Utility.lessThan(this, startValue, limit).strValue.equals("T") && execMode == iExecMode.EXECUTE) {
             // evaluate statments
-            result = statements(true);
+            result = statements(execMode);
 
             if (!result.terminatingString.equals("endfor")) {
                 // TODO: 4/13/2021 throw parser error for loop didn't end in endfor
@@ -1183,7 +1187,7 @@ public class Parser {
             scanner.getNext();
         }
 
-        result= statements(false);
+        result= statements(iExecMode.IGNORE_EXEC);
 
         if (!result.terminatingString.equals("endfor")) {
             // TODO: 4/13/2021 throw error
@@ -1227,7 +1231,7 @@ public class Parser {
      */
     public void run() throws PickleException {
         while (hasNext()) {
-            getNext();
+            getNext(iExecMode.EXECUTE);
         }
     }
 
