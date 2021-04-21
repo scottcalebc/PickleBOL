@@ -812,21 +812,30 @@ public class Parser {
 
 
                 try {
-                    STIdentifier entry = (STIdentifier) this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                    if (scanner.nextToken.subClassif == SubClassif.IDENTIFIER) {
+                        //STIdentifier entry = (STIdentifier) this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                        STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
 
-                    if (entry.primClassif == Classif.EMPTY) {
-                        throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be declared first");
-                    }
-
-                    if (entry.dclType == SubClassif.STRING && !entry.structure.equals("array")) {
+                        if (entry.primClassif != Classif.EMPTY) {
+                            STIdentifier id = (STIdentifier) entry;
+                            if ((id.dclType == SubClassif.STRING || id.dclType == SubClassif.DATE) && !id.structure.equals("array")) {
+                                charStringFor(controlVar);
+                            } else if (id.structure.equals("array")) {
+                                itemArrayFor(controlVar);
+                            } else {
+                                // TODO: 4/15/2021 cannot run for loop on any other types
+                                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be of type String, Int, Float to use for loop");
+                            }
+                        } else {
+                            throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Cannot find value for Identifier");
+                        }
+                    }else if (scanner.nextToken.subClassif == SubClassif.STRING || scanner.nextToken.subClassif == SubClassif.DATE) {
                         charStringFor(controlVar);
+                    } else {
+                        throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Cannot run for loop on constant value " + scanner.nextToken.subClassif.name());
                     }
-                    else if (entry.structure.equals("array")) {
-                        itemArrayFor(controlVar);
-                    } else  {
-                        // TODO: 4/15/2021 cannot run for loop on any other types
-                        throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be of type String, Int, Float to use for loop");
-                    }
+
+
                 } catch (PickleException p) {
                     throw p;
                 } catch (Exception e) {
@@ -888,10 +897,10 @@ public class Parser {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use for char loop over array");
         }
 
-        if (limit.dataType != SubClassif.STRING) {
+        /*if (limit.dataType != SubClassif.STRING) {
             //TODO fix exception - limit type needs to be of a string
             throw new PickleException();
-        }
+        }*/
 
         ResultValue startValue = Utility.valueAtIndex(this, limit, 0); //set up iterating char value
 

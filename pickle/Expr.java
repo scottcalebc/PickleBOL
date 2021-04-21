@@ -184,7 +184,8 @@ public class Expr {
 
 
 
-                        } else if (entry.primClassif != Classif.EMPTY && ((STIdentifier) entry).dclType == SubClassif.STRING) {
+                        } else if (entry.primClassif != Classif.EMPTY &&
+                                (((STIdentifier) entry).dclType == SubClassif.STRING || ((STIdentifier)entry).dclType == SubClassif.DATE)) {
                             ResultValue index = stack.pop();
 
                             try {
