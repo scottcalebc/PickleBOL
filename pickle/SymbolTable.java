@@ -5,19 +5,32 @@ import java.util.HashMap;
 
 public class SymbolTable {
 
-	private HashMap<String, STEntry> globalST;		// Global symbol table
-	private final int VAR_ARGS = -1;				// Value for variable args
+	private HashMap<String, STEntry> symbolTable;		// Global symbol table
+	public String scopeName;
 
 	/**
 	 *
-	 * Returns a SymbolTable object that holds the symbol tables of the pickle code
+	 * Returns a SymbolTable object that holds the global symbol table of the pickle code
 	 * <p>
 	 *
 	 */
 	public SymbolTable()
 	{
-		this.globalST = new HashMap<>();
+		this.symbolTable = new HashMap<>();
+		this.scopeName = "Global";
 		initGlobal();
+	}
+
+	/**
+	 *
+	 * Returns a SymbolTable object that hold the symbol table for a programmer defined function
+	 *
+	 * @param fcnName	-	name of function for symbol table
+	 */
+	public SymbolTable(String fcnName)
+	{
+		this.scopeName = fcnName;
+		this.symbolTable = new HashMap<>();
 	}
 
 	/**
@@ -30,7 +43,7 @@ public class SymbolTable {
 	 */
 	public STEntry getSymbol(String symbol)
 	{
-		return this.globalST.containsKey(symbol) ? this.globalST.get(symbol) : new STEntry("", Classif.EMPTY);
+		return this.symbolTable.containsKey(symbol) ? this.symbolTable.get(symbol) : new STEntry("", Classif.EMPTY);
 	}
 
 	/**
@@ -44,7 +57,7 @@ public class SymbolTable {
 	 */
 	public void putSymbol(String symbol, STEntry entry)
 	{
-		this.globalST.put(symbol, entry);
+		this.symbolTable.put(symbol, entry);
 	}
 
 	/**
@@ -55,59 +68,61 @@ public class SymbolTable {
 	 */
 	private void initGlobal()
 	{
-		this.globalST.put("enddef", new STControl("enddef", Classif.CONTROL, SubClassif.END));
-		this.globalST.put("if", new STControl("if", Classif.CONTROL, SubClassif.FLOW));
-		this.globalST.put("endif", new STControl("endif", Classif.CONTROL, SubClassif.END));
-		this.globalST.put("else", new STControl("else", Classif.CONTROL, SubClassif.END));
-		this.globalST.put("for", new STControl("for", Classif.CONTROL, SubClassif.FLOW));
-		this.globalST.put("endfor", new STControl("endfor", Classif.CONTROL, SubClassif.END));
-		this.globalST.put("while", new STControl("while", Classif.CONTROL, SubClassif.FLOW));
-		this.globalST.put("endwhile", new STControl("endwhile", Classif.CONTROL, SubClassif.END));
-		this.globalST.put("Int", new STControl("Int", Classif.CONTROL, SubClassif.DECLARE));
-		this.globalST.put("Float", new STControl("Float", Classif.CONTROL, SubClassif.DECLARE));
-		this.globalST.put("String", new STControl("String", Classif.CONTROL, SubClassif.DECLARE));
-		this.globalST.put("Bool", new STControl("Bool", Classif.CONTROL, SubClassif.DECLARE));
-		this.globalST.put("Date", new STControl("Date", Classif.CONTROL, SubClassif.DECLARE));
 
-		this.globalST.put("and", new STEntry("and", Classif.OPERATOR));
-		this.globalST.put("or", new STEntry("or", Classif.OPERATOR));
-		this.globalST.put("not", new STEntry("not", Classif.OPERATOR));
-		this.globalST.put("in", new STEntry("in", Classif.OPERATOR));
-		this.globalST.put("notin", new STEntry("notin", Classif.OPERATOR));
+		this.symbolTable.put("enddef", new STControl("enddef", Classif.CONTROL, SubClassif.END));
+		this.symbolTable.put("if", new STControl("if", Classif.CONTROL, SubClassif.FLOW));
+		this.symbolTable.put("endif", new STControl("endif", Classif.CONTROL, SubClassif.END));
+		this.symbolTable.put("else", new STControl("else", Classif.CONTROL, SubClassif.END));
+		this.symbolTable.put("for", new STControl("for", Classif.CONTROL, SubClassif.FLOW));
+		this.symbolTable.put("endfor", new STControl("endfor", Classif.CONTROL, SubClassif.END));
+		this.symbolTable.put("while", new STControl("while", Classif.CONTROL, SubClassif.FLOW));
+		this.symbolTable.put("endwhile", new STControl("endwhile", Classif.CONTROL, SubClassif.END));
+		this.symbolTable.put("Int", new STControl("Int", Classif.CONTROL, SubClassif.DECLARE));
+		this.symbolTable.put("Float", new STControl("Float", Classif.CONTROL, SubClassif.DECLARE));
+		this.symbolTable.put("String", new STControl("String", Classif.CONTROL, SubClassif.DECLARE));
+		this.symbolTable.put("Bool", new STControl("Bool", Classif.CONTROL, SubClassif.DECLARE));
+		this.symbolTable.put("Date", new STControl("Date", Classif.CONTROL, SubClassif.DECLARE));
 
-		this.globalST.put("print", new STFunction("print", Classif.FUNCTION, SubClassif.VOID, SubClassif.BUILTIN, VAR_ARGS, new Builtin() {
+		this.symbolTable.put("and", new STEntry("and", Classif.OPERATOR));
+		this.symbolTable.put("or", new STEntry("or", Classif.OPERATOR));
+		this.symbolTable.put("not", new STEntry("not", Classif.OPERATOR));
+		this.symbolTable.put("in", new STEntry("in", Classif.OPERATOR));
+		this.symbolTable.put("notin", new STEntry("notin", Classif.OPERATOR));
+
+		ArrayList<SubClassif> print = new ArrayList<SubClassif>();
+		ArrayList<SubClassif> string = new ArrayList<SubClassif>();
+		string.add(SubClassif.STRING);
+		ArrayList<SubClassif> array = new ArrayList<SubClassif>();
+		array.add(SubClassif.VOID);
+
+		final int VAR_ARGS = -1;  // Value for variable args
+
+		this.symbolTable.put("print", new STFunction("print", Classif.FUNCTION, SubClassif.VOID, SubClassif.BUILTIN, VAR_ARGS, print, new Builtin() {
 			@Override
 			public ResultValue execute(ArrayList<Result> param) {
 				//return Utility.builtInPrint(param);
 				return null;
 			}
 		}));
-		this.globalST.put("LENGTH", new STFunction("LENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, new Builtin() {
+		this.symbolTable.put("LENGTH", new STFunction("LENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, string, new Builtin() {
 			@Override
 			public ResultValue execute(ArrayList<Result> param) {
 				return Utility.builtInLENGTH(param);
 			}
 		}));
-		this.globalST.put("MAXLENGTH", new STFunction("MAXLENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, new Builtin() {
-			@Override
-			public ResultValue execute(ArrayList<Result> param) {
-				//return Utility.builtInMAXLENGTH(param);
-				return null;
-			}
-		}));
-		this.globalST.put("SPACES", new STFunction("SPACES", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 0, new Builtin() {
+		this.symbolTable.put("SPACES", new STFunction("SPACES", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, string, new Builtin() {
 			@Override
 			public ResultValue execute(ArrayList<Result> param) {
 				return Utility.builtInSPACES(param);
 			}
 		}));
-		this.globalST.put("ELEM", new STFunction("ELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, new Builtin() {
+		this.symbolTable.put("ELEM", new STFunction("ELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, array, new Builtin() {
 			@Override
 			public ResultValue execute(ArrayList<Result> param) {
 				return Utility.builtInELEM(param);
 			}
 		}));
-		this.globalST.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, new Builtin() {
+		this.symbolTable.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, array,new Builtin() {
 			@Override
 			public ResultValue execute(ArrayList<Result> param) {
 				return Utility.builtInMAXELEM(param);
