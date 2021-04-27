@@ -225,6 +225,7 @@ public class Expr {
                     ResultList paramM;
                     switch (token.tokenStr) {
                         case "LENGTH":
+                            ArrayList<Result> paramsLen = new ArrayList<Result>();
                             param = stack.pop();
 
                             if (param.dataType == SubClassif.IDENTIFIER) {
@@ -245,10 +246,12 @@ public class Expr {
                                 if (param.dataType != SubClassif.STRING) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot call length on non-string  value");
                                 } else {
-                                    res = Utility.builtInLENGTH(parser, param);
+                                    paramsLen.add(param);
+                                    res = Utility.builtInLENGTH(paramsLen);
                                 }
                             } else if (param.dataType == SubClassif.STRING) {
-                                res = Utility.builtInLENGTH(parser, param);
+                                paramsLen.add(param);
+                                res = Utility.builtInLENGTH(paramsLen);
                             }
                             else {
                                 token.tokenStr = param.strValue;
@@ -257,6 +260,7 @@ public class Expr {
                             break;
 
                         case "SPACES":
+                            ArrayList<Result> paramsSpace = new ArrayList<Result>();
                             param = stack.pop();
 
                             if (param.dataType == SubClassif.IDENTIFIER) {
@@ -278,10 +282,12 @@ public class Expr {
                                 if (param.dataType != SubClassif.STRING) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot call length on non-string  value");
                                 } else {
-                                    res = Utility.builtInSPACES(parser, param);
+                                    paramsSpace.add(param);
+                                    res = Utility.builtInSPACES(paramsSpace);
                                 }
                             } else if (param.dataType == SubClassif.STRING) {
-                                res = Utility.builtInLENGTH(parser, param);
+                                paramsSpace.add(param);
+                                res = Utility.builtInLENGTH(paramsSpace);
                             }
                             else {
                                 token.tokenStr = param.strValue;
@@ -289,6 +295,7 @@ public class Expr {
                             }
                             break;
                         case "ELEM":
+                            ArrayList<Result> paramsElem = new ArrayList<Result>();
                             param = stack.pop();
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
@@ -307,8 +314,8 @@ public class Expr {
                                 }catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value must be array type");
                                 }
-
-                                res = Utility.builtInELEM(parser, paramM);
+                                paramsElem.add(paramM);
+                                res = Utility.builtInELEM(paramsElem);
 
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value of variable cannot be array");
@@ -316,6 +323,7 @@ public class Expr {
                             break;
 
                         case "MAXELEM":
+                            ArrayList<Result> paramsMaxElem = new ArrayList<Result>();
                             param = stack.pop();
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
@@ -334,8 +342,8 @@ public class Expr {
                                 }catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value must be array type");
                                 }
-
-                                res = Utility.builtInMAXELEM(parser, paramM);
+                                paramsMaxElem.add(paramM);
+                                res = Utility.builtInMAXELEM(paramsMaxElem);
 
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value of variable cannot be array");
