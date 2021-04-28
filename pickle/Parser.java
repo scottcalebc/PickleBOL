@@ -51,7 +51,7 @@ public class Parser {
     public void getNext() throws PickleException {
         // get Next Statment, meaning get all tokens for a stmt
         scanner.getNext();
-        
+
         switch (scanner.currentToken.primClassif) {
             case OPERAND:
                 if (debugStmt()) {
@@ -511,7 +511,7 @@ public class Parser {
     }
 
     /**
-     * Executes builtin function statements
+     * Executes function statements
      * <p></p>
      *
      * @return
@@ -532,10 +532,13 @@ public class Parser {
                 case "MAXELEM":
                     res = expr();
                     break;
-
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "No function of name: ");
             }
+        }
+        else {
+            // get parameters into a parameter list, add parameters to function SymbolTable/StorageManager, execute function
+
         }
 
 
@@ -777,20 +780,37 @@ public class Parser {
 
         ArrayList<SubClassif> types = new ArrayList<>();
         //get all the parameters
-        while (!scanner.getNext().equals(")")) { //Note: also consumes the commas
+        while (!scanner.getNext().equals(":")) {
             numArgs++;
             types.add(paramHelper());
         }
 
+        /*
         //check for ':'
         if (!scanner.getNext().equals(":")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected ':', found: " + scanner.currentToken.tokenStr);
+        }*/
+
+        STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER, numArgs, currLineNum, colPos, types, this.activationRecord == null ? null : this.activationRecord);
+
+        if (this.activationRecord == null) {
+            this.symbolTable.putSymbol(functionName, newUserFcn);
+        }
+        else {
+            this.activationRecord.symbolTable.putSymbol(functionName, newUserFcn);
         }
 
-        STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER,numArgs, currLineNum, colPos, types, this.activationRecord == null ? null : this.activationRecord);
-
         //parse out the function body
-        statements(false); // dont execute the statements on function definition
+        ResultValue res = statements(false); // dont execute the statements on function definition
+
+        if (!res.terminatingString.equals("enddef")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing enddef");
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';'");
+        }
+
     }
 
     private SubClassif paramHelper() throws PickleException {
@@ -798,36 +818,39 @@ public class Parser {
         //the parameter is either a primitive or an array with a pair of square brackets
         // current token should be an identifier
 
-        //if there is no identifier for the parameter
-        if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
+        //if there is no type for the parameter
+        if (scanner.currentToken.primClassif != Classif.CONTROL || scanner.currentToken.subClassif != SubClassif.DECLARE) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected Identifier, found: " + scanner.currentToken.tokenStr);
         }
         paramType = getDataType(scanner.currentToken.tokenStr);
 
         scanner.getNext(); //advance to next token, should be a variable name
 
-        //if there is no variable name for the var
-        if (scanner.currentToken.primClassif != Classif.OPERAND) {
+        //if there is no identifier name for the var
+        if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected variable name, found: " + scanner.currentToken.tokenStr);
         }
 
         //if the variable is an array
-        if (scanner.nextToken.equals("[")) {
+        if (scanner.nextToken.tokenStr.equals("[")) {
+            scanner.getNext(); // move token to '['
             if (!scanner.getNext().equals("]")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected ']', found: " + scanner.currentToken.tokenStr);
             }
-            else if (scanner.nextToken.tokenStr.equals((","))) {
+            //else if (scanner.nextToken.tokenStr.equals((","))) {
+            else if (scanner.getNext().equals((",")) || scanner.currentToken.tokenStr.equals(")")) {
                 return paramType;
             }
             else {
-                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "expected ',', found: " + scanner.nextToken.tokenStr);
+                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "expected separator, found: " + scanner.nextToken.tokenStr);
             }
         }
-        else if (scanner.nextToken.equals(",")) {
+        //else if (scanner.nextToken.equals(",")) {
+        else if (scanner.getNext().equals((",")) || scanner.currentToken.tokenStr.equals(")")) {
             return paramType;
         }
         else {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected ',', found: " + scanner.currentToken.tokenStr);
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected separator, found: " + scanner.currentToken.tokenStr);
         }
     }
 

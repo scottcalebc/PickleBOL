@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public class SymbolTable {
 
-	private HashMap<String, STEntry> symbolTable;		// Global symbol table
+	public HashMap<String, STEntry> symbolTable;		// Global symbol table
 	public String scopeName;
 
 	/**

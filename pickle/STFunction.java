@@ -73,12 +73,9 @@ public class STFunction extends STEntry
      *
      * Returns an ActivationRecord object
      *
-     * @return functions activations record (ActivationRecord) or null if builtin
+     * @return functions activations record (ActivationRecord)
      */
     public ActivationRecord getActivationRecord() {
-        if (this.function == null) {
-            return null;
-        }
         return this.record;
     }
 }
