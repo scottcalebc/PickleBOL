@@ -414,7 +414,7 @@ public class Scanner {
             }
             else if (entry instanceof  STFunction)
             {
-                nextToken.subClassif = ((STFunction) entry).definedBy;
+                nextToken.subClassif = SubClassif.BUILTIN;
                 nextToken.operatorPrecedence = OperatorPrecedence.FUNC;
 
 

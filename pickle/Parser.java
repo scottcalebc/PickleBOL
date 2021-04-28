@@ -520,8 +520,15 @@ public class Parser {
     private ResultValue functionStmt() throws PickleException {
         Result res =  null;
 
+        STFunction func = (STFunction) this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+        if (this.activationRecord != null) {
+            int scope = this.activationRecord.findSymbolScope(scanner.currentToken.tokenStr);
+            if (scope != -1)
+                func = (STFunction) this.activationRecord.environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
+        }
+
         // check for builtin function if not throw error for identifier
-        if (scanner.currentToken.subClassif == SubClassif.BUILTIN) {
+        if (func.definedBy == SubClassif.BUILTIN) {
             switch (scanner.currentToken.tokenStr) {
                 case "print":
                     print();
@@ -536,9 +543,9 @@ public class Parser {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "No function of name: ");
             }
         }
-        else {
+        else { //user func
             // get parameters into a parameter list, add parameters to function SymbolTable/StorageManager, execute function
-
+            throw new PickleException();
         }
 
 
