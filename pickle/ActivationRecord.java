@@ -7,11 +7,21 @@ public class ActivationRecord {
     public StorageManager storageManager;
     public SymbolTable symbolTable;
 
+    /**
+     * returns and Activation record for the newly defined function
+     *  Note: this will also create the functions:
+     *      1. Symbol Table
+     *      2. Storage Manager
+     *      3. Environment Vector
+     *
+     * @param name      -   name of defined function
+     */
     public ActivationRecord(String name) {
-        symbolTable = new SymbolTable(name);
-        storageManager = new StorageManager();
         environmentVector = new ArrayList<ActivationRecord>();
         environmentVector.add(this);
+        storageManager = new StorageManager();
+        symbolTable = new SymbolTable(name);
+
     }
 
     /**
