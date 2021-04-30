@@ -350,7 +350,7 @@ public class Parser {
         ResultList array = (ResultList) storageManager.getVariable(varString), res;
         ResultValue val, assign;
 
-        if (scanner.getNext().equals("=")) { //total array assignment
+        if (scanner.currentToken.tokenStr.equals("=")) { //total array assignment
             scanner.getNext(); //skip to asignee dude guy expr 🤵
 
             if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER && ((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr.equals(";")) { //just an array to array
@@ -397,10 +397,11 @@ public class Parser {
             res = array;
         }
         else {
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid operator for array assignment");
         }
 
         if (!scanner.currentToken.tokenStr.equals(";")) {
+
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
         }
 
