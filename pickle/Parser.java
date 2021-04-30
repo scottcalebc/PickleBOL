@@ -884,10 +884,10 @@ public class Parser {
                     }
 
                     if (entry.dclType == SubClassif.STRING && !entry.structure.equals("array")) {
-                        charStringFor(controlVar, execMode);
+                        result = charStringFor(controlVar, execMode);
                     }
                     else if (entry.structure.equals("array")) {
-                        itemArrayFor(controlVar, execMode);
+                        result = itemArrayFor(controlVar, execMode);
                     } else  {
                         // TODO: 4/15/2021 cannot run for loop on any other types
                         throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be of type String, Int, Float to use for loop");
@@ -927,6 +927,7 @@ public class Parser {
     private ResultValue charStringFor(String controlVar, iExecMode execMode) throws PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        result.execMode = execMode;
 
         if (entry.primClassif == Classif.EMPTY) {
             symbolTable.putSymbol(controlVar,
@@ -979,7 +980,8 @@ public class Parser {
         Numeric nOp1, nOp2;
         nOp2 = new Numeric(this, incrementBy, "+", "Incrementing by value");
 
-        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
+        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T") &&
+                (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
             // evaluate loop statements
             result = statements(execMode);
 
@@ -1003,6 +1005,7 @@ public class Parser {
         }
 
         result = statements(iExecMode.IGNORE_EXEC);
+        result.execMode = execMode;
 
         if (!result.terminatingString.equals("endfor")) {
             //TODO: fix exception - end should be here
@@ -1020,14 +1023,15 @@ public class Parser {
     private ResultValue itemArrayFor(String controlVar, iExecMode execMode) throws  PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
-
+        result.execMode = execMode;
+        ResultValue startValue; //set up iterating char value
+        ResultList limit;
 
 
         scanner.getNext();
 
-
         Result end = expr();
-        ResultList limit;
+
         if (end instanceof ResultList) {
             limit = (ResultList) end;
         } else {
@@ -1056,7 +1060,7 @@ public class Parser {
 
         }
 
-        ResultValue startValue = limit.getItem(this, 0); //set up iterating char value
+
 
         if (!scanner.currentToken.tokenStr.equals(":")) {
             // TODO: fix exception - error for statement not ending in ':'
@@ -1090,7 +1094,8 @@ public class Parser {
 
         storageManager.updateVariable(controlVar, startValue);
 
-        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
+        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T") &&
+                (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
             // evaluate loop statements
             result = statements(execMode);
 
@@ -1127,6 +1132,7 @@ public class Parser {
         }
 
         result = statements(iExecMode.IGNORE_EXEC);
+        result.execMode = execMode;
 
         if (!result.terminatingString.equals("endfor")) {
             //TODO: fix exception - end should be here
@@ -1234,7 +1240,8 @@ public class Parser {
 
 
 
-        while (Utility.lessThan(this, startValue, limit).strValue.equals("T") && result.execMode == iExecMode.EXECUTE) {
+        while (Utility.lessThan(this, startValue, limit).strValue.equals("T") &&
+                (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
             // evaluate statments
             result = statements(execMode);
 
