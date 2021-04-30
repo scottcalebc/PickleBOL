@@ -1253,8 +1253,10 @@ public class Parser {
             scanner.getNext();
         }
 
-        ResultValue rest = statements(iExecMode.IGNORE_EXEC);
-        result.terminatingString = rest.terminatingString;
+        // get rest of for loop body
+        // consume whether break or continue hit and pass execMode out to caller
+        result = statements(iExecMode.IGNORE_EXEC);
+        result.execMode = execMode;
 
         if (!result.terminatingString.equals("endfor")) {
             // TODO: 4/13/2021 throw error
