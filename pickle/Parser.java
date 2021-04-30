@@ -650,30 +650,37 @@ public class Parser {
             while (hasNext() && scanner.nextToken.subClassif != SubClassif.END && res.execMode == iExecMode.EXECUTE) {
                 res = getNext(execMode);
             }
+
+            if (res.execMode != execMode) {
+                execMode = res.execMode;
+                res = statements(iExecMode.IGNORE_EXEC);
+                res.execMode = execMode;
+                return res;
+            }
+
+            res.terminatingString = scanner.getNext();
         }
-        else if (res.execMode == iExecMode.IGNORE_EXEC) { // skip over statments and set flag to false for if and while clauses
-            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
-                scanner.getNext();
+        else {
+
+            while (hasNext() && scanner.currentToken.subClassif != SubClassif.END) {
+
+                if (scanner.currentToken.primClassif == Classif.SEPARATOR)
+                    scanner.getNext();
+
+                if (scanner.currentToken.subClassif == SubClassif.END)
+                    break;
 
                 if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
                     controlStmt(execMode);
+                } else {
+                    Utility.skipTo(scanner, ";");
                 }
             }
-        } else {
-            if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
-                controlStmt(execMode);
-            }
 
-            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
-                scanner.getNext();
-
-                if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
-                    controlStmt(execMode);
-                }
-            }
+            res.terminatingString = scanner.currentToken.tokenStr;
         }
         
-        res.terminatingString = scanner.getNext();
+
         return res;
     }
 
@@ -699,11 +706,11 @@ public class Parser {
                      (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC) ) {
                  result = statements(execMode);
 
-                 if (result.execMode == iExecMode.BREAK_EXEC) {
+                 /*if (result.execMode == iExecMode.BREAK_EXEC) {
                      break;
                  } else if (result.execMode == iExecMode.CONTINUE_EXEC && !result.terminatingString.equals("endwhile")) {
                      result = statements(iExecMode.IGNORE_EXEC);
-                 }
+                 }*/
 
 
                  if(!result.terminatingString.equals("endwhile")) {
@@ -718,14 +725,10 @@ public class Parser {
              }
              //after while loop's condition is false, get back to the endwhile token
 
-            // need to pass result exec mode if hit continue or exec in the middle of parsing statements
-            // because on ignore execute statements() is expecting the scanner to be on the end of a line i.e. ':' or ';'
-            // thus because we are in the middle of statements we need to tell statements to pick up in the middle
-            if (result.execMode != execMode) {
-                result = statements(result.execMode);
-            } else {
-                result = statements(iExecMode.IGNORE_EXEC);
-            }
+            // get rest of while loop body
+            // consume break or continue execute and return execute mode passed
+            result = statements(iExecMode.IGNORE_EXEC);
+            result.execMode = execMode;
 
             if (!result.terminatingString.equals("endwhile")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile :");
@@ -1149,7 +1152,8 @@ public class Parser {
 
     private ResultValue countingFor(String controlVar, iExecMode execMode) throws PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
-        ResultValue result;
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        result.execMode = execMode;
         ResultValue startValue;
         ResultValue limit;
         ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
@@ -1230,7 +1234,7 @@ public class Parser {
 
 
 
-        while (Utility.lessThan(this, startValue, limit).strValue.equals("T") && execMode == iExecMode.EXECUTE) {
+        while (Utility.lessThan(this, startValue, limit).strValue.equals("T") && result.execMode == iExecMode.EXECUTE) {
             // evaluate statments
             result = statements(execMode);
 
@@ -1249,7 +1253,8 @@ public class Parser {
             scanner.getNext();
         }
 
-        result= statements(iExecMode.IGNORE_EXEC);
+        ResultValue rest = statements(iExecMode.IGNORE_EXEC);
+        result.terminatingString = rest.terminatingString;
 
         if (!result.terminatingString.equals("endfor")) {
             // TODO: 4/13/2021 throw error
