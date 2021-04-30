@@ -891,9 +891,9 @@ public class Parser {
                         if (entry.primClassif != Classif.EMPTY) {
                             STIdentifier id = (STIdentifier) entry;
                             if ((id.dclType == SubClassif.STRING || id.dclType == SubClassif.DATE) && !id.structure.equals("array")) {
-                                result = charStringFor(controlVar);
+                                result = charStringFor(controlVar, execMode);
                             } else if (id.structure.equals("array")) {
-                                result = itemArrayFor(controlVar);
+                                result = itemArrayFor(controlVar, execMode);
                             } else {
                                 // TODO: 4/15/2021 cannot run for loop on any other types
                                 throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be of type String, Int, Float to use for loop");
@@ -902,7 +902,7 @@ public class Parser {
                             throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Cannot find value for Identifier");
                         }
                     }else if (scanner.nextToken.subClassif == SubClassif.STRING || scanner.nextToken.subClassif == SubClassif.DATE) {
-                        charStringFor(controlVar);
+                        result = charStringFor(controlVar, execMode);
                     } else {
                         throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Cannot run for loop on constant value " + scanner.nextToken.subClassif.name());
                     }
