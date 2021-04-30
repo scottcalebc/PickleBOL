@@ -257,17 +257,42 @@ public class Parser {
         }
 
         String varStr = scanner.currentToken.tokenStr;
+        Token varToken = scanner.currentToken;
+        String assignStr = scanner.getNext();
 
-        STEntry entry = symbolTable.getSymbol(scanner.currentToken.tokenStr);
+        STEntry entry = symbolTable.getSymbol(varStr);
 
-        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
+        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) symbolTable.getSymbol(entry.symbol)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
             res =  assignArrayStmt(varStr);
-        } else if (scanner.nextToken.primClassif == Classif.OPERATOR && scanner.getNext().equals("=")) {
+        } else if (scanner.currentToken.primClassif == Classif.OPERATOR &&
+                ( scanner.currentToken.tokenStr.equals("=") || scanner.currentToken.tokenStr.equals("+=")
+                        || scanner.currentToken.tokenStr.equals("-=") ) ) {
 
             scanner.getNext();      //get next token
             res = expr();           //get expression value
 
-        } else if (scanner.getNext().equals("[")) {
+
+
+            ResultValue old = (ResultValue) this.storageManager.getVariable(varStr);
+
+            if (!assignStr.equals("=") && old.dataType == SubClassif.EMPTY) {
+                throw new ScannerParserException(varToken, scanner.sourceFileNm, "Cannot use operator '" + assignStr + "' on uninitialized variable");
+            }
+
+            switch (assignStr) {
+                case "+=":
+                    res = Utility.add(this
+                            , new Numeric(this, old, "+", "add old value with new value")
+                            , new Numeric(this, (ResultValue) res, "+", "add old value with new value"));
+                    break;
+                case "-=":
+                    res = Utility.subtract(this
+                            , new Numeric(this, old, "-", "subtract old value with new value")
+                            , new Numeric(this, (ResultValue) res, "-", "subtract old value with new value"));
+                    break;
+            }
+
+        } else if (scanner.currentToken.tokenStr.equals("[")) {
 
 
             scanner.getNext(); // advance to Expression
@@ -315,6 +340,7 @@ public class Parser {
         if (!scanner.currentToken.tokenStr.equals(";")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
         }
+
 
         res = assign(varStr, res);  //save value to symbol
         return res;
@@ -395,7 +421,7 @@ public class Parser {
 
         ArrayList<Token> out = Expr.postFixExpr(this);
 
-        /* System.out.printf("Postfix: ");
+        /*System.out.printf("Postfix: ");
         for(Token token : out) {
             System.out.printf("%s ", token.tokenStr);
         }
