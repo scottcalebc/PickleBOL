@@ -101,8 +101,7 @@ public class Utility {
      * Returns the value of the declared number of elements as a ResultValue.
      * This is the ResultLists capacity.
      *
-     * @param parser Parser Object
-     * @param array  ResultList Array
+     * @param params  Result Array
      * @return ResultValue that is the MAXELEM index
      */
     public static ResultValue builtInMAXELEM(ArrayList<Result> params)

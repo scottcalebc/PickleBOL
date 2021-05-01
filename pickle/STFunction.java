@@ -8,11 +8,12 @@ public class STFunction extends STEntry
     public SubClassif definedBy;                     // Who/what defined it (e.g. user or builtin)
     public int numArgs;                              // Number of arguments (VAR_ARGS for variable length)
     public ArrayList<SubClassif> parameters;         // Reference to an ArrayList of the parameter types
-    public String symbolTable;                       // Reference to the function's symbol table if it's a user def function
+    public ArrayList<String> names;                  // List of the names of all parameters
+    public String symbol;                            // Name of function
     public Builtin function = null;                  // Reference to Builtin functions anonymous
     public int colPos = 0;                           // Col pos for user defined function
     public int lineNum = 0;                          // Line number for user defined function
-    public ActivationRecord record;                  // functions activation record
+    public ActivationRecord record = null;           // functions activation record
 
     /**
      * Returns a STFunction object (Value in the symbol table) to more explicitly reference a function entry in the symbol table
@@ -26,24 +27,18 @@ public class STFunction extends STEntry
      * @param lineNum       Line number of defined function
      * @param colPos        Column position of defined function
      * @param types         List of parameter types
-     * @param parent        Activation record of parent scope, set to null if being defined in global scope
      */
-    public STFunction(String symbol, Classif primClassIf, SubClassif returnType, SubClassif definedBy, int numArgs, int lineNum, int colPos, ArrayList<SubClassif> types, ActivationRecord parent)
+    public STFunction(String symbol, Classif primClassIf, SubClassif returnType, SubClassif definedBy, int numArgs, int lineNum, int colPos, ArrayList<SubClassif> types, ArrayList<String> names)
     {
         super(symbol, primClassIf);
         this.returnType = returnType;
         this.definedBy = definedBy;
         this.numArgs = numArgs;
-        this.symbolTable = symbol;
+        this.symbol = symbol;
         this.lineNum = lineNum;
         this.colPos = colPos;
         this.parameters = types;
-        this.record = new ActivationRecord(symbol);
-        if (parent != null) {
-            for (ActivationRecord rec : parent.environmentVector) {
-                this.record.environmentVector.add(rec);
-            }
-        }
+        this.names = names;
     }
 
     /**
@@ -64,18 +59,25 @@ public class STFunction extends STEntry
         this.returnType = returnType;
         this.definedBy = definedBy;
         this.numArgs = numArgs;
-        this.symbolTable = symbol;
+        this.symbol = symbol;
         this.function = exe;
         this.parameters = types;
     }
 
+    public void setUpActivationRecord(ActivationRecord parent) {
+        record = new ActivationRecord(this.symbol);
+        for (ActivationRecord rec : parent.environmentVector)
+            this.record.environmentVector.add(rec);
+    }
+
+/*
     /**
      *
      * Returns an ActivationRecord object
      *
      * @return functions activations record (ActivationRecord)
-     */
+     *
     public ActivationRecord getActivationRecord() {
         return this.record;
-    }
+    }*/
 }
