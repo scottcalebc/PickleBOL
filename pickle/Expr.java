@@ -317,6 +317,14 @@ public class Expr {
 
 
                                     tmp = array.getItem(parser, Integer.parseInt(index.strValue));
+
+
+
+                                    ResultValue leftover = stack.pop();
+
+                                    if (!leftover.strValue.equals("SLICE")) {
+                                        stack.push(leftover);
+                                    }
                                 }
                             } catch (PickleException p) {
                                 throw p;
@@ -479,6 +487,13 @@ public class Expr {
                                         }
                                     }
                                     tmp = Utility.valueAtIndex(parser, str, Integer.parseInt(index.strValue));
+
+
+                                    ResultValue leftover = stack.pop();
+
+                                    if (!leftover.strValue.equals("SLICE")) {
+                                        stack.push(leftover);
+                                    }
                                 }
 
                             } catch (PickleException p) {
