@@ -401,11 +401,11 @@ public class Parser {
 
         ArrayList<Token> out = Expr.postFixExpr(this);
 
-        /* System.out.printf("Postfix: ");
+         System.out.printf("Postfix: ");
         for(Token token : out) {
             System.out.printf("%s ", token.tokenStr);
         }
-        System.out.println();*/
+        System.out.println();
 
         Result ans = Expr.evaluatePostFix(this, out);
 

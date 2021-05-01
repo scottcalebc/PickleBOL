@@ -390,7 +390,7 @@ public class Scanner {
 
         else if ( operators.contains(tokenStr) )
         {
-            if (iColPos < textCharM.length && operators.indexOf(textCharM[iColPos]) > 0) {
+            if (!tokenStr.equals("~") && iColPos < textCharM.length && operators.indexOf(textCharM[iColPos]) > 0) {
                 tokenStr += textCharM[iColPos++];
             }
 

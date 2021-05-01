@@ -25,12 +25,21 @@ public class Expr {
                 case OPERAND:
                     //System.out.printf("Outing operand '%s' onto stack\n", parser.scanner.currentToken.tokenStr);
                     Token temp;
-                    if (parser.scanner.nextToken.tokenStr.equals("[")) {
+                    if (parser.scanner.nextToken.tokenStr.equals("[") && parser.scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
                         parser.scanner.currentToken.tokenStr = parser.scanner.currentToken.tokenStr.concat(parser.scanner.nextToken.tokenStr);
                         parser.scanner.currentToken.operatorPrecedence = OperatorPrecedence.ARRAY;
                         stack.push(parser.scanner.currentToken);
+                        Token slice = new Token();
+                        slice.tokenStr = "SLICE";
+                        slice.primClassif = Classif.OPERAND;
+                        postfix.add(slice);
                         parser.scanner.getNext();
                     } else {
+
+                        if (!stack.empty() && stack.peek().tokenStr.equals("~")) {
+                            postfix.add(stack.pop());
+                        }
+
                         postfix.add(parser.scanner.currentToken);
                     }
                     break;
@@ -41,8 +50,9 @@ public class Expr {
                                 parser.scanner.currentToken.tokenStr,
                                 stack.peek().tokenStr,
                                 parser.scanner.currentToken.operatorPrecedence.tokenPrecedence,
-                                stack.peek().operatorPrecedence.stackPrecedence);
-*/
+                                stack.peek().operatorPrecedence.stackPrecedence);*/
+
+
                         if (parser.scanner.currentToken.operatorPrecedence.tokenPrecedence > stack.peek().operatorPrecedence.stackPrecedence) {
                             break;
                         }
@@ -136,8 +146,10 @@ public class Expr {
 
         ResultValue res;
 
+        for (int i = 0; i < postFix.size(); i++) {
+            Token token = postFix.get(i);
 
-        for (Token token : postFix) {
+
             switch (token.primClassif) {
                 case OPERAND:
                     ResultValue tmp = new ResultValue(token.tokenStr, token.subClassif);
@@ -146,33 +158,160 @@ public class Expr {
                         token.tokenStr = token.tokenStr.substring(0, token.tokenStr.length()-1);
                         STEntry entry = parser.symbolTable.getSymbol(token.tokenStr);
 
+                        ResultValue neg = new ResultValue("0", SubClassif.INTEGER);
+
                         if (entry.primClassif != Classif.EMPTY && ((STIdentifier)entry).structure.equals("array") ) {
 
                             ResultValue index = stack.pop();
                             ResultList array;
                             try {
-                                array = (ResultList)parser.storageManager.getVariable(token.tokenStr);
+                                array = (ResultList) parser.storageManager.getVariable(token.tokenStr);
 
-                                if (index.dataType != SubClassif.INTEGER) {
-                                    if (index.dataType == SubClassif.IDENTIFIER) {
-                                        STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                if (index.strValue.equals("~")) {
+                                    //just an lower bound
+                                    ResultValue lower = stack.pop();
+                                    if (!stack.pop().strValue.equals("SLICE")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                    }
 
-                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
-                                            try {
-                                                index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
-                                            } catch (Exception e) {
-                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                    if (lower.dataType != SubClassif.INTEGER) {
+                                        if (index.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                }
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
                                             }
                                         } else {
-                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
-                                        }
-                                    } else {
 
-                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
                                     }
+
+                                    if (Utility.lessThan(parser, lower, neg).strValue.equals("T")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                    }
+
+                                    return Utility.getArraySlice(parser, array, Integer.parseInt(lower.strValue), -1);
+
+
+                                } else if (stack.peek().strValue.equals("~")) {
+                                    stack.pop();
+                                    // possible upper and lower or just upper
+                                    if (stack.peek().strValue.equals("SLICE")) {
+                                        //just upper bound
+                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                        }
+                                        if (index.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+                                        if (Utility.lessThan(parser, index, neg).strValue.equals("T")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                        }
+
+                                        return Utility.getArraySlice(parser, array, -1, Integer.parseInt(index.strValue));
+                                    } else {
+                                        ResultValue lower = stack.pop();
+                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                        }
+                                        // check upper bound for number
+                                        if (index.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+
+                                        // check lower bound for number
+                                        if (lower.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+                                        if (Utility.lessThan(parser, index, neg).strValue.equals("T")
+                                        || Utility.lessThan(parser, lower, neg).strValue.equals("T")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                        }
+
+                                        return Utility.getArraySlice(parser, array, Integer.parseInt(lower.strValue), Integer.parseInt(index.strValue));
+
+                                    }
+
                                 }
 
-                                tmp = array.getItem(parser, Integer.parseInt(index.strValue));
+                                // no slicing
+                                else {
+
+
+                                    if (index.dataType != SubClassif.INTEGER) {
+                                        if (index.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                }
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                            }
+                                        } else {
+
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
+                                    }
+
+
+                                    tmp = array.getItem(parser, Integer.parseInt(index.strValue));
+                                }
                             } catch (PickleException p) {
                                 throw p;
                             }
@@ -189,33 +328,158 @@ public class Expr {
                             ResultValue index = stack.pop();
 
                             try {
-
-
-                                if (index.dataType != SubClassif.INTEGER) {
-                                    if (index.dataType == SubClassif.IDENTIFIER) {
-                                        STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
-
-                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
-                                            try {
-                                                index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
-                                            } catch (Exception e) {
-                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
-                                            }
-                                        } else {
-                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
-                                        }
-                                    } else {
-
-                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
-                                    }
-                                }
-
                                 ResultValue str = (ResultValue) parser.storageManager.getVariable(entry.symbol);
 
-                                tmp = Utility.valueAtIndex(parser, str, Integer.parseInt(index.strValue));
 
-                            } catch (Exception e) {
+                                if (index.strValue.equals("~")) {
+                                    //just an lower bound
+                                    ResultValue lower = stack.pop();
+                                    if (!stack.pop().strValue.equals("SLICE")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                    }
 
+                                    if (lower.dataType != SubClassif.INTEGER) {
+                                        if (index.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                }
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                            }
+                                        } else {
+
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
+                                    }
+
+                                    if (Utility.lessThan(parser, lower, neg).strValue.equals("T")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                    }
+
+                                    tmp = Utility.getStringSlice(parser, str, Integer.parseInt(lower.strValue), -1);
+
+
+                                } else if (stack.peek().strValue.equals("~")) {
+                                    stack.pop();
+                                    // possible upper and lower or just upper
+                                    if (stack.peek().strValue.equals("SLICE")) {
+                                        //just upper bound
+                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                        }
+                                        if (index.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+
+                                        if (Utility.lessThan(parser, index, neg).strValue.equals("T")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                        }
+
+                                        tmp = Utility.getStringSlice(parser, str, -1, Integer.parseInt(index.strValue));
+
+                                    } else {
+                                        ResultValue lower = stack.pop();
+                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                        }
+                                        // check upper bound for number
+                                        if (index.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+
+                                        // check lower bound for number
+                                        if (lower.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+
+                                        if (Utility.lessThan(parser, index, neg).strValue.equals("T")
+                                        || Utility.lessThan(parser, lower, neg).strValue.equals("T")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                        }
+
+                                        tmp = Utility.getStringSlice(parser, str, Integer.parseInt(lower.strValue), Integer.parseInt(index.strValue));
+
+                                    }
+
+                                } else {
+
+
+                                    if (index.dataType != SubClassif.INTEGER) {
+                                        if (index.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                }
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                            }
+                                        } else {
+
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
+                                    }
+                                    tmp = Utility.valueAtIndex(parser, str, Integer.parseInt(index.strValue));
+                                }
+
+                            } catch (PickleException p) {
+                                throw p;
+                            }
+                            catch (Exception e) {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Unexpected or undefined value on stack");
                             }
 
                         }
@@ -581,6 +845,9 @@ public class Expr {
                         bOp2 = new Bool(parser, operand2);
                         res = Utility.boolNot(parser, bOp2);
 
+                    } else if (token.tokenStr.equals("~")) {
+                        stack.push(operand2);
+                        res = new ResultValue(token.tokenStr, SubClassif.EMPTY);
                     } else {
                         operand1  = stack.pop();
 
@@ -599,7 +866,6 @@ public class Expr {
 
 
                         switch (token.tokenStr) {
-
                             case "+":
                                 res = Utility.add(parser,
                                         getNumeric(parser, operand1, token.tokenStr, "First Operand for addition"),
