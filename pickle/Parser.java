@@ -11,6 +11,7 @@ public class Parser {
 
     protected boolean       bShowExpr;              // boolean flag for debug expressions
     protected boolean       bShowAssign;            // boolean flag for debug assignments
+    protected boolean       bPostFix;
 
 
     /**
@@ -422,11 +423,13 @@ public class Parser {
 
         ArrayList<Token> out = Expr.postFixExpr(this);
 
-         System.out.printf("Postfix: ");
-        for(Token token : out) {
-            System.out.printf("%s ", token.tokenStr);
+        if (bPostFix) {
+            System.out.printf("Postfix: ");
+            for (Token token : out) {
+                System.out.printf("%s ", token.tokenStr);
+            }
+            System.out.println();
         }
-        System.out.println();
 
         Result ans = Expr.evaluatePostFix(this, out);
 
@@ -626,6 +629,9 @@ public class Parser {
                     break;
                 case "Stmt":
                     scanner.bShowStmt = onOff;
+                    break;
+                case "Postfix":
+                    bPostFix = onOff;
                     break;
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid debugType:");
