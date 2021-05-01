@@ -8,6 +8,9 @@ import java.util.ArrayList;
  * <p> Scanner Operations:
  *     Skip Whitespace, Skip Comments
  *
+ * <p> Data Typing Operations:
+ *     Coerce
+ *
  * <p>
  * All operation and comparison functions return ResultValues containing
  * the data type and string value of the operation's or comparison's result.
@@ -15,6 +18,7 @@ import java.util.ArrayList;
  * <p> Array Operations:
  *      Array to Array Assignment.
  *      Array scalar Assignment.
+ *
  * <p> String Operations:
  *     Concatenate String
  *     Get Character at Subscript
@@ -36,6 +40,7 @@ import java.util.ArrayList;
 public class Utility {
     // ==================== SCANNER OPERATIONS =====================
     // =============================================================
+
     /**
      * Finds the column position after advancing past all
      * whitespace characters and returns it.
@@ -78,9 +83,151 @@ public class Utility {
      * @param token
      * @throws PickleException if scanner.getNext() failes
      */
-    public static void skipTo(Scanner scanner, String token) throws PickleException {
+    public static void skipTo(Scanner scanner, String token) throws PickleException
+    {
         while (!scanner.getNext().equals(token));
     }
+
+    // ================== DATA TYPING OPERATIONS ===================
+    // =============================================================
+
+    /**
+     * Coerces a ResultValue object into the provided SubClassif Data Type.
+     *
+     * <p> If the ResultValue's data type is the same as the target date type, nothing happens.
+     *
+     * <p> Target data type must be INTEGER, FLOAT, BOOL, STRING or DATE
+     *
+     * <p> When coercing a ResultValue, the value will be validated before coercion.
+     *     An error will be thrown if the coercion is invalid.
+     *
+     * <p> This method will properly classify a ResultValue of EMPTY type to the target type
+     *     if the coercion is valid.
+     *
+     * @param parser         Parser object.
+     * @param value          ResultValue to be coerced.
+     * @param targetDataType SubClassif Data Type to coerce ResultValue to.
+     * @return ResultValue of target SubClassif Data Type
+     * @throws PickleException If coercion is invalid.
+     */
+    public static ResultValue coerce(Parser parser, ResultValue value, SubClassif targetDataType) throws PickleException
+    {
+        // if source and target is same data type, return immediately, assumed that it is valid value
+        if (value.dataType == targetDataType)
+            return value;
+
+        // if target data type is not INTEGER, FLOAT, BOOL, STRING or DATE throw error
+        if (targetDataType != SubClassif.INTEGER && targetDataType != SubClassif.FLOAT
+            && targetDataType != SubClassif.BOOLEAN && targetDataType != SubClassif.STRING
+            && targetDataType != SubClassif.DATE)
+        {
+            throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    "Invalid casting operation.");
+        }
+
+        String res = "";
+        Numeric numeric;
+        Bool bool;
+        ResultValue resultValue;
+
+        // coercion is different for each source data type to each target data type
+        switch(value.dataType)
+        {
+            case INTEGER: // INTEGER can be coerced into FLOAT or STRING
+                if (targetDataType != SubClassif.FLOAT && targetDataType != SubClassif.STRING)
+                {
+                    throw new NumericConstantException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                            "Invalid casting of Int.");
+                }
+                // Check for invalid numeric
+                numeric = new Numeric(parser, value, "", "");
+                // if target type is FLOAT, convert INTEGER into FLOAT
+                if (targetDataType == SubClassif.FLOAT) res = Double.toString(numeric.intValue);
+                // if target type is STRING, convert INTEGER into STRING
+                else res = numeric.strValue;
+                break;
+
+            case FLOAT: // FLOAT can be coerced into INTEGER or STRING
+                if (targetDataType != SubClassif.INTEGER && targetDataType != SubClassif.STRING)
+                {
+                    throw new NumericConstantException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                            "Invalid casting of Float.");
+                }
+                // Check for invalid numeric
+                numeric = new Numeric(parser, value, "", "");
+                // if target type is INTEGER, convert FLOAT into INTEGER
+                if (targetDataType == SubClassif.INTEGER) res = Integer.toString((int) numeric.doubleValue);
+                // if target type is STRING, convert FLOAT into STRING
+                else res = numeric.strValue;
+                break;
+
+            case BOOLEAN: // BOOLEAN can be coerced into STRING
+                if (targetDataType != SubClassif.STRING)
+                {
+                    throw new BoolException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                            "Invalid casting of Bool.");
+                }
+                // Check for invalid bool
+                bool = new Bool(parser, value);
+                // convert Bool into String
+                res = bool.strValue;
+                break;
+
+            case STRING: // STRING can be coerced into INTEGER, FLOAT, BOOLEAN OR DATE
+            case EMPTY:  // EMPTY sub-classification could be anything...
+                switch (targetDataType)
+                {
+                    case INTEGER:
+                    case FLOAT:
+                        // Check for invalid numeric
+                        numeric = new Numeric(parser, value, "", "");
+                        res  = numeric.strValue;
+                        break;
+
+                    case BOOLEAN:
+                        // Check for invalid bool
+                        bool = new Bool(parser, value);
+                        res = bool.strValue;
+                        break;
+
+                    case DATE:
+                        // Check for invalid date
+                        resultValue = Date.validateDate(value.strValue);
+                        res = resultValue.strValue;
+                        break;
+
+                    default:
+                        // Must be converting EMPTY to STRING
+                        res = value.strValue;
+
+                }
+                break;
+
+            case DATE:
+                // DATE can be coerced into a STRING
+                if (targetDataType != SubClassif.STRING)
+                {
+                    // TODO: change this to DateException
+                    throw new NumericConstantException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                            "Invalid casting of Date.");
+                }
+                // check for invalid Date
+                resultValue = Date.validateDate(value.strValue);
+                // convert date into string
+                res = resultValue.strValue;
+
+                break;
+        }
+
+        // TODO delete this if statement since it should never be true anyways
+        //      just here for debugging purposes.
+        if (res.equals(""))
+            throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    "This should not happen please check coerce function lamo.");
+
+        return new ResultValue(res, targetDataType);
+    }
+
     // ====================== ARRAY FUNCTIONS ======================
     // =============================================================
 
