@@ -895,6 +895,9 @@ public class Expr {
                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
                                     }
                                 }
+                                if (Utility.lessThanOrEqualTo(parser, lower, empty).strValue.equals("T")) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                }
 
 
                                 if (i + 1 >= postFix.size()) {
@@ -904,8 +907,8 @@ public class Expr {
 
                                 } else {
                                     // get upper bound
-                                    Token upperT = postFix.get(++i);
-                                    ResultValue upper = new ResultValue(upperT.tokenStr, upperT.subClassif);
+
+                                    ResultValue upper = (ResultValue) Expr.evaluatePostFix(parser, new ArrayList<Token>(postFix.subList(i+1, postFix.size())));
                                     if (upper.dataType != SubClassif.INTEGER) {
                                         if (upper.dataType == SubClassif.IDENTIFIER) {
                                             STEntry subEntry = parser.symbolTable.getSymbol(upper.strValue);
@@ -924,6 +927,11 @@ public class Expr {
                                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
                                         }
                                     }
+                                    if (Utility.lessThanOrEqualTo(parser, upper, empty).strValue.equals("T")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                    }
+
+
                                     bounds.add(lower);
                                     bounds.add(upper);
 
@@ -934,8 +942,7 @@ public class Expr {
                                 }
 
 
-                                Token upperT = postFix.get(++i);
-                                ResultValue upper = new ResultValue(upperT.tokenStr, upperT.subClassif);
+                                ResultValue upper = (ResultValue) Expr.evaluatePostFix(parser, new ArrayList<Token>(postFix.subList(i+1, postFix.size())));
                                 if (upper.dataType != SubClassif.INTEGER) {
                                     if (upper.dataType == SubClassif.IDENTIFIER) {
                                         STEntry subEntry = parser.symbolTable.getSymbol(upper.strValue);
@@ -954,6 +961,12 @@ public class Expr {
                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
                                     }
                                 }
+                                if (Utility.lessThanOrEqualTo(parser, upper, empty).strValue.equals("T")) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                }
+
+
+
                                 bounds.add(empty);
                                 bounds.add(upper);
                             }
