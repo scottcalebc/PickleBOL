@@ -1392,7 +1392,9 @@ public class Parser {
             else
                 storageManager.updateVariable(controlVar, startValue);
         }
-        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
+
+        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T") &&
+                (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
             // evaluate loop statements
             result = statements(execMode);
 
