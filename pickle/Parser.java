@@ -883,7 +883,7 @@ public class Parser {
         }
 
         //parse out the function body
-        ResultValue res = statements(false); // dont execute the statements on function definition
+        ResultValue res = statements(iExecMode.EXECUTE); // dont execute the statements on function definition
 
         if (!res.terminatingString.equals("enddef")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing enddef");
@@ -1131,16 +1131,16 @@ public class Parser {
 
 
                 try {
-                    STIdentifier entry = (STIdentifier) this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                    STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
                     if (!this.activationRecordStack.isEmpty()) {
                         int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
                         if (scope != -1)
-                            entry = (STIdentifier) this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                            entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.nextToken.tokenStr);
                     }
 
                     if (scanner.nextToken.subClassif == SubClassif.IDENTIFIER) {
                         //STIdentifier entry = (STIdentifier) this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
-                        STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                        //STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
 
                         if (entry.primClassif != Classif.EMPTY) {
                             STIdentifier id = (STIdentifier) entry;
