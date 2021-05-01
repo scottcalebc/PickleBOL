@@ -275,7 +275,13 @@ public class Parser {
 
 
             scanner.getNext(); // advance to Expression
-            ResultValue index;
+            Result indexT;
+
+            ResultValue index = new ResultValue("", SubClassif.EMPTY);
+            ResultValue lower = new ResultValue("", SubClassif.EMPTY);
+            ResultValue upper = new ResultValue("", SubClassif.EMPTY);
+
+
 
             try {
                 entry = symbolTable.getSymbol(varStr);
@@ -288,22 +294,37 @@ public class Parser {
 
                 ResultValue str = (ResultValue)storageManager.getVariable(varStr);
 
-                index = (ResultValue) expr();
 
-                if (index.dataType != SubClassif.INTEGER) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Index must be an Integer");
+                indexT = expr();
+
+                if (indexT instanceof ResultValue) {
+                    index = (ResultValue) indexT;
+                    if (index.dataType != SubClassif.INTEGER) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Index must be an Integer");
+                    }
+
+                    if (!scanner.currentToken.tokenStr.equals("=")) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must be followed by '=' '");
+                    }
+                } else if (indexT instanceof ResultList) {
+                    lower = ((ResultList) indexT).getItem(this, 0);
+                    upper = ((ResultList) indexT).getItem(this, 1);
+
                 }
 
-                if (!scanner.currentToken.tokenStr.equals("=")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must be followed by '=' '");
-                }
+
+
 
                 scanner.getNext(); // advance to next expression must be a string
                 res = (ResultValue)expr();
 
 
+                if (indexT instanceof ResultValue) {
+                    res = Utility.assignAtIndex(this, str, (ResultValue) res, Integer.parseInt(index.strValue) );
+                } else if (indexT instanceof ResultList) {
+                    res = Utility.getStringSliceAssign(this, str, Integer.parseInt(lower.strValue), Integer.parseInt(upper.strValue), (ResultValue) res);
+                }
 
-                res = Utility.assignAtIndex(this, str, (ResultValue) res, Integer.parseInt(index.strValue) );
 
             } catch (PickleException p) {
                 throw p;
