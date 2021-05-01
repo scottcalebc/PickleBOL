@@ -17,7 +17,7 @@ public class Expr {
                 && !parser.scanner.currentToken.tokenStr.equals("by")
                 && !parser.scanner.currentToken.tokenStr.equals("=")) {
 
-            if (funcBool == 0 && parser.scanner.currentToken.tokenStr.equals(",")) {
+            if (funcBool == 0 && parser.scanner.currentToken.tokenStr.equals(",") && parser.scanner.currentToken.subClassif != SubClassif.STRING) {
                 break;
             }
 
