@@ -393,6 +393,7 @@ public class Parser {
     private ResultList assignArrayStmt(String varString) throws PickleException {
         ResultList array = (ResultList) storageManager.getVariable(varString), res;
         ResultValue val, assign;
+        Result slice;
 
         if (scanner.currentToken.tokenStr.equals("=")) { //total array assignment
             scanner.getNext(); //skip to asignee dude guy expr 🤵
@@ -402,12 +403,21 @@ public class Parser {
                 scanner.getNext();
             }
             else {
-                val = (ResultValue) expr();
-                if (val.dataType != array.dataType) {
-                    //TODO - fix exception
-                    throw new PickleException();
+                slice = expr();
+
+                if (slice instanceof ResultValue) {
+                    val = (ResultValue) slice;
+                    if (val.dataType != array.dataType) {
+                        //TODO - fix exception
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot scalar assign incorrect data type");
+                    }
+                    res = Utility.assignScalarToArray(this, val, array.capacity);
+                } else if (slice instanceof ResultList) {
+                    res = Utility.assignArrayToArray(this, array, (ResultList) slice);
+                } else {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid assign expression for array");
                 }
-                res = Utility.assignScalarToArray(this, val, array.capacity);
+
             }
         }
         else if (scanner.currentToken.tokenStr.equals("[")) { //arr index assignment
