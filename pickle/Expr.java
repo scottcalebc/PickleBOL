@@ -68,6 +68,7 @@ public class Expr {
                                         postfix.add(popped);
 
                                         if (popped.primClassif == Classif.FUNCTION) {
+                                            funcBool--;
                                             break;
                                         }
                                     }
@@ -84,7 +85,7 @@ public class Expr {
                                         popped = stack.pop();
                                     }
                                     stack.push(popped);
-                                    funcBool--;
+
                                 }
                                 break;
                             case "]":
@@ -631,7 +632,28 @@ public class Expr {
                             break;
 
                         default:
-                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Have not implemented function to be used in expressions");
+                            try {
+                                STFunction funcName = (STFunction) parser.symbolTable.getSymbol(token.tokenStr);
+
+                                ArrayList<ResultValue> parameters = new ArrayList<>();
+
+                                for(int i = 0; i < funcName.numArgs; i++) {
+                                    if (!stack.empty()) {
+                                        parameters.add(stack.pop());
+                                    } else {
+                                        throw  new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid number of parameters passed");
+                                    }
+                                }
+
+                                res = parser.callUserFunction(funcName, parameters);
+
+                            } catch (PickleException p) {
+                                throw p;
+                            }
+                            catch (Exception e) {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Have not implemented function to be used in expressions");
+                            }
+
 
                     }
                     stack.push(res);

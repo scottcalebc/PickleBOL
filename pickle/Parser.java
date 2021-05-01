@@ -12,7 +12,7 @@ public class Parser {
 
     protected boolean       bShowExpr;                          // boolean flag for debug expressions
     protected boolean       bShowAssign;                        // boolean flag for debug assignments
-
+    protected boolean       bPostFix;
 
     /**
      * Parser constructor takes scanner and symbol table
@@ -540,20 +540,19 @@ public class Parser {
 
         ArrayList<Token> out = Expr.postFixExpr(this);
 
-        /*System.out.printf("Postfix: ");
-        for(Token token : out) {
-            System.out.printf("%s ", token.tokenStr);
+        if (bPostFix) {
+            System.out.printf("Postfix: ");
+            for (Token token : out) {
+                System.out.printf("%s ", token.tokenStr);
+            }
+            System.out.println();
         }
-        System.out.println();*/
+
 
         Result ans = Expr.evaluatePostFix(this, out);
 
         // code to see postfix expression and evaluated answer
-
-
-
-
-        /*System.out.printf("Evaluated to answer: %s\n", ((ResultValue)ans).strValue);*/
+        // /*System.out.printf("Evaluated to answer: %s\n", ((ResultValue)ans).strValue);*/
 
         return ans;
 
@@ -597,7 +596,7 @@ public class Parser {
             // get parameters into a parameter list, add parameters to function SymbolTable/StorageManager, execute function
 
             //sets up functions activation record on the stack and its environment vector
-            this.activationRecordStack.add(new ActivationRecord(func.symbol));
+
 
             Result p = expr();
             System.out.println(p.printResult());
@@ -606,6 +605,90 @@ public class Parser {
 
         return (ResultValue) res;
     }
+
+    public ResultValue callUserFunction(STFunction function, ArrayList<ResultValue>parameters) throws PickleException {
+        ActivationRecord newAcc = function.record;
+        // verify parameter types
+        for(int i = 0; i < parameters.size(); i++) {
+            // coerce
+            STEntry entry;
+
+            SubClassif paramType = function.parameters.get(i);
+            ResultValue argI = parameters.get(i);
+            if (argI.dataType == SubClassif.IDENTIFIER) {
+                // get scoping
+                if (!this.activationRecordStack.isEmpty()) {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(argI.strValue);
+                    Result value;
+
+                    if (scope != -1) {
+                        value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(argI.strValue);
+                    } else {
+                        value = this.storageManager.getVariable(argI.strValue);
+                    }
+
+
+                    if ((value instanceof ResultValue) && !function.array.get(i) ) {
+                        // coerce
+                        if (((ResultValue) value).dataType != paramType) {
+                            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
+                        }
+
+
+
+                        function.record.storageManager.updateVariable(function.names.get(i), value);
+                    } if ((value instanceof  ResultList) && function.array.get(i)) {
+                        // coerce
+                        if (((ResultList) value).dataType != paramType) {
+                            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
+                        }
+
+
+                        function.record.storageManager.updateVariable(function.names.get(i), value);
+                    }
+
+
+                }
+
+
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+        // assign paramaters into activation record storagemanager
+
+
+
+
+
+
+        //run user function
+
+
+
+        // end user function
+        // grab values of parameters and assign into whichever scope they need
+
+
+
+
+
+
+        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "USER FUNCTIONS WILL CONTINUE HERE");
+
+
+        //return new ResultValue("", SubClassif.EMPTY);
+    }
+
+
 
     /**
      * BUILTIN print function
@@ -778,6 +861,9 @@ public class Parser {
                 case "Stmt":
                     scanner.bShowStmt = onOff;
                     break;
+                case "Postfix":
+                    bPostFix = onOff;
+                    break;
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid debugType:");
             }
@@ -860,30 +946,37 @@ public class Parser {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "missing '('");
         }
 
-        ArrayList<SubClassif> types = new ArrayList<>();
-        ArrayList<String> names = new ArrayList<>();
+        ArrayList<SubClassif> types = new ArrayList<SubClassif>();
+        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<Boolean> array = new ArrayList<Boolean>();
         //get all the parameters
         while (!scanner.getNext().equals(":")) {
+            array.add(false);
             numArgs++;
-            types.add(paramHelper(names));
+            types.add(paramHelper(names, array));
         }
 
-        STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER, numArgs, currLineNum, colPos, types, names);
+        STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER, numArgs, currLineNum, colPos, types, names, array);
 
         //set up functions activation record
         if (!this.activationRecordStack.isEmpty()) {
-            newUserFcn.setUpActivationRecord(this.activationRecordStack.peek());
+            newUserFcn.setupActivationRecord(this.activationRecordStack.peek());
+        } else {
+            newUserFcn.record = new ActivationRecord(newUserFcn.symbol);
         }
+
+        newUserFcn.setupSymbolTable();
 
         if (this.activationRecordStack.isEmpty()) {
             this.symbolTable.putSymbol(functionName, newUserFcn);
         }
         else {
             this.activationRecordStack.peek().symbolTable.putSymbol(functionName, newUserFcn);
+
         }
 
         //parse out the function body
-        ResultValue res = statements(iExecMode.EXECUTE); // dont execute the statements on function definition
+        ResultValue res = statements(iExecMode.IGNORE_EXEC); // dont execute the statements on function definition
 
         if (!res.terminatingString.equals("enddef")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing enddef");
@@ -895,7 +988,7 @@ public class Parser {
 
     }
 
-    private SubClassif paramHelper(ArrayList<String> names) throws PickleException {
+    private SubClassif paramHelper(ArrayList<String> names, ArrayList<Boolean> array) throws PickleException {
         SubClassif paramType = SubClassif.EMPTY;
         //the parameter is either a primitive or an array with a pair of square brackets
         // current token should be an identifier
@@ -917,6 +1010,10 @@ public class Parser {
 
         //if the variable is an array
         if (scanner.nextToken.tokenStr.equals("[")) {
+
+            int i = array.size() -1;
+            array.set(i, true);
+
             scanner.getNext(); // move token to '['
             if (!scanner.getNext().equals("]")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected ']', found: " + scanner.currentToken.tokenStr);
@@ -928,6 +1025,7 @@ public class Parser {
             else {
                 throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "expected separator, found: " + scanner.nextToken.tokenStr);
             }
+
         }
         //else if (scanner.nextToken.equals(",")) {
         else if (scanner.getNext().equals((",")) || scanner.currentToken.tokenStr.equals(")")) {

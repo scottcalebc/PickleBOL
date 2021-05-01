@@ -84,7 +84,7 @@ public class SymbolTable {
 		this.symbolTable.put("String", new STControl("String", Classif.CONTROL, SubClassif.DECLARE));
 		this.symbolTable.put("Bool", new STControl("Bool", Classif.CONTROL, SubClassif.DECLARE));
 		this.symbolTable.put("Date", new STControl("Date", Classif.CONTROL, SubClassif.DECLARE));
-		
+
 		this.symbolTable.put("and", new STEntry("and", Classif.OPERATOR));
 		this.symbolTable.put("or", new STEntry("or", Classif.OPERATOR));
 		this.symbolTable.put("not", new STEntry("not", Classif.OPERATOR));
