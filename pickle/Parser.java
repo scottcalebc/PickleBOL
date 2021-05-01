@@ -257,42 +257,17 @@ public class Parser {
         }
 
         String varStr = scanner.currentToken.tokenStr;
-        Token varToken = scanner.currentToken;
-        String assignStr = scanner.getNext();
 
-        STEntry entry = symbolTable.getSymbol(varStr);
+        STEntry entry = symbolTable.getSymbol(scanner.currentToken.tokenStr);
 
-        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) symbolTable.getSymbol(entry.symbol)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
+        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
             res =  assignArrayStmt(varStr);
-        } else if (scanner.currentToken.primClassif == Classif.OPERATOR &&
-                ( scanner.currentToken.tokenStr.equals("=") || scanner.currentToken.tokenStr.equals("+=")
-                        || scanner.currentToken.tokenStr.equals("-=") ) ) {
+        } else if (scanner.nextToken.primClassif == Classif.OPERATOR && scanner.getNext().equals("=")) {
 
             scanner.getNext();      //get next token
             res = expr();           //get expression value
 
-
-
-            ResultValue old = (ResultValue) this.storageManager.getVariable(varStr);
-
-            if (!assignStr.equals("=") && old.dataType == SubClassif.EMPTY) {
-                throw new ScannerParserException(varToken, scanner.sourceFileNm, "Cannot use operator '" + assignStr + "' on uninitialized variable");
-            }
-
-            switch (assignStr) {
-                case "+=":
-                    res = Utility.add(this
-                            , new Numeric(this, old, "+", "add old value with new value")
-                            , new Numeric(this, (ResultValue) res, "+", "add old value with new value"));
-                    break;
-                case "-=":
-                    res = Utility.subtract(this
-                            , new Numeric(this, old, "-", "subtract old value with new value")
-                            , new Numeric(this, (ResultValue) res, "-", "subtract old value with new value"));
-                    break;
-            }
-
-        } else if (scanner.currentToken.tokenStr.equals("[")) {
+        } else if (scanner.getNext().equals("[")) {
 
 
             scanner.getNext(); // advance to Expression
@@ -341,7 +316,6 @@ public class Parser {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
         }
 
-
         res = assign(varStr, res);  //save value to symbol
         return res;
     }
@@ -350,7 +324,7 @@ public class Parser {
         ResultList array = (ResultList) storageManager.getVariable(varString), res;
         ResultValue val, assign;
 
-        if (scanner.currentToken.tokenStr.equals("=")) { //total array assignment
+        if (scanner.getNext().equals("=")) { //total array assignment
             scanner.getNext(); //skip to asignee dude guy expr 🤵
 
             if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER && ((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr.equals(";")) { //just an array to array
@@ -397,11 +371,10 @@ public class Parser {
             res = array;
         }
         else {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid operator for array assignment");
+            throw new PickleException();
         }
 
         if (!scanner.currentToken.tokenStr.equals(";")) {
-
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
         }
 
@@ -422,7 +395,7 @@ public class Parser {
 
         ArrayList<Token> out = Expr.postFixExpr(this);
 
-        /*System.out.printf("Postfix: ");
+        /* System.out.printf("Postfix: ");
         for(Token token : out) {
             System.out.printf("%s ", token.tokenStr);
         }
