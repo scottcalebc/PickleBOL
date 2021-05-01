@@ -1637,14 +1637,89 @@ public class Parser {
     private ResultValue stringDelimiterFor(String controlVar, iExecMode execMode) throws  PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        result.execMode = execMode;
 
-        if (!this.activationRecordStack.isEmpty()) {
-            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
-            if (scope != -1)
-                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(controlVar);
+        if (entry.primClassif == Classif.EMPTY) {
+            symbolTable.putSymbol(controlVar,
+                    new STIdentifier(controlVar,
+                            Classif.OPERAND,
+                            SubClassif.STRING,
+                            "none",
+                            "local",
+                            0));
+
+
         }
 
-        //TODO function body
+        scanner.getNext(); //skips the 'from' token
+
+        Result string = expr();
+
+        //string to tokenize err checking
+        if (!(string instanceof ResultValue)) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Variable to tokenize must be a String");
+        }
+        if (((ResultValue) string).dataType != SubClassif.STRING) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Variable to tokenize must be a String");
+        }
+
+        if (!scanner.currentToken.tokenStr.equals("by")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected \"by\", found " + scanner.currentToken.tokenStr);
+        }
+
+        scanner.getNext(); //skips the 'by' token
+
+        Result delimiter = expr();
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected \":\" found " + scanner.currentToken.tokenStr);
+        }
+
+        int iSavedLineNr = scanner.currentToken.iSourceLineNr;
+        int iSavedColPos = scanner.currentToken.iColPos;
+
+        String s = ((ResultValue) string).strValue;
+        String d = ((ResultValue) delimiter).strValue;
+
+        String[] tokens = s.split(d);
+
+        ResultValue limit = new ResultValue(Integer.toString(tokens.length), SubClassif.INTEGER);
+        ResultValue itr = new ResultValue("0", SubClassif.INTEGER);
+
+        storageManager.updateVariable(controlVar, new ResultValue(tokens[0], SubClassif.STRING));
+
+        Numeric nOp1;
+        Numeric nOp2 = new Numeric(this, new ResultValue("1", SubClassif.INTEGER), "+", "Incrementer for the for loop");
+
+        while (Utility.lessThan(this, itr, limit).strValue.equals("T") &&
+                (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
+
+            storageManager.updateVariable(controlVar, new ResultValue(tokens[Integer.parseInt(itr.strValue)], SubClassif.STRING));
+
+            result = statements(execMode);
+
+            if (!result.terminatingString.equals("endfor")) {
+                // TODO: 4/13/2021 throw parser error for loop didn't end in endfor
+                throw new PickleException();
+            }
+
+            nOp1 = new Numeric(this, itr, "+", "Incrementing itr");
+            itr = Utility.add(this, nOp1, nOp2);
+
+            scanner.setPosition(iSavedLineNr, iSavedColPos);
+            scanner.getNext();
+        }
+
+        result = statements(iExecMode.IGNORE_EXEC);
+        result.execMode = execMode;
+
+        if (!result.terminatingString.equals("endfor")) {
+            throw new PickleException();
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            throw new PickleException();
+        }
 
         return result;
     }
@@ -1743,9 +1818,6 @@ public class Parser {
         Numeric nOp2;
 
         nOp2 = new Numeric(this, incrementBy, "+", "Incrementing by value");
-
-
-
 
 
         while (Utility.lessThan(this, startValue, limit).strValue.equals("T") &&
