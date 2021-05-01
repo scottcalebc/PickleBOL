@@ -6,8 +6,8 @@ import java.util.Arrays;
 
 public class Scanner {
 
-    private final static String delimiters = " \t:;()'\"=!<>+-*/[]#,^\n";   // Terminate a token
-    private final static String operators = "+-*/<>=!^#";                   // All operators
+    private final static String delimiters = " \t:;()'\"=!<>+-*/[]#~,^\n";   // Terminate a token
+    private final static String operators = "+-*/<>=!^#~";                   // All operators
     private final static String separators = "(),:;[]";                     // All seperators
 
     protected ArrayList<String> sourceLineM;                                // List of all source file lines
@@ -490,6 +490,9 @@ public class Scanner {
 
     public void classifyOperator(String tokenStr) {
         switch (tokenStr) {
+            case "~":
+                nextToken.operatorPrecedence = OperatorPrecedence.SLICE;
+                break;
             case "-":
                 if (currentToken.primClassif != Classif.OPERAND && !currentToken.tokenStr.equals(")") && !currentToken.tokenStr.equals("]")) {
                     nextToken.operatorPrecedence = OperatorPrecedence.UNARYMINUS;
