@@ -11,6 +11,7 @@ public class Parser {
 
     protected boolean       bShowExpr;              // boolean flag for debug expressions
     protected boolean       bShowAssign;            // boolean flag for debug assignments
+    protected boolean       bPostFix;
 
 
     /**
@@ -316,7 +317,13 @@ public class Parser {
 
 
             scanner.getNext(); // advance to Expression
-            ResultValue index;
+            Result indexT;
+
+            ResultValue index = new ResultValue("", SubClassif.EMPTY);
+            ResultValue lower = new ResultValue("", SubClassif.EMPTY);
+            ResultValue upper = new ResultValue("", SubClassif.EMPTY);
+
+
 
             try {
                 entry = symbolTable.getSymbol(varStr);
@@ -329,22 +336,37 @@ public class Parser {
 
                 ResultValue str = (ResultValue)storageManager.getVariable(varStr);
 
-                index = (ResultValue) expr();
 
-                if (index.dataType != SubClassif.INTEGER) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Index must be an Integer");
+                indexT = expr();
+
+                if (indexT instanceof ResultValue) {
+                    index = (ResultValue) indexT;
+                    if (index.dataType != SubClassif.INTEGER) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Index must be an Integer");
+                    }
+
+                    if (!scanner.currentToken.tokenStr.equals("=")) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must be followed by '=' '");
+                    }
+                } else if (indexT instanceof ResultList) {
+                    lower = ((ResultList) indexT).getItem(this, 0);
+                    upper = ((ResultList) indexT).getItem(this, 1);
+
                 }
 
-                if (!scanner.currentToken.tokenStr.equals("=")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must be followed by '=' '");
-                }
+
+
 
                 scanner.getNext(); // advance to next expression must be a string
                 res = (ResultValue)expr();
 
 
+                if (indexT instanceof ResultValue) {
+                    res = Utility.assignAtIndex(this, str, (ResultValue) res, Integer.parseInt(index.strValue) );
+                } else if (indexT instanceof ResultList) {
+                    res = Utility.getStringSliceAssign(this, str, Integer.parseInt(lower.strValue), Integer.parseInt(upper.strValue), (ResultValue) res);
+                }
 
-                res = Utility.assignAtIndex(this, str, (ResultValue) res, Integer.parseInt(index.strValue) );
 
             } catch (PickleException p) {
                 throw p;
@@ -371,6 +393,7 @@ public class Parser {
     private ResultList assignArrayStmt(String varString) throws PickleException {
         ResultList array = (ResultList) storageManager.getVariable(varString), res;
         ResultValue val, assign;
+        Result slice;
 
         if (scanner.currentToken.tokenStr.equals("=")) { //total array assignment
             scanner.getNext(); //skip to asignee dude guy expr 🤵
@@ -380,12 +403,21 @@ public class Parser {
                 scanner.getNext();
             }
             else {
-                val = (ResultValue) expr();
-                if (val.dataType != array.dataType) {
-                    //TODO - fix exception
-                    throw new PickleException();
+                slice = expr();
+
+                if (slice instanceof ResultValue) {
+                    val = (ResultValue) slice;
+                    if (val.dataType != array.dataType) {
+                        //TODO - fix exception
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot scalar assign incorrect data type");
+                    }
+                    res = Utility.assignScalarToArray(this, val, array.capacity);
+                } else if (slice instanceof ResultList) {
+                    res = Utility.assignArrayToArray(this, array, (ResultList) slice);
+                } else {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid assign expression for array");
                 }
-                res = Utility.assignScalarToArray(this, val, array.capacity);
+
             }
         }
         else if (scanner.currentToken.tokenStr.equals("[")) { //arr index assignment
@@ -444,11 +476,13 @@ public class Parser {
 
         ArrayList<Token> out = Expr.postFixExpr(this);
 
-        /*System.out.printf("Postfix: ");
-        for(Token token : out) {
-            System.out.printf("%s ", token.tokenStr);
+        if (bPostFix) {
+            System.out.printf("Postfix: ");
+            for (Token token : out) {
+                System.out.printf("%s ", token.tokenStr);
+            }
+            System.out.println();
         }
-        System.out.println();*/
 
         Result ans = Expr.evaluatePostFix(this, out);
 
@@ -648,6 +682,9 @@ public class Parser {
                     break;
                 case "Stmt":
                     scanner.bShowStmt = onOff;
+                    break;
+                case "Postfix":
+                    bPostFix = onOff;
                     break;
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid debugType:");

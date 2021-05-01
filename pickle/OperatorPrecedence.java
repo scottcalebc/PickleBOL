@@ -9,6 +9,7 @@ public enum OperatorPrecedence {
     POWER(11, 10),
     MULTIPLYDIVIDE(9, 9),
     ADDMINUS(8, 8),
+    SLICE(8, 2),
     CONCAT(7, 7),
     BOOLEANOPS(6,6),
     INNOTIN(6, 6),
