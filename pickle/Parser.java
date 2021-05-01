@@ -119,6 +119,25 @@ public class Parser {
                             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Continue statement must be followed by ';' ");
                         }
                         break;
+                    case "return":
+                        if (execMode == iExecMode.EXECUTE) {
+                            scanner.getNext();
+                            if (!scanner.currentToken.tokenStr.equals(";")){
+                                Result returnVal = expr();
+                                this.activationRecordStack.peek().returnVal = returnVal;
+                            }
+
+                            if (!scanner.currentToken.tokenStr.equals(";")) {
+                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Return statement must end with ';'");
+                            }
+
+                            res.execMode = iExecMode.RETURN;
+                        } else {
+                            Utility.skipTo(scanner, ";");
+                        }
+                        break;
+                    default:
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown Control token");
 
                 }
                 break;
@@ -599,8 +618,11 @@ public class Parser {
 
 
             Result p = expr();
-            System.out.println(p.printResult());
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "USER FUNCTIONS WILL CONTINUE HERE");
+
+            if (!scanner.currentToken.tokenStr.equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function call must be followed by ';'");
+            }
+
         }
 
         return (ResultValue) res;
@@ -609,83 +631,124 @@ public class Parser {
     public ResultValue callUserFunction(STFunction function, ArrayList<ResultValue>parameters) throws PickleException {
         ActivationRecord newAcc = function.record;
         // verify parameter types
+
+
+
         for(int i = 0; i < parameters.size(); i++) {
             // coerce
             STEntry entry;
 
             SubClassif paramType = function.parameters.get(i);
             ResultValue argI = parameters.get(i);
+            Result value;
             if (argI.dataType == SubClassif.IDENTIFIER) {
                 // get scoping
                 if (!this.activationRecordStack.isEmpty()) {
                     int scope = this.activationRecordStack.peek().findSymbolScope(argI.strValue);
-                    Result value;
+
 
                     if (scope != -1) {
                         value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(argI.strValue);
                     } else {
                         value = this.storageManager.getVariable(argI.strValue);
                     }
+                } else {
+                    value = this.storageManager.getVariable(argI.strValue);
+                }
 
-
-                    if ((value instanceof ResultValue) && !function.array.get(i) ) {
-                        // coerce
-                        if (((ResultValue) value).dataType != paramType) {
+// assign paramaters into activation record storagemanager
+                if ((value instanceof ResultValue) && !function.array.get(i) ) {
+                    // coerce
+                    if (((ResultValue) value).dataType != paramType ) {
+                        if (((ResultValue) value).dataType == SubClassif.EMPTY) {
                             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
                         }
-
-
-
-                        function.record.storageManager.updateVariable(function.names.get(i), value);
-                    } if ((value instanceof  ResultList) && function.array.get(i)) {
-                        // coerce
-                        if (((ResultList) value).dataType != paramType) {
-                            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
-                        }
-
-
-                        function.record.storageManager.updateVariable(function.names.get(i), value);
+                        value = Utility.coerce(this, (ResultValue) value, paramType);
                     }
 
 
+
+                    function.record.storageManager.updateVariable(function.names.get(i), value);
+                } if ((value instanceof  ResultList) && function.array.get(i)) {
+                    // coerce
+                    if (((ResultList) value).dataType != paramType) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
+                    }
+
+
+                    function.record.storageManager.updateVariable(function.names.get(i), value);
                 }
 
 
+            }
 
+        }
+
+        //run user function
+        int savedSourceLineNr = scanner.currentToken.iSourceLineNr;
+        int savedColPos = scanner.currentToken.iColPos;
+
+        this.activationRecordStack.push(newAcc);
+
+        scanner.setPosition(function.lineNum, function.colPos);
+
+        ResultValue returnStatus = statements(iExecMode.EXECUTE);
+        ResultValue returnValue = new ResultValue("", SubClassif.EMPTY);
+
+        // end user function
+        scanner.setPosition(savedSourceLineNr, savedColPos);
+        scanner.getNext();
+
+        // grab values of parameters and assign into whichever scope they need
+        newAcc = this.activationRecordStack.pop();
+
+        if (returnStatus.execMode == iExecMode.RETURN) {
+            if (function.returnType == SubClassif.VOID && newAcc.returnVal != null) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot return");
+            } else if (newAcc.returnVal != null) {
+
+                if (newAcc.returnVal instanceof ResultValue) {
+                    if (((ResultValue) newAcc.returnVal).dataType != function.returnType) {
+                        returnValue = Utility.coerce(this, (ResultValue) newAcc.returnVal, function.returnType);
+                    } else {
+                        returnValue = (ResultValue)newAcc.returnVal;
+                    }
+                } else {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Do not support returning arrays from functions");
+                }
+            } else if (function.returnType != SubClassif.VOID && newAcc != null ) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function return type: " + function.returnType.name());
             }
         }
 
 
 
+        for (int i =0 ; i < function.numArgs; i++) {
+            if (parameters.get(i).dataType == SubClassif.IDENTIFIER) {
 
 
+                Result newValue = newAcc.storageManager.getVariable(function.names.get(i));
 
 
+                if (!this.activationRecordStack.isEmpty()) {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(parameters.get(i).strValue);
+                    Result value;
+
+                    if (scope != -1) {
+                        this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(parameters.get(i).strValue, newValue);
+                    } else {
+                        this.storageManager.updateVariable(parameters.get(i).strValue, newValue);
+                    }
+
+                } else {
+                    this.storageManager.updateVariable(parameters.get(i).strValue, newValue);
+                }
+
+            }
+        }
 
 
-        // assign paramaters into activation record storagemanager
-
-
-
-
-
-
-        //run user function
-
-
-
-        // end user function
-        // grab values of parameters and assign into whichever scope they need
-
-
-
-
-
-
-        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "USER FUNCTIONS WILL CONTINUE HERE");
-
-
-        //return new ResultValue("", SubClassif.EMPTY);
+        return returnValue;
     }
 
 
@@ -976,6 +1039,9 @@ public class Parser {
         }
 
         //parse out the function body
+
+        newUserFcn.lineNum = scanner.iSourceLineNr;
+        newUserFcn.colPos = 0;
         ResultValue res = statements(iExecMode.IGNORE_EXEC); // dont execute the statements on function definition
 
         if (!res.terminatingString.equals("enddef")) {
@@ -1231,7 +1297,7 @@ public class Parser {
                 try {
                     STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
                     if (!this.activationRecordStack.isEmpty()) {
-                        int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+                        int scope = this.activationRecordStack.peek().findSymbolScope(scanner.nextToken.tokenStr);
                         if (scope != -1)
                             entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.nextToken.tokenStr);
                     }
@@ -1403,7 +1469,7 @@ public class Parser {
     }
 
     private ResultValue itemArrayFor(String controlVar, iExecMode execMode) throws  PickleException {
-        STEntry entry = symbolTable.getSymbol(controlVar);
+        STEntry entry = this.symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
         result.execMode = execMode;
         ResultValue startValue; //set up iterating char value
@@ -1427,13 +1493,25 @@ public class Parser {
 
 
         if (entry.primClassif == Classif.EMPTY) {
-            symbolTable.putSymbol(controlVar,
-                    new STIdentifier(controlVar,
-                            Classif.OPERAND,
-                            limit.dataType, //TODO - ish
-                            "none",
-                            "local",
-                            0));
+            if (!this.activationRecordStack.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(
+                            controlVar,
+                            new STIdentifier(controlVar,
+                                    Classif.OPERAND,
+                                    limit.dataType, //TODO - ish
+                                    "none",
+                                    "local",
+                                    0)
+                    );
+            } else {
+                symbolTable.putSymbol(controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                limit.dataType, //TODO - ish
+                                "none",
+                                "local",
+                                0));
+            }
 
 
         } else { //TODO - might need to fix this if too

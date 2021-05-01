@@ -6,6 +6,7 @@ public class ActivationRecord {
     public ArrayList<ActivationRecord> environmentVector;
     public StorageManager storageManager;
     public SymbolTable symbolTable;
+    public Result returnVal = null;
 
     /**
      * returns and Activation record for the newly defined function

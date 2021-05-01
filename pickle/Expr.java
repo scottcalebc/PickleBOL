@@ -635,11 +635,13 @@ public class Expr {
                             try {
                                 STFunction funcName = (STFunction) parser.symbolTable.getSymbol(token.tokenStr);
 
-                                ArrayList<ResultValue> parameters = new ArrayList<>();
+                                ArrayList<ResultValue> parameters = new ArrayList<ResultValue>();
+                                for (String names : funcName.names)
+                                    parameters.add(new ResultValue("", SubClassif.EMPTY));
 
-                                for(int i = 0; i < funcName.numArgs; i++) {
+                                for(int i = funcName.numArgs - 1; i >= 0; i--) {
                                     if (!stack.empty()) {
-                                        parameters.add(stack.pop());
+                                        parameters.set(i, stack.pop());
                                     } else {
                                         throw  new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid number of parameters passed");
                                     }
@@ -651,6 +653,7 @@ public class Expr {
                                 throw p;
                             }
                             catch (Exception e) {
+                                e.printStackTrace();
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Have not implemented function to be used in expressions");
                             }
 
@@ -682,11 +685,11 @@ public class Expr {
                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
                         }
                         try {
-                            operand2 = (ResultValue) parser.storageManager.getVariable(operand2.strValue);
+                            operand2 = (ResultValue) parser.storageManager.getVariable(entry.symbol);
                             if (!parser.activationRecordStack.isEmpty()) {
-                                int scope = parser.activationRecordStack.peek().findSymbolScope(operand2.strValue);
+                                int scope = parser.activationRecordStack.peek().findSymbolScope(entry.symbol);
                                 if (scope != -1)
-                                    param = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(operand2.strValue);
+                                    operand2 = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
                             }
                         } catch (Exception e) {
                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Operand for operator must be non array type");
@@ -717,11 +720,11 @@ public class Expr {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
                             }
                             try {
-                                operand1 = (ResultValue) parser.storageManager.getVariable(operand1.strValue);
+                                operand1 = (ResultValue) parser.storageManager.getVariable(entry.symbol);
                                 if (!parser.activationRecordStack.isEmpty()) {
-                                    int scope = parser.activationRecordStack.peek().findSymbolScope(operand1.strValue);
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(entry.symbol);
                                     if (scope != -1)
-                                        param = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(operand1.strValue);
+                                        operand1 = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
                                 }
                             } catch (Exception e) {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Operand for operator must be non array type");
@@ -841,7 +844,7 @@ public class Expr {
             if (!parser.activationRecordStack.isEmpty()) {
                 int scope = parser.activationRecordStack.peek().findSymbolScope(res.strValue);
                 if (scope != -1)
-                    ret = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(res.strValue);
+                    ret = parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(res.strValue);
             }
 
         }

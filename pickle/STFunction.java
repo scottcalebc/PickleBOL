@@ -71,13 +71,14 @@ public class STFunction extends STEntry
     public void setupSymbolTable() {
         for (int i = 0; i < this.names.size(); i++) {
             String name = this.names.get(i);
+            String structure = (this.array.get(i)) ? "array" : "primitive";
             this.record.symbolTable.putSymbol(
                     name,
                     new STIdentifier(
                             name,
                             Classif.OPERAND,
                             this.parameters.get(i),
-                            "primitive",
+                            structure,
                             "ref",
                             0
 
