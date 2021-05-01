@@ -150,6 +150,8 @@ public class Expr {
 
         ResultValue res;
 
+        int sliceBool = 0;
+
         for (int i = 0; i < postFix.size(); i++) {
             Token token = postFix.get(i);
 
@@ -179,8 +181,8 @@ public class Expr {
                                     }
 
                                     if (lower.dataType != SubClassif.INTEGER) {
-                                        if (index.dataType == SubClassif.IDENTIFIER) {
-                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                        if (lower.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(lower.strValue);
 
                                             if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                 try {
@@ -262,8 +264,8 @@ public class Expr {
 
                                         // check lower bound for number
                                         if (lower.dataType != SubClassif.INTEGER) {
-                                            if (index.dataType == SubClassif.IDENTIFIER) {
-                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                            if (lower.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(lower.strValue);
 
                                                 if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                     try {
@@ -492,6 +494,11 @@ public class Expr {
                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot index on empty array");
                         }
 
+                    }
+
+
+                    if (token.tokenStr.equals("SLICE")) {
+                        sliceBool += 1;
                     }
                     stack.push(tmp);
                     break;
@@ -823,9 +830,16 @@ public class Expr {
                     // 1 = first oeprand
                     Bool bOp1;
                     Bool bOp2;
+                    ResultValue operand2;
+                    ResultValue operand1;
 
-                    ResultValue operand2  = stack.pop();
-                    ResultValue operand1 = new ResultValue("", SubClassif.EMPTY);
+                    if (stack.empty()) {
+                        operand2 = new ResultValue("", SubClassif.EMPTY);
+                    } else {
+                        operand2 = stack.pop();
+                    }
+
+                    operand1 = new ResultValue("", SubClassif.EMPTY);
 
                     if (operand2.dataType == SubClassif.IDENTIFIER) {
                         STEntry entry = parser.symbolTable.getSymbol(operand2.strValue);
@@ -850,8 +864,104 @@ public class Expr {
                         res = Utility.boolNot(parser, bOp2);
 
                     } else if (token.tokenStr.equals("~")) {
-                        stack.push(operand2);
-                        res = new ResultValue(token.tokenStr, SubClassif.EMPTY);
+                        if (sliceBool > 0) {
+                            stack.push(operand2);
+                            res = new ResultValue(token.tokenStr, SubClassif.EMPTY);
+                            sliceBool -= 1;
+                        } else {
+                            ResultValue empty = new ResultValue("-1", SubClassif.INTEGER);
+                            ArrayList<ResultValue>bounds = new ArrayList<ResultValue>();
+
+                            // if stack is not empty than possible upper and lower bound
+                            ResultValue lower = operand2;
+
+                            if (lower.dataType != SubClassif.EMPTY) {
+                                // if end of postFix then just lower bound
+                                if (lower.dataType != SubClassif.INTEGER) {
+                                    if (lower.dataType == SubClassif.IDENTIFIER) {
+                                        STEntry subEntry = parser.symbolTable.getSymbol(lower.strValue);
+
+                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                            try {
+                                                lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                            } catch (Exception e) {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                            }
+                                        } else {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                        }
+                                    } else {
+
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                    }
+                                }
+
+
+                                if (i + 1 >= postFix.size()) {
+
+                                    bounds.add(lower);
+                                    bounds.add(empty);
+
+                                } else {
+                                    // get upper bound
+                                    Token upperT = postFix.get(++i);
+                                    ResultValue upper = new ResultValue(upperT.tokenStr, upperT.subClassif);
+                                    if (upper.dataType != SubClassif.INTEGER) {
+                                        if (upper.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(upper.strValue);
+
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    upper = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                }
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                            }
+                                        } else {
+
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
+                                    }
+                                    bounds.add(lower);
+                                    bounds.add(upper);
+
+                                }
+                            } else {
+                                if (i >= postFix.size()) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid indices for slice operation");
+                                }
+
+
+                                Token upperT = postFix.get(++i);
+                                ResultValue upper = new ResultValue(upperT.tokenStr, upperT.subClassif);
+                                if (upper.dataType != SubClassif.INTEGER) {
+                                    if (upper.dataType == SubClassif.IDENTIFIER) {
+                                        STEntry subEntry = parser.symbolTable.getSymbol(upper.strValue);
+
+                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                            try {
+                                                upper = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                            } catch (Exception e) {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                            }
+                                        } else {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                        }
+                                    } else {
+
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                    }
+                                }
+                                bounds.add(empty);
+                                bounds.add(upper);
+                            }
+                            // if stack is empty then just upper bound
+
+
+                            return new ResultList(parser, bounds, 2, SubClassif.INTEGER);
+                        }
                     } else {
                         operand1  = stack.pop();
 
