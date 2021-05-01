@@ -1359,6 +1359,11 @@ public class Parser {
 
     private ResultValue charStringFor(String controlVar, iExecMode execMode) throws PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
+
+
+
+
+
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
         result.execMode = execMode;
 
@@ -1636,17 +1641,38 @@ public class Parser {
 
     private ResultValue stringDelimiterFor(String controlVar, iExecMode execMode) throws  PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
+
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(controlVar);
+        }
+
+
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
         result.execMode = execMode;
 
         if (entry.primClassif == Classif.EMPTY) {
-            symbolTable.putSymbol(controlVar,
-                    new STIdentifier(controlVar,
-                            Classif.OPERAND,
-                            SubClassif.STRING,
-                            "none",
-                            "local",
-                            0));
+            if (!this.activationRecordStack.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(
+                        controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING, //TODO - ish
+                                "none",
+                                "local",
+                                0)
+                );
+            } else {
+                symbolTable.putSymbol(controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING, //TODO - ish
+                                "none",
+                                "local",
+                                0));
+            }
 
 
         }
@@ -1686,7 +1712,17 @@ public class Parser {
         ResultValue limit = new ResultValue(Integer.toString(tokens.length), SubClassif.INTEGER);
         ResultValue itr = new ResultValue("0", SubClassif.INTEGER);
 
-        storageManager.updateVariable(controlVar, new ResultValue(tokens[0], SubClassif.STRING));
+        ResultValue update = new ResultValue(tokens[0], SubClassif.STRING);
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+
+            if (scope != -1)
+                this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, update);
+            else
+                this.storageManager.updateVariable(controlVar, update);
+        } else {
+            this.storageManager.updateVariable(controlVar, update);
+        }
 
         Numeric nOp1;
         Numeric nOp2 = new Numeric(this, new ResultValue("1", SubClassif.INTEGER), "+", "Incrementer for the for loop");
@@ -1694,7 +1730,18 @@ public class Parser {
         while (Utility.lessThan(this, itr, limit).strValue.equals("T") &&
                 (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
 
-            storageManager.updateVariable(controlVar, new ResultValue(tokens[Integer.parseInt(itr.strValue)], SubClassif.STRING));
+            update =  new ResultValue(tokens[Integer.parseInt(itr.strValue)], SubClassif.STRING);
+
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+
+                if (scope != -1)
+                    this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, update);
+                else
+                    this.storageManager.updateVariable(controlVar, update);
+            } else {
+                this.storageManager.updateVariable(controlVar, update);
+            }
 
             result = statements(execMode);
 
