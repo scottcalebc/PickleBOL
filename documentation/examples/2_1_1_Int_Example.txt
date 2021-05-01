@@ -1,0 +1,5 @@
+Int radius;
+radius = 8;
+Int radius2 = radius ^ 2;
+print(radius);  // 8
+print(radius2); // 64
