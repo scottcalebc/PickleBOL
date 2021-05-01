@@ -1,17 +1,18 @@
 package pickle;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class Parser {
 
-    protected Scanner        scanner;               // scanner pointer
-    protected SymbolTable    symbolTable;           // symbol table pointer
-    protected StorageManager storageManager;        // storage manager
+    protected Scanner           scanner;                        // scanner pointer
+    protected SymbolTable       symbolTable;                    // symbol table pointer
+    protected StorageManager    storageManager;                 // storage manager
+    protected Stack<ActivationRecord> activationRecordStack;    // activation record stack
 
-    protected boolean       bShowExpr;              // boolean flag for debug expressions
-    protected boolean       bShowAssign;            // boolean flag for debug assignments
-
+    protected boolean       bShowExpr;                          // boolean flag for debug expressions
+    protected boolean       bShowAssign;                        // boolean flag for debug assignments
+    protected boolean       bPostFix;
 
     /**
      * Parser constructor takes scanner and symbol table
@@ -19,12 +20,13 @@ public class Parser {
      *
      * </p>
      * @param scanner           scanner object
-     * @param symbolTable       sybmol table object
+     * @param symbolTable       symbol table object
      */
     public Parser(Scanner scanner, SymbolTable symbolTable) {
         this.scanner = scanner;
         this.symbolTable = symbolTable;
         this.storageManager = new StorageManager();
+        this.activationRecordStack = new Stack<ActivationRecord>();
 
         this.bShowExpr = false;
         this.bShowAssign = false;
@@ -79,7 +81,7 @@ public class Parser {
      * <p></p>
      *
      * @return                  generic ResultValue
-     * @throws PickleException
+     * @throws                  PickleException
      */
     private ResultValue controlStmt(iExecMode execMode) throws PickleException {
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
@@ -102,6 +104,9 @@ public class Parser {
                     case "for":
                         res = forStmt(execMode);
                         break;
+                    case "def":
+                        userFunction();
+                        break;
                     case "break":
                         res.execMode = iExecMode.BREAK_EXEC;
                         if (!scanner.getNext().equals(";")) {
@@ -114,6 +119,25 @@ public class Parser {
                             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Continue statement must be followed by ';' ");
                         }
                         break;
+                    case "return":
+                        if (execMode == iExecMode.EXECUTE) {
+                            scanner.getNext();
+                            if (!scanner.currentToken.tokenStr.equals(";")){
+                                Result returnVal = expr();
+                                this.activationRecordStack.peek().returnVal = returnVal;
+                            }
+
+                            if (!scanner.currentToken.tokenStr.equals(";")) {
+                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Return statement must end with ';'");
+                            }
+
+                            res.execMode = iExecMode.RETURN;
+                        } else {
+                            Utility.skipTo(scanner, ";");
+                        }
+                        break;
+                    default:
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown Control token");
 
                 }
                 break;
@@ -125,7 +149,7 @@ public class Parser {
     }
 
     /**
-     * Executes Declare statments
+     * Executes Declare statements
      * <p></p>
      *
      * @return
@@ -153,7 +177,7 @@ public class Parser {
 
         res = new ResultValue(varStr, SubClassif.EMPTY);
 
-        // if assignment occuring grab expression into result value
+        // if assignment occurring grab expression into result value
         if (scanner.getNext().equals("=")) {
             scanner.getNext();
             res = (ResultValue) expr();
@@ -165,25 +189,46 @@ public class Parser {
 
         // Statement does not end in a semicolon
         if (! scanner.currentToken.tokenStr.equals(";")) {
-            //todo: update pickle error
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expecting ';' at end of assignment:");
         }
 
-        STEntry varEntry = symbolTable.getSymbol(varStr);
+        if (this.activationRecordStack.isEmpty()) { //in global scope
+            STEntry varEntry = symbolTable.getSymbol(varStr);
 
+            if (varEntry.symbol.isEmpty()) {
+                // put symbol into table
+                symbolTable.putSymbol(varStr, new STIdentifier(
+                        varStr,
+                        Classif.OPERAND,
+                        getDataType(declareTypeStr),
+                        "primitive",
+                        "none",
+                        0
+                ));
+            }
+            else {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
+        }
+        else { //in a function's scope
+            STEntry varEntry = this.activationRecordStack.peek().symbolTable.getSymbol(varStr);
 
+            if (varEntry.symbol.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(varStr, new STIdentifier(
+                        varStr,
+                        Classif.OPERAND,
+                        getDataType(declareTypeStr),
+                        "primitive",
+                        "none",
+                        0
+                ));
+            }
+            else {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
+        }
 
-        // put symbol into table
-        symbolTable.putSymbol(varStr, new STIdentifier(
-                varStr,
-                Classif.OPERAND,
-                getDataType(declareTypeStr),
-                "primitive",
-                "none",
-                99
-        ));
-
-        // if assignment being performed during declearation ensure to assign value before exiting
+        // if assignment being performed during declaration ensure to assign value before exiting
         if (res.dataType != SubClassif.EMPTY) {
             assign(varStr, res);
         }
@@ -202,7 +247,7 @@ public class Parser {
 
         if (scanner.getNext().equals("]")) { //if square brackets contain no value
             if (!scanner.getNext().equals("=")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Excpeted assignment values for unbounded array");
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Expected assignment values for unbounded array");
             }
         }
         else {
@@ -217,8 +262,23 @@ public class Parser {
             }
             if (scanner.currentToken.tokenStr.equals(";")) { //no assignment just declaration of bounded array
                 resList.allocatedSize = 0;
-                symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
-                storageManager.updateVariable(varStr, resList);
+                if (this.activationRecordStack.isEmpty()) { //in global scope
+                    if (!symbolTable.getSymbol(varStr).symbol.isEmpty()) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+                    }
+
+                    symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
+                    storageManager.updateVariable(varStr, resList);
+                }
+                else {
+                    if (!this.activationRecordStack.peek().symbolTable.getSymbol(varStr).symbol.isEmpty()) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+                    }
+
+                    this.activationRecordStack.peek().symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
+                    this.activationRecordStack.peek().storageManager.updateVariable(varStr, resList);
+                }
+
                 return resList;
             }
         }
@@ -245,7 +305,7 @@ public class Parser {
 
             values.add(currRes);
             if (!scanner.nextToken.tokenStr.equals(",")  && !scanner.nextToken.tokenStr.equals(";")) {
-                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Expected a sperator");
+                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Expected a separator");
             }
         }
 
@@ -255,8 +315,22 @@ public class Parser {
             resList.capacity = values.size();
         }
 
-        symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
-        storageManager.updateVariable(varStr, resList);
+        if (this.activationRecordStack.isEmpty()) { //in global scope
+            if (!symbolTable.getSymbol(varStr).symbol.isEmpty()) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
+
+            symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
+            storageManager.updateVariable(varStr, resList);
+        }
+        else {
+            if (!this.activationRecordStack.peek().symbolTable.getSymbol(varStr).symbol.isEmpty()) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
+
+            this.activationRecordStack.peek().symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
+            this.activationRecordStack.peek().storageManager.updateVariable(varStr, resList);
+        }
 
         return resList;
     }
@@ -282,7 +356,13 @@ public class Parser {
 
         STEntry entry = symbolTable.getSymbol(varStr);
 
-        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) symbolTable.getSymbol(entry.symbol)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
+        if (!this.activationRecordStack.isEmpty()) { //if scope is not global
+            int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(varStr);
+        }
+
+        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) entry).structure.equals("array")){ // if operator is an array, branch outta here real quick like the flash ⚡⚡
             res =  assignArrayStmt(varStr);
         } else if (scanner.currentToken.primClassif == Classif.OPERATOR &&
                 ( scanner.currentToken.tokenStr.equals("=") || scanner.currentToken.tokenStr.equals("+=")
@@ -321,13 +401,29 @@ public class Parser {
             try {
                 entry = symbolTable.getSymbol(varStr);
 
+                if (!this.activationRecordStack.isEmpty()) { //if scope is not global
+                    int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+                    if (scope != -1)
+                        entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(varStr);
+                }
+
+
                 if (entry.primClassif == Classif.EMPTY) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into uninitialized string");
                 } else  if (((STIdentifier)entry).dclType != SubClassif.STRING && ((STIdentifier)entry).dclType != SubClassif.DATE) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into non array or non string variables");
                 }
-
-                ResultValue str = (ResultValue)storageManager.getVariable(varStr);
+                ResultValue str;
+                if (this.activationRecordStack.isEmpty()) {
+                    str = (ResultValue) storageManager.getVariable(varStr);
+                }
+                else {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+                    if (scope != -1)
+                        str = (ResultValue) this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(varStr);
+                    else
+                        str = (ResultValue) storageManager.getVariable(varStr);
+                }
 
                 index = (ResultValue) expr();
 
@@ -340,7 +436,7 @@ public class Parser {
                 }
 
                 scanner.getNext(); // advance to next expression must be a string
-                res = (ResultValue)expr();
+                res = (ResultValue) expr();
 
 
 
@@ -369,21 +465,40 @@ public class Parser {
     }
 
     private ResultList assignArrayStmt(String varString) throws PickleException {
-        ResultList array = (ResultList) storageManager.getVariable(varString), res;
+        ResultList array, res;
         ResultValue val, assign;
 
-        if (scanner.currentToken.tokenStr.equals("=")) { //total array assignment
-            scanner.getNext(); //skip to asignee dude guy expr 🤵
+        if (this.activationRecordStack.isEmpty()) {
+            array = (ResultList) storageManager.getVariable(varString);
+        }
+        else {
+            int scope = this.activationRecordStack.peek().findSymbolScope(varString);
+            if (scope != -1)
+                array = (ResultList) this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(varString);
+            else
+                array = (ResultList) storageManager.getVariable(varString);
+        }
+
+        if (scanner.getNext().equals("=")) { //total array assignment
+            scanner.getNext(); //skip to assignee dude guy expr 🤵
 
             if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER && ((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr.equals(";")) { //just an array to array
-                res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(scanner.currentToken.tokenStr));
+                if (this.activationRecordStack.isEmpty()) {
+                    res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(scanner.currentToken.tokenStr));
+                }
+                else {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+                    if (scope != -1)
+                        res = Utility.assignArrayToArray(this, array, (ResultList) this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(scanner.currentToken.tokenStr));
+                    else
+                        res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(scanner.currentToken.tokenStr));
+                }
                 scanner.getNext();
             }
             else {
                 val = (ResultValue) expr();
                 if (val.dataType != array.dataType) {
-                    //TODO - fix exception
-                    throw new PickleException();
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Incompatible types: Element data type must be same as array's data type");
                 }
                 res = Utility.assignScalarToArray(this, val, array.capacity);
             }
@@ -444,20 +559,19 @@ public class Parser {
 
         ArrayList<Token> out = Expr.postFixExpr(this);
 
-        /*System.out.printf("Postfix: ");
-        for(Token token : out) {
-            System.out.printf("%s ", token.tokenStr);
+        if (bPostFix) {
+            System.out.printf("Postfix: ");
+            for (Token token : out) {
+                System.out.printf("%s ", token.tokenStr);
+            }
+            System.out.println();
         }
-        System.out.println();*/
+
 
         Result ans = Expr.evaluatePostFix(this, out);
 
         // code to see postfix expression and evaluated answer
-
-
-
-
-        /*System.out.printf("Evalueted to answer: %s\n", ((ResultValue)ans).strValue);*/
+        // /*System.out.printf("Evaluated to answer: %s\n", ((ResultValue)ans).strValue);*/
 
         return ans;
 
@@ -465,7 +579,7 @@ public class Parser {
     }
 
     /**
-     * Executes function statements, mainly builtin
+     * Executes function statements
      * <p></p>
      *
      * @return
@@ -474,8 +588,15 @@ public class Parser {
     private ResultValue functionStmt() throws PickleException {
         Result res =  null;
 
+        STFunction func = (STFunction) this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+            if (scope != -1)
+                func = (STFunction) this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
+        }
+
         // check for builtin function if not throw error for identifier
-        if (scanner.currentToken.subClassif == SubClassif.BUILTIN) {
+        if (func.definedBy == SubClassif.BUILTIN) {
             switch (scanner.currentToken.tokenStr) {
                 case "print":
                     print();
@@ -486,15 +607,151 @@ public class Parser {
                 case "MAXELEM":
                     res = expr();
                     break;
-
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "No function of name: ");
             }
         }
+        else { //user func
+            // get parameters into a parameter list, add parameters to function SymbolTable/StorageManager, execute function
 
+            //sets up functions activation record on the stack and its environment vector
+
+
+            Result p = expr();
+
+            if (!scanner.currentToken.tokenStr.equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function call must be followed by ';'");
+            }
+
+        }
 
         return (ResultValue) res;
     }
+
+    public ResultValue callUserFunction(STFunction function, ArrayList<ResultValue>parameters) throws PickleException {
+        ActivationRecord newAcc = function.record;
+        // verify parameter types
+
+
+
+        for(int i = 0; i < parameters.size(); i++) {
+            // coerce
+            STEntry entry;
+
+            SubClassif paramType = function.parameters.get(i);
+            ResultValue argI = parameters.get(i);
+            Result value;
+            if (argI.dataType == SubClassif.IDENTIFIER) {
+                // get scoping
+                if (!this.activationRecordStack.isEmpty()) {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(argI.strValue);
+
+
+                    if (scope != -1) {
+                        value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(argI.strValue);
+                    } else {
+                        value = this.storageManager.getVariable(argI.strValue);
+                    }
+                } else {
+                    value = this.storageManager.getVariable(argI.strValue);
+                }
+
+// assign paramaters into activation record storagemanager
+                if ((value instanceof ResultValue) && !function.array.get(i) ) {
+                    // coerce
+                    if (((ResultValue) value).dataType != paramType ) {
+                        if (((ResultValue) value).dataType == SubClassif.EMPTY) {
+                            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
+                        }
+                        value = Utility.coerce(this, (ResultValue) value, paramType);
+                    }
+
+
+
+                    function.record.storageManager.updateVariable(function.names.get(i), value);
+                } if ((value instanceof  ResultList) && function.array.get(i)) {
+                    // coerce
+                    if (((ResultList) value).dataType != paramType) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
+                    }
+
+
+                    function.record.storageManager.updateVariable(function.names.get(i), value);
+                }
+
+
+            }
+
+        }
+
+        //run user function
+        int savedSourceLineNr = scanner.currentToken.iSourceLineNr;
+        int savedColPos = scanner.currentToken.iColPos;
+
+        this.activationRecordStack.push(newAcc);
+
+        scanner.setPosition(function.lineNum, function.colPos);
+
+        ResultValue returnStatus = statements(iExecMode.EXECUTE);
+        ResultValue returnValue = new ResultValue("", SubClassif.EMPTY);
+
+        // end user function
+        scanner.setPosition(savedSourceLineNr, savedColPos);
+        scanner.getNext();
+
+        // grab values of parameters and assign into whichever scope they need
+        newAcc = this.activationRecordStack.pop();
+
+        if (returnStatus.execMode == iExecMode.RETURN) {
+            if (function.returnType == SubClassif.VOID && newAcc.returnVal != null) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot return");
+            } else if (newAcc.returnVal != null) {
+
+                if (newAcc.returnVal instanceof ResultValue) {
+                    if (((ResultValue) newAcc.returnVal).dataType != function.returnType) {
+                        returnValue = Utility.coerce(this, (ResultValue) newAcc.returnVal, function.returnType);
+                    } else {
+                        returnValue = (ResultValue)newAcc.returnVal;
+                    }
+                } else {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Do not support returning arrays from functions");
+                }
+            } else if (function.returnType != SubClassif.VOID && newAcc != null ) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function return type: " + function.returnType.name());
+            }
+        }
+
+
+
+        for (int i =0 ; i < function.numArgs; i++) {
+            if (parameters.get(i).dataType == SubClassif.IDENTIFIER) {
+
+
+                Result newValue = newAcc.storageManager.getVariable(function.names.get(i));
+
+
+                if (!this.activationRecordStack.isEmpty()) {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(parameters.get(i).strValue);
+                    Result value;
+
+                    if (scope != -1) {
+                        this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(parameters.get(i).strValue, newValue);
+                    } else {
+                        this.storageManager.updateVariable(parameters.get(i).strValue, newValue);
+                    }
+
+                } else {
+                    this.storageManager.updateVariable(parameters.get(i).strValue, newValue);
+                }
+
+            }
+        }
+
+
+        return returnValue;
+    }
+
+
 
     /**
      * BUILTIN print function
@@ -517,7 +774,7 @@ public class Parser {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Reached ';' before closing function ')':");
             }
 
-            // if reached seperator skip token
+            // if reached separator skip token
             if (scanner.currentToken.tokenStr.equals(",")) {
                 scanner.getNext();
                 continue;
@@ -552,8 +809,9 @@ public class Parser {
             if (res.dataType != SubClassif.STRING) {
                 throw new ScannerParserException(exprToken, scanner.sourceFileNm, "Cannot call builtin LENGTH on non-string expressions");
             }
-
-            res = Utility.builtInLENGTH(this, res);
+            ArrayList<Result> param = new ArrayList<Result>();
+            param.add(res);
+            res = Utility.builtInLENGTH(param);
         } catch (PickleException p) {
             throw p;
         } catch (Exception e) {
@@ -580,12 +838,19 @@ public class Parser {
         // grab identifier from table to perform coercion if necessary
         STEntry entry = this.symbolTable.getSymbol(varStr);
 
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(varStr);
+        }
+
         if (entry.primClassif == Classif.EMPTY) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign value to undeclared variable");
         }
 
 
-        STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);
+        //STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);  caleb you good??? stop calling *MY* symbol table twice for same string, could have just (see below lmao) 😒
+        STIdentifier symbolEntry = (STIdentifier) entry;
 
         if (res instanceof ResultValue) {
             // conversion from specified types to declared type
@@ -598,7 +863,17 @@ public class Parser {
         }
 
         // store value
-        this.storageManager.updateVariable(varStr, res);
+        if (this.activationRecordStack.isEmpty()) {
+            this.storageManager.updateVariable(varStr, res);
+        }
+        else {
+            int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+            if (scope != -1)
+                this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(varStr, res);
+            else
+                this.storageManager.updateVariable(varStr, res);
+        }
+
 
         if (bShowAssign)
             System.out.printf("... Assign result into '%s' is '%s'\n", varStr, ((ResultValue) res).strValue);
@@ -615,7 +890,7 @@ public class Parser {
      */
     private boolean debugStmt() throws PickleException{
 
-        // check if debug type of statment
+        // check if debug type of statement
         if (scanner.currentToken.tokenStr.equals("debug")) {
 
             String type = scanner.getNext();
@@ -648,6 +923,9 @@ public class Parser {
                     break;
                 case "Stmt":
                     scanner.bShowStmt = onOff;
+                    break;
+                case "Postfix":
+                    bPostFix = onOff;
                     break;
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid debugType:");
@@ -715,6 +993,113 @@ public class Parser {
         
 
         return res;
+    }
+
+    private void userFunction() throws PickleException {
+        //current token is def, so next token will be return type
+        int currLineNum = scanner.iSourceLineNr;
+        int colPos = scanner.iColPos;
+        int numArgs = 0;
+
+        scanner.getNext(); //skip the 'def' token, current token now should be the return value
+        SubClassif returnValue = getDataType(scanner.currentToken.tokenStr);
+        String functionName = scanner.getNext(); //advance token to function name and set string accordingly
+
+        if (!scanner.getNext().equals("(")) { //if the next token is not the start of the parameter list, well thats no good bubby 🤷‍
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "missing '('");
+        }
+
+        ArrayList<SubClassif> types = new ArrayList<SubClassif>();
+        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<Boolean> array = new ArrayList<Boolean>();
+        //get all the parameters
+        while (!scanner.getNext().equals(":")) {
+            array.add(false);
+            numArgs++;
+            types.add(paramHelper(names, array));
+        }
+
+        STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER, numArgs, currLineNum, colPos, types, names, array);
+
+        //set up functions activation record
+        if (!this.activationRecordStack.isEmpty()) {
+            newUserFcn.setupActivationRecord(this.activationRecordStack.peek());
+        } else {
+            newUserFcn.record = new ActivationRecord(newUserFcn.symbol);
+        }
+
+        newUserFcn.setupSymbolTable();
+
+        if (this.activationRecordStack.isEmpty()) {
+            this.symbolTable.putSymbol(functionName, newUserFcn);
+        }
+        else {
+            this.activationRecordStack.peek().symbolTable.putSymbol(functionName, newUserFcn);
+
+        }
+
+        //parse out the function body
+
+        newUserFcn.lineNum = scanner.iSourceLineNr;
+        newUserFcn.colPos = 0;
+        ResultValue res = statements(iExecMode.IGNORE_EXEC); // dont execute the statements on function definition
+
+        if (!res.terminatingString.equals("enddef")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing enddef");
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';'");
+        }
+
+    }
+
+    private SubClassif paramHelper(ArrayList<String> names, ArrayList<Boolean> array) throws PickleException {
+        SubClassif paramType = SubClassif.EMPTY;
+        //the parameter is either a primitive or an array with a pair of square brackets
+        // current token should be an identifier
+
+        //if there is no type for the parameter
+        if (scanner.currentToken.primClassif != Classif.CONTROL || scanner.currentToken.subClassif != SubClassif.DECLARE) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected Identifier, found: " + scanner.currentToken.tokenStr);
+        }
+        paramType = getDataType(scanner.currentToken.tokenStr);
+
+        scanner.getNext(); //advance to next token, should be a variable name
+
+        //if there is no identifier name for the var
+        if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected variable name, found: " + scanner.currentToken.tokenStr);
+        }
+
+        names.add(scanner.currentToken.tokenStr);
+
+        //if the variable is an array
+        if (scanner.nextToken.tokenStr.equals("[")) {
+
+            int i = array.size() -1;
+            array.set(i, true);
+
+            scanner.getNext(); // move token to '['
+            if (!scanner.getNext().equals("]")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected ']', found: " + scanner.currentToken.tokenStr);
+            }
+            //else if (scanner.nextToken.tokenStr.equals((","))) {
+            else if (scanner.getNext().equals((",")) || scanner.currentToken.tokenStr.equals(")")) {
+                return paramType;
+            }
+            else {
+                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "expected separator, found: " + scanner.nextToken.tokenStr);
+            }
+
+        }
+        //else if (scanner.nextToken.equals(",")) {
+        else if (scanner.getNext().equals((",")) || scanner.currentToken.tokenStr.equals(")")) {
+            return paramType;
+        }
+        else {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected separator, found: " + scanner.currentToken.tokenStr);
+        }
     }
 
     /**
@@ -910,10 +1295,16 @@ public class Parser {
 
 
                 try {
+                    STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(scanner.nextToken.tokenStr);
+                        if (scope != -1)
+                            entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                    }
 
                     if (scanner.nextToken.subClassif == SubClassif.IDENTIFIER) {
                         //STIdentifier entry = (STIdentifier) this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
-                        STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                        //STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
 
                         if (entry.primClassif != Classif.EMPTY) {
                             STIdentifier id = (STIdentifier) entry;
@@ -970,6 +1361,12 @@ public class Parser {
         STEntry entry = symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
         result.execMode = execMode;
+
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(controlVar);
+        }
 
         if (entry.primClassif == Classif.EMPTY) {
             symbolTable.putSymbol(controlVar,
@@ -1039,7 +1436,16 @@ public class Parser {
 
             if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
                 startValue = Utility.valueAtIndex(this, limit, Integer.parseInt(currPos.strValue)); //increment char value
-                storageManager.updateVariable(controlVar, startValue);
+                if (this.activationRecordStack.isEmpty()) {
+                    storageManager.updateVariable(controlVar, startValue);
+                }
+                else {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+                    if (scope != -1)
+                        this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+                    else
+                        storageManager.updateVariable(controlVar, startValue);
+                }
             }
 
             scanner.setPosition(iSavedLineNr, iSavedColPos);
@@ -1063,12 +1469,17 @@ public class Parser {
     }
 
     private ResultValue itemArrayFor(String controlVar, iExecMode execMode) throws  PickleException {
-        STEntry entry = symbolTable.getSymbol(controlVar);
+        STEntry entry = this.symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
         result.execMode = execMode;
         ResultValue startValue; //set up iterating char value
         ResultList limit;
 
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(controlVar);
+        }
 
         scanner.getNext();
 
@@ -1082,19 +1493,32 @@ public class Parser {
 
 
         if (entry.primClassif == Classif.EMPTY) {
-            symbolTable.putSymbol(controlVar,
-                    new STIdentifier(controlVar,
-                            Classif.OPERAND,
-                            limit.dataType, //TODO - ish
-                            "none",
-                            "local",
-                            0));
+            if (!this.activationRecordStack.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(
+                            controlVar,
+                            new STIdentifier(controlVar,
+                                    Classif.OPERAND,
+                                    limit.dataType, //TODO - ish
+                                    "none",
+                                    "local",
+                                    0)
+                    );
+            } else {
+                symbolTable.putSymbol(controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                limit.dataType, //TODO - ish
+                                "none",
+                                "local",
+                                0));
+            }
 
 
         } else { //TODO - might need to fix this if too
             //TODO fix exception - limit type needs to be the same as the array elements
 
-            STIdentifier id = (STIdentifier) symbolTable.getSymbol(controlVar);
+            //STIdentifier id = (STIdentifier) symbolTable.getSymbol(controlVar);
+            STIdentifier id = (STIdentifier) entry;
 
             if (limit.dataType != id.dclType) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use variable of non " + limit.dataType.name() + " type");
@@ -1134,7 +1558,16 @@ public class Parser {
             startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
         }
 
-        storageManager.updateVariable(controlVar, startValue);
+        if (this.activationRecordStack.isEmpty()) {
+            storageManager.updateVariable(controlVar, startValue);
+        }
+        else {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+            else
+                storageManager.updateVariable(controlVar, startValue);
+        }
 
         while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T") &&
                 (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
@@ -1165,8 +1598,18 @@ public class Parser {
                     startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
                 }
 
-                if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue))
-                    storageManager.updateVariable(controlVar, startValue);
+                if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+                    if (this.activationRecordStack.isEmpty()) {
+                        storageManager.updateVariable(controlVar, startValue);
+                    }
+                    else {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+                        if (scope != -1)
+                            this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+                        else
+                            storageManager.updateVariable(controlVar, startValue);
+                    }
+                }
             }
 
             scanner.setPosition(iSavedLineNr, iSavedColPos);
@@ -1289,6 +1732,11 @@ public class Parser {
         ResultValue limit;
         ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
 
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(controlVar);
+        }
 
         if (entry.primClassif == Classif.EMPTY) {
             symbolTable.putSymbol(controlVar,
@@ -1354,7 +1802,17 @@ public class Parser {
         int iSavedLineNr = scanner.currentToken.iSourceLineNr;
         int iSavedColPos = scanner.currentToken.iColPos;
 
-        storageManager.updateVariable(controlVar, startValue);
+        if (this.activationRecordStack.isEmpty()) {
+            storageManager.updateVariable(controlVar, startValue);
+        }
+        else {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+            else
+                storageManager.updateVariable(controlVar, startValue);
+        }
+
 
         Numeric nOp1;
         Numeric nOp2;
@@ -1376,7 +1834,17 @@ public class Parser {
 
 
             startValue = Utility.add(this, nOp1, nOp2);
-            storageManager.updateVariable(controlVar, startValue);
+
+            if (this.activationRecordStack.isEmpty()) {
+                storageManager.updateVariable(controlVar, startValue);
+            }
+            else {
+                int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+                if (scope != -1)
+                    this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+                else
+                    storageManager.updateVariable(controlVar, startValue);
+            }
 
             scanner.setPosition(iSavedLineNr, iSavedColPos);
             scanner.getNext();
@@ -1434,7 +1902,7 @@ public class Parser {
     }
 
     /**
-     * Helper function to get declared type for identifer
+     * Helper function to get declared type for identifier
      * <p></p>
      *
      * @param declareString
@@ -1453,6 +1921,8 @@ public class Parser {
                 return SubClassif.STRING;
             case "Date":
                 return SubClassif.DATE;
+            case "Void":
+                return SubClassif.VOID;
             default:
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid Declaration type");
         }

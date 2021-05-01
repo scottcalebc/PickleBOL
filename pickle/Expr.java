@@ -68,6 +68,7 @@ public class Expr {
                                         postfix.add(popped);
 
                                         if (popped.primClassif == Classif.FUNCTION) {
+                                            funcBool--;
                                             break;
                                         }
                                     }
@@ -84,7 +85,7 @@ public class Expr {
                                         popped = stack.pop();
                                     }
                                     stack.push(popped);
-                                    funcBool--;
+
                                 }
                                 break;
                             case "]":
@@ -103,8 +104,8 @@ public class Expr {
                                 }
                                 break;
                             default:
-                                // TODO: 4/8/2021 throw error for invalid seperator in expression
-                                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid seperator in expression");
+                                // TODO: 4/8/2021 throw error for invalid separator in expression
+                                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid separator in expression");
                         }
 
                         break;
@@ -148,6 +149,11 @@ public class Expr {
                     if (token.subClassif == SubClassif.IDENTIFIER && token.tokenStr.endsWith("[")) {
                         token.tokenStr = token.tokenStr.substring(0, token.tokenStr.length()-1);
                         STEntry entry = parser.symbolTable.getSymbol(token.tokenStr);
+                        if (!parser.activationRecordStack.isEmpty()) {
+                            int scope = parser.activationRecordStack.peek().findSymbolScope(token.tokenStr);
+                            if (scope != -1)
+                                entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(token.tokenStr);
+                        }
 
                         if (entry.primClassif != Classif.EMPTY && ((STIdentifier)entry).structure.equals("array") ) {
 
@@ -155,14 +161,30 @@ public class Expr {
                             ResultList array;
                             try {
                                 array = (ResultList)parser.storageManager.getVariable(token.tokenStr);
+                                if (!parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(token.tokenStr);
+                                    if (scope != -1)
+                                        array = (ResultList) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(token.tokenStr);
+                                }
 
                                 if (index.dataType != SubClassif.INTEGER) {
                                     if (index.dataType == SubClassif.IDENTIFIER) {
                                         STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                        if (!parser.activationRecordStack.isEmpty()) {
+                                            int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                            if (scope != -1)
+                                                subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                        }
 
                                         if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
                                             try {
                                                 index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                if (!parser.activationRecordStack.isEmpty()) {
+                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                    if (scope != -1)
+                                                        index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                }
+
                                             } catch (Exception e) {
                                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                             }
@@ -181,7 +203,7 @@ public class Expr {
                             }
 
                             catch (Exception e) {
-                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot index in non-array varaible");
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot index in non-array variable");
                             }
 
 
@@ -197,10 +219,21 @@ public class Expr {
                                 if (index.dataType != SubClassif.INTEGER) {
                                     if (index.dataType == SubClassif.IDENTIFIER) {
                                         STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                        if (!parser.activationRecordStack.isEmpty()) {
+                                            int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                            if (scope != -1)
+                                                subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                        }
 
                                         if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
                                             try {
                                                 index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                if (!parser.activationRecordStack.isEmpty()) {
+                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                    if (scope != -1)
+                                                        index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                }
+
                                             } catch (Exception e) {
                                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                             }
@@ -214,6 +247,11 @@ public class Expr {
                                 }
 
                                 ResultValue str = (ResultValue) parser.storageManager.getVariable(entry.symbol);
+                                if (!parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                                    if (scope != -1)
+                                        str = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+                                }
 
                                 tmp = Utility.valueAtIndex(parser, str, Integer.parseInt(index.strValue));
 
@@ -237,18 +275,30 @@ public class Expr {
                     ResultList paramM;
                     switch (token.tokenStr) {
                         case "LENGTH":
+                            ArrayList<Result> paramsLen = new ArrayList<Result>();
                             param = stack.pop();
 
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
+                                if (!parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param.strValue);
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param.strValue);
+                                }
 
                                 if (entry.primClassif == Classif.EMPTY) {
-                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
                                 }
                                 STIdentifier id = (STIdentifier) entry;
 
                                 try {
                                     param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+                                    if (!parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+                                        if (scope != -1)
+                                            param = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
+
                                 }catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value must be non array type");
                                 }
@@ -257,10 +307,12 @@ public class Expr {
                                 if (param.dataType != SubClassif.STRING) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot call length on non-string  value");
                                 } else {
-                                    res = Utility.builtInLENGTH(parser, param);
+                                    paramsLen.add(param);
+                                    res = Utility.builtInLENGTH(paramsLen);
                                 }
                             } else if (param.dataType == SubClassif.STRING) {
-                                res = Utility.builtInLENGTH(parser, param);
+                                paramsLen.add(param);
+                                res = Utility.builtInLENGTH(paramsLen);
                             }
                             else {
                                 token.tokenStr = param.strValue;
@@ -269,18 +321,29 @@ public class Expr {
                             break;
 
                         case "SPACES":
+                            ArrayList<Result> paramsSpace = new ArrayList<Result>();
                             param = stack.pop();
 
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
+                                if (!parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param.strValue);
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param.strValue);
+                                }
 
                                 if (entry.primClassif == Classif.EMPTY) {
-                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
                                 }
                                 STIdentifier id = (STIdentifier) entry;
 
                                 try {
                                     param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+                                    if (!parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+                                        if (scope != -1)
+                                            param = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
                                 }catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value must be non array type");
                                 }
@@ -290,10 +353,12 @@ public class Expr {
                                 if (param.dataType != SubClassif.STRING) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot call length on non-string  value");
                                 } else {
-                                    res = Utility.builtInSPACES(parser, param);
+                                    paramsSpace.add(param);
+                                    res = Utility.builtInSPACES(paramsSpace);
                                 }
                             } else if (param.dataType == SubClassif.STRING) {
-                                res = Utility.builtInLENGTH(parser, param);
+                                paramsSpace.add(param);
+                                res = Utility.builtInLENGTH(paramsSpace);
                             }
                             else {
                                 token.tokenStr = param.strValue;
@@ -301,12 +366,18 @@ public class Expr {
                             }
                             break;
                         case "ELEM":
+                            ArrayList<Result> paramsElem = new ArrayList<Result>();
                             param = stack.pop();
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
+                                if (!parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param.strValue);
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param.strValue);
+                                }
 
                                 if (entry.primClassif == Classif.EMPTY) {
-                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
                                 }
                                 STIdentifier id = (STIdentifier) entry;
 
@@ -316,11 +387,16 @@ public class Expr {
 
                                 try {
                                     paramM = (ResultList) parser.storageManager.getVariable(id.symbol);
+                                    if (!parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+                                        if (scope != -1)
+                                            paramM = (ResultList) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
                                 }catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value must be array type");
                                 }
-
-                                res = Utility.builtInELEM(parser, paramM);
+                                paramsElem.add(paramM);
+                                res = Utility.builtInELEM(paramsElem);
 
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value of variable cannot be array");
@@ -328,12 +404,18 @@ public class Expr {
                             break;
 
                         case "MAXELEM":
+                            ArrayList<Result> paramsMaxElem = new ArrayList<Result>();
                             param = stack.pop();
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
+                                if (!parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param.strValue);
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param.strValue);
+                                }
 
                                 if (entry.primClassif == Classif.EMPTY) {
-                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
                                 }
                                 STIdentifier id = (STIdentifier) entry;
 
@@ -343,11 +425,16 @@ public class Expr {
 
                                 try {
                                     paramM = (ResultList) parser.storageManager.getVariable(id.symbol);
+                                    if (!parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+                                        if (scope != -1)
+                                            paramM = (ResultList) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
                                 }catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value must be array type");
                                 }
-
-                                res = Utility.builtInMAXELEM(parser, paramM);
+                                paramsMaxElem.add(paramM);
+                                res = Utility.builtInMAXELEM(paramsMaxElem);
 
                             } else {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value of variable cannot be array");
@@ -545,7 +632,31 @@ public class Expr {
                             break;
 
                         default:
-                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Have not implemented function to be used in expressions");
+                            try {
+                                STFunction funcName = (STFunction) parser.symbolTable.getSymbol(token.tokenStr);
+
+                                ArrayList<ResultValue> parameters = new ArrayList<ResultValue>();
+                                for (String names : funcName.names)
+                                    parameters.add(new ResultValue("", SubClassif.EMPTY));
+
+                                for(int i = funcName.numArgs - 1; i >= 0; i--) {
+                                    if (!stack.empty()) {
+                                        parameters.set(i, stack.pop());
+                                    } else {
+                                        throw  new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid number of parameters passed");
+                                    }
+                                }
+
+                                res = parser.callUserFunction(funcName, parameters);
+
+                            } catch (PickleException p) {
+                                throw p;
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Have not implemented function to be used in expressions");
+                            }
+
 
                     }
                     stack.push(res);
@@ -555,7 +666,7 @@ public class Expr {
 
 
                     // 0 = second operand
-                    // 1 = first oeprand
+                    // 1 = first operand
                     Bool bOp1;
                     Bool bOp2;
 
@@ -564,12 +675,22 @@ public class Expr {
 
                     if (operand2.dataType == SubClassif.IDENTIFIER) {
                         STEntry entry = parser.symbolTable.getSymbol(operand2.strValue);
+                        if (!parser.activationRecordStack.isEmpty()) {
+                            int scope = parser.activationRecordStack.peek().findSymbolScope(operand2.strValue);
+                            if (scope != -1)
+                                entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(operand2.strValue);
+                        }
 
                         if (entry.primClassif == Classif.EMPTY) {
                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
                         }
                         try {
-                            operand2 = (ResultValue) parser.storageManager.getVariable(operand2.strValue);
+                            operand2 = (ResultValue) parser.storageManager.getVariable(entry.symbol);
+                            if (!parser.activationRecordStack.isEmpty()) {
+                                int scope = parser.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                                if (scope != -1)
+                                    operand2 = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+                            }
                         } catch (Exception e) {
                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Operand for operator must be non array type");
                         }
@@ -589,12 +710,22 @@ public class Expr {
 
                         if (operand1.dataType == SubClassif.IDENTIFIER) {
                             STEntry entry = parser.symbolTable.getSymbol(operand1.strValue);
+                            if (!parser.activationRecordStack.isEmpty()) {
+                                int scope = parser.activationRecordStack.peek().findSymbolScope(operand1.strValue);
+                                if (scope != -1)
+                                    entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(operand1.strValue);
+                            }
 
                             if (entry.primClassif == Classif.EMPTY) {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
                             }
                             try {
-                                operand1 = (ResultValue) parser.storageManager.getVariable(operand1.strValue);
+                                operand1 = (ResultValue) parser.storageManager.getVariable(entry.symbol);
+                                if (!parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                                    if (scope != -1)
+                                        operand1 = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+                                }
                             } catch (Exception e) {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Operand for operator must be non array type");
                             }
@@ -700,13 +831,21 @@ public class Expr {
 
         if ( res.dataType == SubClassif.IDENTIFIER) {
             STEntry entry = parser.symbolTable.getSymbol(res.strValue);
+            if (!parser.activationRecordStack.isEmpty()) {
+                int scope = parser.activationRecordStack.peek().findSymbolScope(res.strValue);
+                if (scope != -1)
+                    entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(res.strValue);
+            }
             if (entry.primClassif == Classif.EMPTY) {
-                // TODO: 4/8/2021 throw error on invalid identifier in expression
                 throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Identifier must be initialized");
             }
 
             ret = parser.storageManager.getVariable(res.strValue);
-
+            if (!parser.activationRecordStack.isEmpty()) {
+                int scope = parser.activationRecordStack.peek().findSymbolScope(res.strValue);
+                if (scope != -1)
+                    ret = parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(res.strValue);
+            }
 
         }
 
@@ -718,6 +857,11 @@ public class Expr {
         switch (res.dataType) {
             case IDENTIFIER:
                 STEntry entry = parser.symbolTable.getSymbol(res.strValue);
+                if (!parser.activationRecordStack.isEmpty()) {
+                    int scope = parser.activationRecordStack.peek().findSymbolScope(res.strValue);
+                    if (scope != -1)
+                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(res.strValue);
+                }
 
                 if (entry.primClassif == Classif.EMPTY) {
                     // TODO: 4/8/2021 throw error on invalid identifier in expression
@@ -725,6 +869,12 @@ public class Expr {
                 }
 
                 res = (ResultValue) parser.storageManager.getVariable(res.strValue);
+                if (!parser.activationRecordStack.isEmpty()) {
+                    int scope = parser.activationRecordStack.peek().findSymbolScope(res.strValue);
+                    if (scope != -1)
+                        res = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(res.strValue);
+                }
+
                 if (res.dataType != SubClassif.INTEGER && res.dataType != SubClassif.FLOAT) {
                     throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Cannot perform unary minus on non-numeric operand identifier:");
                 }
