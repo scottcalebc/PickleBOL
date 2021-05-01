@@ -394,6 +394,11 @@ public class Scanner {
                 tokenStr += textCharM[iColPos++];
             }
 
+            if ((tokenStr.equals("+") || tokenStr.equals("-")) &&
+                textCharM[iColPos] == '=' && operators.indexOf(textCharM[iColPos]) > 0) {
+                tokenStr += textCharM[iColPos++];
+            }
+
 
             nextToken.primClassif = Classif.OPERATOR;
 
