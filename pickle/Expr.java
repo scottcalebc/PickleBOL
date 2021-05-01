@@ -44,6 +44,10 @@ public class Expr {
                     }
                     break;
                 case OPERATOR:
+                    if (!stack.empty() && stack.peek().tokenStr.equals("~")) {
+                        postfix.add(stack.pop());
+                    }
+
                     while (!stack.empty()) {
                        /* System.out.printf("%s\n", stack.peek().tokenStr);
                         System.out.printf("Checking precedence:\n\t'%s'\t'%s'\n\t'%d'\t'%d'\n",
