@@ -13,7 +13,7 @@ public class Expr {
 
         while(     !parser.scanner.currentToken.tokenStr.equals(";")
                 && !parser.scanner.currentToken.tokenStr.equals(":")
-                && !parser.scanner.currentToken.tokenStr.equals("to")
+                && !(parser.scanner.currentToken.tokenStr.equals("to") && parser.scanner.currentToken.subClassif != SubClassif.STRING)
                 && !parser.scanner.currentToken.tokenStr.equals("by")
                 && !parser.scanner.currentToken.tokenStr.equals("=")) {
 
@@ -151,6 +151,9 @@ public class Expr {
         ResultValue res;
 
         int sliceBool = 0;
+        if (postFix.size() == 0) {
+            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression");
+        }
 
         for (int i = 0; i < postFix.size(); i++) {
             Token token = postFix.get(i);

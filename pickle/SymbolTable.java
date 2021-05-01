@@ -62,6 +62,8 @@ public class SymbolTable {
 		this.globalST.put("endfor", new STControl("endfor", Classif.CONTROL, SubClassif.END));
 		this.globalST.put("while", new STControl("while", Classif.CONTROL, SubClassif.FLOW));
 		this.globalST.put("endwhile", new STControl("endwhile", Classif.CONTROL, SubClassif.END));
+		this.globalST.put("break", new STControl("break", Classif.CONTROL, SubClassif.FLOW));
+		this.globalST.put("continue", new STControl("continue", Classif.CONTROL, SubClassif.FLOW));
 		this.globalST.put("Int", new STControl("Int", Classif.CONTROL, SubClassif.DECLARE));
 		this.globalST.put("Float", new STControl("Float", Classif.CONTROL, SubClassif.DECLARE));
 		this.globalST.put("String", new STControl("String", Classif.CONTROL, SubClassif.DECLARE));
