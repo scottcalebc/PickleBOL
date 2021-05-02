@@ -279,13 +279,15 @@ public class Parser {
                 scanner.currentToken.tokenStr = "-1";
                 scanner.currentToken.primClassif = Classif.OPERAND;
                 scanner.currentToken.subClassif = SubClassif.INTEGER;
+                resList = new ResultList(this, new ArrayList<ResultValue>(), -1, arrType);
             }
                 res = (ResultValue) expr(); //get value in square brackets
             //res = (ResultValue) expr(); //get value in square brackets
             if (res.dataType != SubClassif.INTEGER) {
                 res = Utility.castNumericToInt(this, new Numeric(this, res, "+", "expr ret value"));
             }
-            resList.capacity = Integer.parseInt(res.strValue);
+            if (!res.strValue.equals("-1"))
+                resList.capacity = Integer.parseInt(res.strValue);
             ResultValue empty = new ResultValue("", SubClassif.EMPTY);
             for (int i = 0; i < resList.capacity; i++) {
                 resList.arrayList.add(empty);
