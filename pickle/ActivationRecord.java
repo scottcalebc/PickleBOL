@@ -29,6 +29,10 @@ public class ActivationRecord implements Cloneable {
         this.environmentVector.add(this);
         this.storageManager = new StorageManager();
         this.symbolTable = record.symbolTable.clone();
+        
+        for(ActivationRecord paren : record.environmentVector) {
+            this.environmentVector.add(paren);
+        }
     }
 
 
@@ -54,5 +58,7 @@ public class ActivationRecord implements Cloneable {
         }
         return -1;
     }
+
+
 
 }
