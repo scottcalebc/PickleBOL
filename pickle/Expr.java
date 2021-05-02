@@ -145,11 +145,36 @@ public class Expr {
         return postfix;
     }
 
+    private static Boolean isResultType(Stack<Result> stack, int type) {
+        if (!stack.empty()) {
+            Result t = stack.peek();
+
+            // result value
+            if (type == 1) {
+                if (t instanceof ResultValue) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (type == 2) {
+                if (t instanceof ResultList) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
 
     public static Result evaluatePostFix(Parser parser, ArrayList<Token> postFix) throws PickleException {
-        Stack<ResultValue> stack = new Stack<ResultValue>();
+        Stack<Result> stack = new Stack<Result>();
 
-        ResultValue res;
+        Result res;
 
         int sliceBool = 0;
         if (postFix.size() == 0) {
@@ -162,7 +187,7 @@ public class Expr {
 
             switch (token.primClassif) {
                 case OPERAND:
-                    ResultValue tmp = new ResultValue(token.tokenStr, token.subClassif);
+                    Result tmp = new ResultValue(token.tokenStr, token.subClassif);
 
                     if (token.subClassif == SubClassif.IDENTIFIER && token.tokenStr.endsWith("[")) {
                         token.tokenStr = token.tokenStr.substring(0, token.tokenStr.length()-1);
@@ -177,7 +202,15 @@ public class Expr {
 
                         if (entry.primClassif != Classif.EMPTY && ((STIdentifier)entry).structure.equals("array") ) {
 
-                            ResultValue index = stack.pop();
+                            ResultValue index;
+
+                            if (isResultType(stack, 1)) {
+                                index = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
+
+
                             ResultList array;
                             try {
                                 array = (ResultList)parser.storageManager.getVariable(token.tokenStr);
@@ -189,8 +222,16 @@ public class Expr {
 
                                 if (index.strValue.equals("~")) {
                                     //just an lower bound
-                                    ResultValue lower = stack.pop();
-                                    if (!stack.pop().strValue.equals("SLICE")) {
+                                    ResultValue lower;
+
+                                    if (isResultType(stack, 1)) {
+                                        lower = (ResultValue) stack.pop();
+                                    } else {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                                    }
+
+
+                                    if (!((ResultValue)stack.pop()).strValue.equals("SLICE")) {
                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
                                     }
 
@@ -228,15 +269,15 @@ public class Expr {
                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
                                     }
 
-                                    return Utility.getArraySlice(parser, array, Integer.parseInt(lower.strValue), -1);
+                                    tmp =  Utility.getArraySlice(parser, array, Integer.parseInt(lower.strValue), -1);
 
 
-                                } else if (stack.peek().strValue.equals("~")) {
+                                } else if (isResultType(stack, 1) && ((ResultValue)stack.peek()).strValue.equals("~")) {
                                     stack.pop();
                                     // possible upper and lower or just upper
-                                    if (stack.peek().strValue.equals("SLICE")) {
+                                    if (isResultType(stack, 1) && ((ResultValue)stack.peek()).strValue.equals("SLICE")) {
                                         //just upper bound
-                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                        if (isResultType(stack, 1) && !((ResultValue)stack.pop()).strValue.equals("SLICE")) {
                                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
                                         }
                                         if (index.dataType != SubClassif.INTEGER) {
@@ -272,10 +313,17 @@ public class Expr {
                                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
                                         }
 
-                                        return Utility.getArraySlice(parser, array, -1, Integer.parseInt(index.strValue));
+                                        tmp =  Utility.getArraySlice(parser, array, -1, Integer.parseInt(index.strValue));
                                     } else {
-                                        ResultValue lower = stack.pop();
-                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                        ResultValue lower;
+
+                                        if (isResultType(stack, 1)) {
+                                            lower = (ResultValue) stack.pop();
+                                        } else {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                                        }
+
+                                        if (isResultType(stack, 1) && !((ResultValue)stack.pop()).strValue.equals("SLICE")) {
                                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
                                         }
                                         // check upper bound for number
@@ -346,7 +394,7 @@ public class Expr {
                                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
                                         }
 
-                                        return Utility.getArraySlice(parser, array, Integer.parseInt(lower.strValue), Integer.parseInt(index.strValue));
+                                        tmp =  Utility.getArraySlice(parser, array, Integer.parseInt(lower.strValue), Integer.parseInt(index.strValue));
 
                                     }
 
@@ -393,11 +441,8 @@ public class Expr {
                                     tmp = array.getItem(parser, Integer.parseInt(index.strValue));
 
 
-
-                                    ResultValue leftover = stack.pop();
-
-                                    if (!leftover.strValue.equals("SLICE")) {
-                                        stack.push(leftover);
+                                    if (isResultType(stack, 1) && ((ResultValue)stack.peek()).strValue.equals("SLICE")) {
+                                        stack.pop();
                                     }
                                 }
                             } catch (PickleException p) {
@@ -413,15 +458,29 @@ public class Expr {
 
                         } else if (entry.primClassif != Classif.EMPTY &&
                                 (((STIdentifier) entry).dclType == SubClassif.STRING || ((STIdentifier)entry).dclType == SubClassif.DATE)) {
-                            ResultValue index = stack.pop();
+                            ResultValue index;
+
+                            if (isResultType(stack, 1)) {
+                                index = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
 
                             try {
                                 ResultValue str = (ResultValue) parser.storageManager.getVariable(entry.symbol);
 
                                 if (index.strValue.equals("~")) {
                                     //just an lower bound
-                                    ResultValue lower = stack.pop();
-                                    if (!stack.pop().strValue.equals("SLICE")) {
+                                    ResultValue lower;
+
+                                    if (isResultType(stack, 1)) {
+                                        lower = (ResultValue) stack.pop();
+                                    } else {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                                    }
+
+
+                                    if (isResultType(stack, 1) && !((ResultValue)stack.pop()).strValue.equals("SLICE")) {
                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
                                     }
 
@@ -462,12 +521,12 @@ public class Expr {
                                     tmp = Utility.getStringSlice(parser, str, Integer.parseInt(lower.strValue), -1);
 
 
-                                } else if (stack.peek().strValue.equals("~")) {
+                                } else if (isResultType(stack, 1) && ((ResultValue)stack.peek()).strValue.equals("~")) {
                                     stack.pop();
                                     // possible upper and lower or just upper
-                                    if (stack.peek().strValue.equals("SLICE")) {
+                                    if (isResultType(stack, 1) && ((ResultValue)stack.peek()).strValue.equals("SLICE")) {
                                         //just upper bound
-                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                        if (isResultType(stack, 1) && !((ResultValue)stack.pop()).strValue.equals("SLICE")) {
                                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
                                         }
                                         if (index.dataType != SubClassif.INTEGER) {
@@ -496,8 +555,16 @@ public class Expr {
                                         tmp = Utility.getStringSlice(parser, str, -1, Integer.parseInt(index.strValue));
 
                                     } else {
-                                        ResultValue lower = stack.pop();
-                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                        ResultValue lower;
+
+                                        if (isResultType(stack, 1)) {
+                                            lower = (ResultValue) stack.pop();
+                                        } else {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                                        }
+
+
+                                        if (isResultType(stack, 1) && !((ResultValue)stack.pop()).strValue.equals("SLICE")) {
                                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
                                         }
                                         // check upper bound for number
@@ -578,10 +645,9 @@ public class Expr {
                                     tmp = Utility.valueAtIndex(parser, str, Integer.parseInt(index.strValue));
 
 
-                                    ResultValue leftover = stack.pop();
 
-                                    if (!leftover.strValue.equals("SLICE")) {
-                                        stack.push(leftover);
+                                    if (isResultType(stack, 1) && ((ResultValue)stack.peek()).strValue.equals("SLICE")) {
+                                        stack.pop();
                                     }
                                 }
 
@@ -614,7 +680,11 @@ public class Expr {
                     switch (token.tokenStr) {
                         case "LENGTH":
                             ArrayList<Result> paramsLen = new ArrayList<Result>();
-                            param = stack.pop();
+                            if (isResultType(stack, 1)) {
+                                param = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
 
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
@@ -660,7 +730,11 @@ public class Expr {
 
                         case "SPACES":
                             ArrayList<Result> paramsSpace = new ArrayList<Result>();
-                            param = stack.pop();
+                            if (isResultType(stack, 1)) {
+                                param = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
 
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
@@ -705,7 +779,13 @@ public class Expr {
                             break;
                         case "ELEM":
                             ArrayList<Result> paramsElem = new ArrayList<Result>();
-                            param = stack.pop();
+                            if (isResultType(stack, 1)) {
+                                param = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
+
+
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
                                 if (!parser.activationRecordStack.isEmpty()) {
@@ -743,7 +823,13 @@ public class Expr {
 
                         case "MAXELEM":
                             ArrayList<Result> paramsMaxElem = new ArrayList<Result>();
-                            param = stack.pop();
+
+                            if (isResultType(stack, 1)) {
+                                param = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
+
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
                                 if (!parser.activationRecordStack.isEmpty()) {
@@ -784,8 +870,16 @@ public class Expr {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Did not supply enough parameters for function");
                             }
 
-                            param2 = stack.pop();
-                            param = stack.pop();
+                            if (isResultType(stack, 1)) {
+                                param2 = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
+                            if (isResultType(stack, 1)) {
+                                param = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
 
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
@@ -849,8 +943,16 @@ public class Expr {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Did not supply enough parameters for function");
                             }
 
-                            param2 = stack.pop();
-                            param = stack.pop();
+                            if (isResultType(stack, 1)) {
+                                param2 = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
+                            if (isResultType(stack, 1)) {
+                                param = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
 
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
@@ -908,8 +1010,16 @@ public class Expr {
                                 throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Did not supply enough parameters for function");
                             }
 
-                            param2 = stack.pop();
-                            param = stack.pop();
+                            if (isResultType(stack, 1)) {
+                                param2 = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
+                            if (isResultType(stack, 1)) {
+                                param = (ResultValue) stack.pop();
+                            } else {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expected a primitive type or identifier");
+                            }
 
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
@@ -986,7 +1096,7 @@ public class Expr {
 
                                 STFunction funcName = (STFunction) entry;
 
-                                ArrayList<ResultValue> parameters = new ArrayList<ResultValue>();
+                                ArrayList<Result> parameters = new ArrayList<Result>();
                                 for (String names : funcName.names)
                                     parameters.add(new ResultValue("", SubClassif.EMPTY));
 
@@ -1026,7 +1136,11 @@ public class Expr {
                     if (stack.empty()) {
                         operand2 = new ResultValue("", SubClassif.EMPTY);
                     } else {
-                        operand2 = stack.pop();
+                        if (isResultType(stack, 1)) {
+                            operand2 = (ResultValue) stack.pop();
+                        } else {
+                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use arrays in expressions");
+                        }
                     }
 
                     operand1 = new ResultValue("", SubClassif.EMPTY);
@@ -1172,11 +1286,15 @@ public class Expr {
                             }
                             // if stack is empty then just upper bound
 
-
+                            //should only hit during string slice assigning
                             return new ResultList(parser, bounds, 2, SubClassif.INTEGER);
                         }
                     } else {
-                        operand1  = stack.pop();
+                        if (isResultType(stack, 1)) {
+                            operand1 = (ResultValue) stack.pop();
+                        } else {
+                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use arrays in expressions");
+                        }
 
                         if (operand1.dataType == SubClassif.IDENTIFIER) {
                             STEntry entry = parser.symbolTable.getSymbol(operand1.strValue);
@@ -1276,7 +1394,9 @@ public class Expr {
                             case NOT:
                                 break;
                             default:
-                                System.out.printf("... %s %s %s is %s\n", operand1.strValue, token.tokenStr, operand2.strValue, res.strValue);
+                                if (res instanceof ResultValue) {
+                                    System.out.printf("... %s %s %s is %s\n", operand1.strValue, token.tokenStr, operand2.strValue, ((ResultValue) res).strValue);
+                                }
                                 break;
 
                         }
@@ -1297,25 +1417,26 @@ public class Expr {
 
         Result ret = res;
 
+        if (res instanceof ResultValue) {
+            if (((ResultValue) res).dataType == SubClassif.IDENTIFIER) {
+                STEntry entry = parser.symbolTable.getSymbol(((ResultValue) res).strValue);
+                if (!parser.activationRecordStack.isEmpty()) {
+                    int scope = parser.activationRecordStack.peek().findSymbolScope(((ResultValue) res).strValue);
+                    if (scope != -1)
+                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(((ResultValue) res).strValue);
+                }
+                if (entry.primClassif == Classif.EMPTY) {
+                    throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Identifier must be initialized");
+                }
 
-        if ( res.dataType == SubClassif.IDENTIFIER) {
-            STEntry entry = parser.symbolTable.getSymbol(res.strValue);
-            if (!parser.activationRecordStack.isEmpty()) {
-                int scope = parser.activationRecordStack.peek().findSymbolScope(res.strValue);
-                if (scope != -1)
-                    entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(res.strValue);
-            }
-            if (entry.primClassif == Classif.EMPTY) {
-                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Identifier must be initialized");
-            }
+                ret = parser.storageManager.getVariable(((ResultValue) res).strValue);
+                if (!parser.activationRecordStack.isEmpty()) {
+                    int scope = parser.activationRecordStack.peek().findSymbolScope(((ResultValue) res).strValue);
+                    if (scope != -1)
+                        ret = parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(((ResultValue) res).strValue);
+                }
 
-            ret = parser.storageManager.getVariable(res.strValue);
-            if (!parser.activationRecordStack.isEmpty()) {
-                int scope = parser.activationRecordStack.peek().findSymbolScope(res.strValue);
-                if (scope != -1)
-                    ret = parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(res.strValue);
             }
-
         }
 
         return ret;

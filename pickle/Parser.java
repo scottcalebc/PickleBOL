@@ -690,7 +690,7 @@ public class Parser {
         return (ResultValue) res;
     }
 
-    public ResultValue callUserFunction(STFunction function, ArrayList<ResultValue>parameters) throws PickleException {
+    public ResultValue callUserFunction(STFunction function, ArrayList<Result>parameters) throws PickleException {
         ActivationRecord newAcc = new ActivationRecord(function.record);
         // verify parameter types
 
@@ -699,53 +699,67 @@ public class Parser {
             STEntry entry;
 
             SubClassif paramType = function.parameters.get(i);
-            ResultValue argI = parameters.get(i);
+            Result argT = parameters.get(i);
             Result value;
-            if (argI.dataType == SubClassif.IDENTIFIER) {
-                // get scoping
-                if (!this.activationRecordStack.isEmpty()) {
-                    int scope = this.activationRecordStack.peek().findSymbolScope(argI.strValue);
-                    if (scope != -1) {
-                        value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(argI.strValue);
+
+            // passed identifier or some expression
+            if (argT instanceof ResultValue ) {
+                ResultValue argI = (ResultValue) argT;
+                if (argI.dataType == SubClassif.IDENTIFIER) {
+                    // get scoping
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(argI.strValue);
+                        if (scope != -1) {
+                            value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(argI.strValue);
+                        } else {
+                            value = this.storageManager.getVariable(argI.strValue);
+                        }
                     } else {
                         value = this.storageManager.getVariable(argI.strValue);
                     }
-                } else {
-                    value = this.storageManager.getVariable(argI.strValue);
-                }
 
-                // assign paramaters into activation record storagemanager
-                if ((value instanceof ResultValue) && !function.array.get(i)) {
-                    // coerce
-                    if (((ResultValue) value).dataType != paramType ) {
-                        if (((ResultValue) value).dataType == SubClassif.EMPTY) {
+                    // assign paramaters into activation record storagemanager
+                    if ((value instanceof ResultValue) && !function.array.get(i)) {
+                        // coerce
+                        if (((ResultValue) value).dataType != paramType) {
+                            if (((ResultValue) value).dataType == SubClassif.EMPTY) {
+                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
+                            }
+                            value = Utility.coerce(this, (ResultValue) value, paramType);
+                        }
+
+                        newAcc.storageManager.updateVariable(function.names.get(i), value);
+                    }
+                    if ((value instanceof ResultList) && function.array.get(i)) {
+                        // coerce
+                        if (((ResultList) value).dataType != paramType) {
                             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
                         }
-                        value = Utility.coerce(this, (ResultValue) value, paramType);
-                    }
 
-                    newAcc.storageManager.updateVariable(function.names.get(i), value);
-                } if ((value instanceof  ResultList) && function.array.get(i)) {
-                    // coerce
-                    if (((ResultList) value).dataType != paramType) {
-                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
+
+                        newAcc.storageManager.updateVariable(function.names.get(i), value);
                     }
 
 
-                    newAcc.storageManager.updateVariable(function.names.get(i), value);
+                } else {
+                    if (argI.dataType != paramType) {
+                        argI = Utility.coerce(this, argI, paramType);
+                    }
+
+                    if (argI.dataType == SubClassif.EMPTY) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Was not expecting empty value");
+                    }
+
+                    newAcc.storageManager.updateVariable(function.names.get(i), argI);
+                }
+            } else {
+                // passed a Result list implying an array type that needs to be set
+                if (!function.array.get(i)) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Was not expecting array for parameter " + function.names.get(i));
                 }
 
+                newAcc.storageManager.updateVariable(function.names.get(i), argT);
 
-            }else {
-                if (argI.dataType != paramType) {
-                    argI = Utility.coerce(this, argI, paramType);
-                }
-
-                if (argI.dataType == SubClassif.EMPTY) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Was not expecting empty value");
-                }
-
-                newAcc.storageManager.updateVariable(function.names.get(i), argI);
             }
 
         }
@@ -793,23 +807,29 @@ public class Parser {
 
 
         for (int i =0 ; i < function.numArgs; i++) {
-            if (parameters.get(i).dataType == SubClassif.IDENTIFIER && function.passing.get(i).equals("Reference")) {
-                Result newValue = newAcc.storageManager.getVariable(function.names.get(i));
+            Result argT = parameters.get(i);
 
-                if (!this.activationRecordStack.isEmpty()) {
-                    int scope = this.activationRecordStack.peek().findSymbolScope(parameters.get(i).strValue);
-                    Result value;
+            if (argT instanceof ResultValue) {
+                ResultValue arg = (ResultValue) argT;
 
-                    if (scope != -1) {
-                        this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(parameters.get(i).strValue, newValue);
+                if (arg.dataType == SubClassif.IDENTIFIER && function.passing.get(i).equals("Reference")) {
+                    Result newValue = newAcc.storageManager.getVariable(function.names.get(i));
+
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(arg.strValue);
+                        Result value;
+
+                        if (scope != -1) {
+                            this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(arg.strValue, newValue);
+                        } else {
+                            this.storageManager.updateVariable(arg.strValue, newValue);
+                        }
+
                     } else {
-                        this.storageManager.updateVariable(parameters.get(i).strValue, newValue);
+                        this.storageManager.updateVariable(arg.strValue, newValue);
                     }
 
-                } else {
-                    this.storageManager.updateVariable(parameters.get(i).strValue, newValue);
                 }
-
             }
         }
 
