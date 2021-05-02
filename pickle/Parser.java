@@ -525,7 +525,7 @@ public class Parser {
                 array = (ResultList) storageManager.getVariable(varString);
         }
 
-        if (scanner.getNext().equals("=")) { //total array assignment
+        if (scanner.currentToken.tokenStr.equals("=")) { //total array assignment
             scanner.getNext(); //skip to assignee dude guy expr 🤵
 
             if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER && ((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr.equals(";")) { //just an array to array
@@ -1895,7 +1895,7 @@ public class Parser {
                         controlVar,
                         new STIdentifier(controlVar,
                                 Classif.OPERAND,
-                                SubClassif.STRING, //TODO - ish
+                                SubClassif.INTEGER, //TODO - ish
                                 "none",
                                 "local",
                                 0)
@@ -1904,7 +1904,7 @@ public class Parser {
                 symbolTable.putSymbol(controlVar,
                         new STIdentifier(controlVar,
                                 Classif.OPERAND,
-                                SubClassif.STRING, //TODO - ish
+                                SubClassif.INTEGER, //TODO - ish
                                 "none",
                                 "local",
                                 0));

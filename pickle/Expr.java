@@ -242,10 +242,21 @@ public class Expr {
                                         if (index.dataType != SubClassif.INTEGER) {
                                             if (index.dataType == SubClassif.IDENTIFIER) {
                                                 STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                                if (!parser.activationRecordStack.isEmpty()) {
+                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                                    if (scope != -1) {
+                                                        subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                                    }
+                                                }
 
                                                 if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                     try {
                                                         index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                        if (!parser.activationRecordStack.isEmpty()) {
+                                                            int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                            if (scope != -1)
+                                                                index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                        }
                                                     } catch (Exception e) {
                                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                     }
@@ -271,10 +282,21 @@ public class Expr {
                                         if (index.dataType != SubClassif.INTEGER) {
                                             if (index.dataType == SubClassif.IDENTIFIER) {
                                                 STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                                if (!parser.activationRecordStack.isEmpty()) {
+                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                                    if (scope != -1) {
+                                                        subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                                    }
+                                                }
 
                                                 if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                     try {
                                                         index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                        if (!parser.activationRecordStack.isEmpty()) {
+                                                            int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                            if (scope != -1)
+                                                                index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                        }
                                                     } catch (Exception e) {
                                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                     }
@@ -292,9 +314,22 @@ public class Expr {
                                             if (lower.dataType == SubClassif.IDENTIFIER) {
                                                 STEntry subEntry = parser.symbolTable.getSymbol(lower.strValue);
 
+                                                if (!parser.activationRecordStack.isEmpty()) {
+                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(lower.strValue);
+                                                    if (scope != -1) {
+                                                        subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(lower.strValue);
+                                                    }
+                                                }
+
                                                 if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                     try {
                                                         lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+
+                                                        if (!parser.activationRecordStack.isEmpty()) {
+                                                            int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                            if (scope != -1)
+                                                                lower = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                        }
                                                     } catch (Exception e) {
                                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                     }
@@ -324,10 +359,24 @@ public class Expr {
                                     if (index.dataType != SubClassif.INTEGER) {
                                         if (index.dataType == SubClassif.IDENTIFIER) {
                                             STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                            // TODO: 5/1/2021 add check for symbol in all activation records
+                                            if (!parser.activationRecordStack.isEmpty()) {
+                                                int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                                if (scope != -1) {
+                                                    subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                                }
+                                            }
+
 
                                             if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                 try {
                                                     index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+
+                                                    if (!parser.activationRecordStack.isEmpty()) {
+                                                        int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                        if (scope != -1)
+                                                            index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                    }
                                                 } catch (Exception e) {
                                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                 }
