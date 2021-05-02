@@ -2,7 +2,7 @@ package pickle;
 
 import java.util.ArrayList;
 
-public class ActivationRecord {
+public class ActivationRecord implements Cloneable {
     public ArrayList<ActivationRecord> environmentVector;
     public StorageManager storageManager;
     public SymbolTable symbolTable;
@@ -18,11 +18,19 @@ public class ActivationRecord {
      * @param name      -   name of defined function
      */
     public ActivationRecord(String name) {
-        environmentVector = new ArrayList<ActivationRecord>();
-        environmentVector.add(this);
-        storageManager = new StorageManager();
-        symbolTable = new SymbolTable(name);
+        this.environmentVector = new ArrayList<ActivationRecord>();
+        this.environmentVector.add(this);
+        this.storageManager = new StorageManager();
+        this.symbolTable = new SymbolTable(name);
     }
+
+    public ActivationRecord(ActivationRecord record) {
+        this.environmentVector = new ArrayList<ActivationRecord>();
+        this.environmentVector.add(this);
+        this.storageManager = new StorageManager();
+        this.symbolTable = record.symbolTable.clone();
+    }
+
 
     /**
      * findSymbolScope will look for a copy of the symbol in the activation records symbol table with the activation record offset
@@ -34,11 +42,17 @@ public class ActivationRecord {
         for (int i = 0; i < environmentVector.size(); i++) {
             STEntry res =  environmentVector.get(i).symbolTable.getSymbol(symbol);
             if (res.primClassif != Classif.EMPTY && !res.symbol.isEmpty()) {
-                STIdentifier id = (STIdentifier) res;
-                this.symbolTable.putSymbol(res.symbol, new STIdentifier(id.symbol, id.primClassif, id.dclType, id.structure, id.parm, i));
+                /*f (res instanceof STIdentifier) {
+                    STIdentifier id = (STIdentifier)res;
+                    //this.symbolTable.putSymbol(res.symbol, new STIdentifier(id.symbol, id.primClassif, id.dclType, id.structure, id.parm, i));
+                    return i;
+                } if (res instanceof STFunction) {
+                    return i;
+                }*/
                 return i;
             }
         }
         return -1;
     }
+
 }

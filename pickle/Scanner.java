@@ -371,7 +371,9 @@ public class Scanner {
      */
     public String classifyPrimary(String tokenStr) throws ScannerParserException
     {
-        STEntry entry = symbolTable.getSymbol(tokenStr);
+        STEntry entry = this.symbolTable.getSymbol(tokenStr);
+
+
         if (separators.contains(tokenStr))
         {
             nextToken.primClassif = Classif.SEPARATOR;

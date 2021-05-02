@@ -3,7 +3,7 @@ package pickle;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SymbolTable {
+public class SymbolTable implements Cloneable{
 
 	public HashMap<String, STEntry> symbolTable;		// Global symbol table
 	public String scopeName;
@@ -129,6 +129,17 @@ public class SymbolTable {
 				return Utility.builtInMAXELEM(param);
 			}
 		}));
+	}
+
+
+	@Override
+	public SymbolTable clone() {
+		try {
+			return (SymbolTable) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

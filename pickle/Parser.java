@@ -53,6 +53,8 @@ public class Parser {
         scanner.getNext();
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
         res.execMode = execMode;
+
+        verifyOperand();
         
         switch (scanner.currentToken.primClassif) {
             case OPERAND:
@@ -76,6 +78,26 @@ public class Parser {
 
     }
 
+    public void verifyOperand() {
+        if (scanner.currentToken.primClassif == Classif.OPERAND) {
+            if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
+                STEntry entry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+
+                if (! this.activationRecordStack.isEmpty()) {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+
+                    if (scope != -1)
+                        entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
+                }
+
+                if (entry.primClassif != Classif.EMPTY && (entry instanceof STFunction)) {
+                    scanner.currentToken.primClassif = Classif.FUNCTION;
+                    scanner.currentToken.subClassif = ((STFunction) entry).definedBy;
+                }
+          }
+        }
+    }
+
     /**
      * Executes control statements
      * <p></p>
@@ -85,6 +107,7 @@ public class Parser {
      */
     private ResultValue controlStmt(iExecMode execMode) throws PickleException {
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        res.execMode = execMode;
 
         switch (scanner.currentToken.subClassif) {
             case DECLARE:
@@ -105,7 +128,7 @@ public class Parser {
                         res = forStmt(execMode);
                         break;
                     case "def":
-                        userFunction();
+                        userFunction(execMode);
                         break;
                     case "break":
                         res.execMode = iExecMode.BREAK_EXEC;
@@ -588,12 +611,19 @@ public class Parser {
     private ResultValue functionStmt() throws PickleException {
         Result res =  null;
 
-        STFunction func = (STFunction) this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+        STEntry entry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+
         if (!this.activationRecordStack.isEmpty()) {
             int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
             if (scope != -1)
-                func = (STFunction) this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
+                entry =  this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
         }
+
+        if (entry.primClassif == Classif.EMPTY || !(entry instanceof STFunction)) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Can not find function in any scope");
+        }
+
+        STFunction func = (STFunction) entry;
 
         // check for builtin function if not throw error for identifier
         if (func.definedBy == SubClassif.BUILTIN) {
@@ -629,7 +659,7 @@ public class Parser {
     }
 
     public ResultValue callUserFunction(STFunction function, ArrayList<ResultValue>parameters) throws PickleException {
-        ActivationRecord newAcc = function.record;
+        ActivationRecord newAcc = new ActivationRecord(function.record);
         // verify parameter types
 
         for(int i = 0; i < parameters.size(); i++) {
@@ -662,7 +692,7 @@ public class Parser {
                         value = Utility.coerce(this, (ResultValue) value, paramType);
                     }
 
-                    function.record.storageManager.updateVariable(function.names.get(i), value);
+                    newAcc.storageManager.updateVariable(function.names.get(i), value);
                 } if ((value instanceof  ResultList) && function.array.get(i)) {
                     // coerce
                     if (((ResultList) value).dataType != paramType) {
@@ -670,10 +700,20 @@ public class Parser {
                     }
 
 
-                    function.record.storageManager.updateVariable(function.names.get(i), value);
+                    newAcc.storageManager.updateVariable(function.names.get(i), value);
                 }
 
 
+            }else {
+                if (argI.dataType != paramType) {
+                    argI = Utility.coerce(this, argI, paramType);
+                }
+
+                if (argI.dataType == SubClassif.EMPTY) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Was not expecting empty value");
+                }
+
+                newAcc.storageManager.updateVariable(function.names.get(i), argI);
             }
 
         }
@@ -986,7 +1026,7 @@ public class Parser {
         return res;
     }
 
-    private void userFunction() throws PickleException {
+    private void userFunction(iExecMode execMode) throws PickleException {
         //current token is def, so next token will be return type
         int currLineNum = scanner.iSourceLineNr;
         int colPos = scanner.iColPos;
@@ -1005,43 +1045,61 @@ public class Parser {
         ArrayList<Boolean> array = new ArrayList<Boolean>();
         ArrayList<String> passing = new ArrayList<String>();
         //get all the parameters
+
+        // starts at (
         while (!scanner.getNext().equals(":")) {
+
+            if (scanner.currentToken.tokenStr.equals(")")) {
+                continue;
+            }
+
             array.add(false);
             numArgs++;
             types.add(paramHelper(names, array, passing));
         }
 
-        STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER, numArgs, currLineNum, colPos, types, names, array, passing);
+        if (execMode == iExecMode.EXECUTE) {
+            STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER, numArgs, currLineNum, colPos, types, names, array, passing);
 
-        //set up functions activation record
-        if (!this.activationRecordStack.isEmpty()) {
-            newUserFcn.setupActivationRecord(this.activationRecordStack.peek());
+            //set up functions activation record
+            if (!this.activationRecordStack.isEmpty()) {
+                newUserFcn.setupActivationRecord(this.activationRecordStack.peek());
+            } else {
+                newUserFcn.record = new ActivationRecord(newUserFcn.symbol);
+            }
+
+            newUserFcn.setupSymbolTable();
+
+            if (this.activationRecordStack.isEmpty()) {
+                this.symbolTable.putSymbol(functionName, newUserFcn);
+            } else {
+                this.activationRecordStack.peek().symbolTable.putSymbol(functionName, newUserFcn);
+
+            }
+
+            //parse out the function body
+
+            newUserFcn.lineNum = scanner.iSourceLineNr;
+            newUserFcn.colPos = 0;
+            ResultValue res = statements(iExecMode.IGNORE_EXEC); // dont execute the statements on function definition
+
+            if (!res.terminatingString.equals("enddef")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing enddef");
+            }
+
+            if (!scanner.getNext().equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';'");
+            }
         } else {
-            newUserFcn.record = new ActivationRecord(newUserFcn.symbol);
-        }
+            ResultValue rest = statements(execMode);
 
-        newUserFcn.setupSymbolTable();
+            if (!rest.terminatingString.equals("enddef")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function missing enddef statement");
+            }
 
-        if (this.activationRecordStack.isEmpty()) {
-            this.symbolTable.putSymbol(functionName, newUserFcn);
-        }
-        else {
-            this.activationRecordStack.peek().symbolTable.putSymbol(functionName, newUserFcn);
-
-        }
-
-        //parse out the function body
-
-        newUserFcn.lineNum = scanner.iSourceLineNr;
-        newUserFcn.colPos = 0;
-        ResultValue res = statements(iExecMode.IGNORE_EXEC); // dont execute the statements on function definition
-
-        if (!res.terminatingString.equals("enddef")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing enddef");
-        }
-
-        if (!scanner.getNext().equals(";")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';'");
+            if (!scanner.getNext().equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "'enddef' msut be followed by ';'");
+            }
         }
 
     }
@@ -1696,6 +1754,20 @@ public class Parser {
         scanner.getNext(); //skips the 'by' token
 
         Result delimiter = expr();
+
+        if (delimiter instanceof ResultValue) {
+            if (((ResultValue) delimiter).dataType != SubClassif.STRING) {
+                delimiter = Utility.coerce(this,(ResultValue) delimiter, SubClassif.STRING);
+            }
+
+            if (((ResultValue) delimiter).dataType == SubClassif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use empty string for delimiter");
+            }
+        } else {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid delimiter");
+        }
+
+
 
         if (!scanner.currentToken.tokenStr.equals(":")) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected \":\" found " + scanner.currentToken.tokenStr);

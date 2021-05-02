@@ -633,7 +633,20 @@ public class Expr {
 
                         default:
                             try {
-                                STFunction funcName = (STFunction) parser.symbolTable.getSymbol(token.tokenStr);
+                                STEntry entry =  parser.symbolTable.getSymbol(token.tokenStr);
+
+                                if (! parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(token.tokenStr);
+
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(token.tokenStr);
+                                }
+
+                                if (entry.primClassif == Classif.EMPTY || !(entry instanceof STFunction)) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot find function in any scope");
+                                }
+
+                                STFunction funcName = (STFunction) entry;
 
                                 ArrayList<ResultValue> parameters = new ArrayList<ResultValue>();
                                 for (String names : funcName.names)
