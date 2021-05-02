@@ -786,6 +786,9 @@ public class Parser {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function return type: " + function.returnType.name());
             }
         }
+        else if (returnStatus.execMode != iExecMode.RETURN && function.returnType != SubClassif.VOID) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Return Statement not found");
+        }
 
 
 
