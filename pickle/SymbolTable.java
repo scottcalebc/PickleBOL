@@ -16,7 +16,7 @@ public class SymbolTable implements Cloneable{
 	 */
 	public SymbolTable()
 	{
-		this.symbolTable = new HashMap<>();
+		this.symbolTable = new HashMap<String, STEntry>();
 		this.scopeName = "Global";
 		initGlobal();
 	}
@@ -30,7 +30,7 @@ public class SymbolTable implements Cloneable{
 	public SymbolTable(String fcnName)
 	{
 		this.scopeName = fcnName;
-		this.symbolTable = new HashMap<>();
+		this.symbolTable = new HashMap<String, STEntry>();
 	}
 
 	/**
