@@ -124,6 +124,10 @@ public class Expr {
 
                         break;
                 case FUNCTION:
+                        if (!stack.empty() && stack.peek().tokenStr.equals("~")){
+                            postfix.add(stack.pop());
+                        }
+
                         stack.push(parser.scanner.currentToken);
                         funcBool++;
                         if (!parser.scanner.getNext().equals("(")) {
@@ -468,6 +472,11 @@ public class Expr {
 
                             try {
                                 ResultValue str = (ResultValue) parser.storageManager.getVariable(entry.symbol);
+                                if (!parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                                    if (scope != -1)
+                                        str = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+                                }
 
                                 if (index.strValue.equals("~")) {
                                     //just an lower bound
