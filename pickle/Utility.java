@@ -111,6 +111,118 @@ public class Utility {
     }
 
     /**
+     * Returns a ResultValue of Type Bool that is true if a ResultValue is present in a ResultList.
+     *
+     *
+     * @param parser Parser Object.
+     * @param value  ResultValue value to find in list.
+     * @param array  ResultList to look for value in.
+     * @return ResultValue of Type Bool
+     * @throws PickleException
+     */
+    public static ResultValue builtInIN(Parser parser, ResultValue value, ResultList array) throws PickleException
+    {
+        String res = "";
+        Numeric valueNum;
+        Numeric elementNum;
+
+        switch(value.dataType)
+        {
+            case STRING:  // If the value to check is a String or Boolean compare the string values
+            case BOOLEAN: // of the array to find a match
+                // iterate over entire list
+                for (int i = 0; i < array.arrayList.size(); i++)
+                {
+                    // if the array element is not empty and matches the value we are looking for
+                    if (array.arrayList.get(i).dataType != SubClassif.EMPTY
+                            && (array.arrayList.get(i).strValue.equals(value.strValue)))
+                    {
+                        return new ResultValue("T", SubClassif.BOOLEAN);
+                    }
+                }
+                break;
+            case FLOAT: // If the value to check is a Float then we can only compare using numeric comparisons
+                // verify the value is a numeric, and get object for comparison
+                valueNum = new Numeric(parser, value, "", "");
+
+                switch (array.dataType)
+                {
+                    case DATE:
+                    case BOOLEAN:
+                    case STRING:  // Value List is of incompatible type
+                        throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                                "Cannot compare Numeric to value list.");
+                    case INTEGER:
+                    case FLOAT:  // Value List is of compatible type
+                        // iterate over entire list
+                        for (int i = 0; i < array.arrayList.size(); i++)
+                        {
+                            // if the array element is not empty
+                            if (array.arrayList.get(i).dataType != SubClassif.EMPTY)
+                            {
+                                // coerce the element into a Float
+                                elementNum = new Numeric(parser, array.arrayList.get(i), "", "");
+                                double test = (array.dataType == SubClassif.INTEGER) ? (double)elementNum.intValue : elementNum.doubleValue;
+                                if (test == valueNum.doubleValue)
+                                {
+                                    return new ResultValue("T", SubClassif.BOOLEAN);
+                                }
+                            }
+                        }
+                        return new ResultValue("F", SubClassif.BOOLEAN);
+                }
+                break;
+            case INTEGER:
+                // If the value to check is an Integer then we can only compare using numeric comparisons
+                valueNum = new Numeric(parser, value, "", "");
+
+                switch (array.dataType)
+                {
+                    case DATE:
+                    case BOOLEAN:
+                    case STRING: // Value List is of incompatible type
+                        throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                                "Cannot compare Numeric to value list.");
+                    case INTEGER:
+                    case FLOAT:  // Value List is of compatible type
+                        // iterate over entire list
+                        for (int i = 0; i < array.arrayList.size(); i++)
+                        {
+                            // if the array element is not empty
+                            if (array.arrayList.get(i).dataType != SubClassif.EMPTY)
+                            {
+                                // coerce the element into an Integer
+                                elementNum = new Numeric(parser, array.arrayList.get(i), "", "");
+                                double test = (array.dataType == SubClassif.FLOAT) ? (int)elementNum.doubleValue : elementNum.intValue;
+                                if (test == valueNum.intValue)
+                                {
+                                    return new ResultValue("T", SubClassif.BOOLEAN);
+                                }
+                            }
+                        }
+                        return new ResultValue("F", SubClassif.BOOLEAN);
+                }
+                break;
+        }
+        return new ResultValue(res, SubClassif.BOOLEAN);
+    }
+
+    /**
+     * Returns a ResultValue of Type Bool that is true if a ResultValue is NOT present in a ResultList.
+     *
+     * <p> Negated return of builtInIn.
+     *
+     * @param parser Parser Object.
+     * @param value  ResultValue value to find in list.
+     * @param array  ResultList to look for value in.
+     * @return ResultValue of Type Bool
+     * @throws PickleException
+     */
+    public static ResultValue builtInNOTIN(Parser parser, ResultValue value, ResultList array) throws PickleException {
+        return boolNot(parser, new Bool(parser, builtInIN(parser, value, array)));
+    }
+
+    /**
      * Assigns an Array to an Array.
      *
      * <p> If a larger array is copied into a smaller array,
