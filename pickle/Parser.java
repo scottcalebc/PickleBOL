@@ -632,8 +632,6 @@ public class Parser {
         ActivationRecord newAcc = function.record;
         // verify parameter types
 
-
-
         for(int i = 0; i < parameters.size(); i++) {
             // coerce
             STEntry entry;
@@ -645,8 +643,6 @@ public class Parser {
                 // get scoping
                 if (!this.activationRecordStack.isEmpty()) {
                     int scope = this.activationRecordStack.peek().findSymbolScope(argI.strValue);
-
-
                     if (scope != -1) {
                         value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(argI.strValue);
                     } else {
@@ -656,8 +652,8 @@ public class Parser {
                     value = this.storageManager.getVariable(argI.strValue);
                 }
 
-// assign paramaters into activation record storagemanager
-                if ((value instanceof ResultValue) && !function.array.get(i) ) {
+                // assign paramaters into activation record storagemanager
+                if ((value instanceof ResultValue) && !function.array.get(i)) {
                     // coerce
                     if (((ResultValue) value).dataType != paramType ) {
                         if (((ResultValue) value).dataType == SubClassif.EMPTY) {
@@ -665,8 +661,6 @@ public class Parser {
                         }
                         value = Utility.coerce(this, (ResultValue) value, paramType);
                     }
-
-
 
                     function.record.storageManager.updateVariable(function.names.get(i), value);
                 } if ((value instanceof  ResultList) && function.array.get(i)) {
@@ -724,11 +718,8 @@ public class Parser {
 
 
         for (int i =0 ; i < function.numArgs; i++) {
-            if (parameters.get(i).dataType == SubClassif.IDENTIFIER) {
-
-
+            if (parameters.get(i).dataType == SubClassif.IDENTIFIER && function.passing.get(i).equals("Reference")) {
                 Result newValue = newAcc.storageManager.getVariable(function.names.get(i));
-
 
                 if (!this.activationRecordStack.isEmpty()) {
                     int scope = this.activationRecordStack.peek().findSymbolScope(parameters.get(i).strValue);
@@ -1012,14 +1003,15 @@ public class Parser {
         ArrayList<SubClassif> types = new ArrayList<SubClassif>();
         ArrayList<String> names = new ArrayList<String>();
         ArrayList<Boolean> array = new ArrayList<Boolean>();
+        ArrayList<String> passing = new ArrayList<String>();
         //get all the parameters
         while (!scanner.getNext().equals(":")) {
             array.add(false);
             numArgs++;
-            types.add(paramHelper(names, array));
+            types.add(paramHelper(names, array, passing));
         }
 
-        STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER, numArgs, currLineNum, colPos, types, names, array);
+        STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER, numArgs, currLineNum, colPos, types, names, array, passing);
 
         //set up functions activation record
         if (!this.activationRecordStack.isEmpty()) {
@@ -1054,10 +1046,25 @@ public class Parser {
 
     }
 
-    private SubClassif paramHelper(ArrayList<String> names, ArrayList<Boolean> array) throws PickleException {
+    private SubClassif paramHelper(ArrayList<String> names, ArrayList<Boolean> array, ArrayList<String> passing) throws PickleException {
         SubClassif paramType = SubClassif.EMPTY;
         //the parameter is either a primitive or an array with a pair of square brackets
         // current token should be an identifier
+
+        //Could be 'Ref', 'Value' or and Identifier
+        if (scanner.currentToken.tokenStr.equals("Value") || scanner.currentToken.tokenStr.equals("Ref")) {
+            if (scanner.currentToken.tokenStr.equals("Value")) {
+                //do something
+                passing.add("Value");
+            }
+            else {
+                passing.add("Reference");
+            }
+            scanner.getNext(); //if it was 'Value' or 'Ref' then skip
+        }
+        else {
+            passing.add("Reference");
+        }
 
         //if there is no type for the parameter
         if (scanner.currentToken.primClassif != Classif.CONTROL || scanner.currentToken.subClassif != SubClassif.DECLARE) {
@@ -1331,8 +1338,6 @@ public class Parser {
                     throw e;
                 }
 
-
-                
             }
             else if (scanner.currentToken.tokenStr.equals("from")) {
                 result = stringDelimiterFor(controlVar, execMode);
@@ -1360,10 +1365,6 @@ public class Parser {
     private ResultValue charStringFor(String controlVar, iExecMode execMode) throws PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
 
-
-
-
-
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
         result.execMode = execMode;
 
@@ -1374,17 +1375,26 @@ public class Parser {
         }
 
         if (entry.primClassif == Classif.EMPTY) {
-            symbolTable.putSymbol(controlVar,
-                    new STIdentifier(controlVar,
-                            Classif.OPERAND,
-                            SubClassif.STRING,
-                            "none",
-                            "local",
-                            0));
-
-
+            if (!this.activationRecordStack.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(
+                        controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING, //TODO - ish
+                                "none",
+                                "local",
+                                0)
+                );
+            } else {
+                symbolTable.putSymbol(controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING, //TODO - ish
+                                "none",
+                                "local",
+                                0));
+            }
         }
-
 
         scanner.getNext();
 
@@ -1496,7 +1506,6 @@ public class Parser {
             throw new PickleException();
         }
 
-
         if (entry.primClassif == Classif.EMPTY) {
             if (!this.activationRecordStack.isEmpty()) {
                 this.activationRecordStack.peek().symbolTable.putSymbol(
@@ -1517,8 +1526,6 @@ public class Parser {
                                 "local",
                                 0));
             }
-
-
         } else { //TODO - might need to fix this if too
             //TODO fix exception - limit type needs to be the same as the array elements
 
@@ -1528,10 +1535,7 @@ public class Parser {
             if (limit.dataType != id.dclType) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use variable of non " + limit.dataType.name() + " type");
             }
-
         }
-
-
 
         if (!scanner.currentToken.tokenStr.equals(":")) {
             // TODO: fix exception - error for statement not ending in ':'
@@ -1637,8 +1641,6 @@ public class Parser {
         return result;
     }
 
-
-
     private ResultValue stringDelimiterFor(String controlVar, iExecMode execMode) throws  PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
 
@@ -1673,8 +1675,6 @@ public class Parser {
                                 "local",
                                 0));
             }
-
-
         }
 
         scanner.getNext(); //skips the 'from' token
@@ -1786,17 +1786,26 @@ public class Parser {
         }
 
         if (entry.primClassif == Classif.EMPTY) {
-            symbolTable.putSymbol(controlVar,
-                    new STIdentifier(controlVar,
-                            Classif.OPERAND,
-                            SubClassif.INTEGER,
-                            "none",
-                            "local",
-                            0));
-
-
+            if (!this.activationRecordStack.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(
+                        controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING, //TODO - ish
+                                "none",
+                                "local",
+                                0)
+                );
+            } else {
+                symbolTable.putSymbol(controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING, //TODO - ish
+                                "none",
+                                "local",
+                                0));
+            }
         }
-
 
         scanner.getNext();
         

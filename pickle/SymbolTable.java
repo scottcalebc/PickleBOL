@@ -68,7 +68,6 @@ public class SymbolTable {
 	 */
 	private void initGlobal()
 	{
-
 		this.symbolTable.put("return", new STControl("return", Classif.CONTROL, SubClassif.FLOW));
 		this.symbolTable.put("def", new STControl("def", Classif.CONTROL, SubClassif.FLOW));
 		this.symbolTable.put("enddef", new STControl("enddef", Classif.CONTROL, SubClassif.END));

@@ -10,11 +10,11 @@ public class STFunction extends STEntry
     public ArrayList<SubClassif> parameters;         // Reference to an ArrayList of the parameter types
     public ArrayList<String> names;                  // List of the names of all parameters
     public ArrayList<Boolean> array;                 // Determines if parameter is array or not
+    public ArrayList<String> passing;                // Determines if parameter is passed by Value or Reference
     public String symbol;                            // Name of function
     public Builtin function = null;                  // Reference to Builtin functions anonymous
     public int colPos = 0;                           // Col pos for user defined function
     public int lineNum = 0;                          // Line number for user defined function
-
     public ActivationRecord record = null;           // functions activation record
 
     /**
@@ -30,7 +30,7 @@ public class STFunction extends STEntry
      * @param colPos        Column position of defined function
      * @param types         List of parameter types
      */
-    public STFunction(String symbol, Classif primClassIf, SubClassif returnType, SubClassif definedBy, int numArgs, int lineNum, int colPos, ArrayList<SubClassif> types, ArrayList<String> names, ArrayList<Boolean> array)
+    public STFunction(String symbol, Classif primClassIf, SubClassif returnType, SubClassif definedBy, int numArgs, int lineNum, int colPos, ArrayList<SubClassif> types, ArrayList<String> names, ArrayList<Boolean> array, ArrayList<String> passing)
     {
         super(symbol, primClassIf);
         this.returnType = returnType;
@@ -42,6 +42,7 @@ public class STFunction extends STEntry
         this.parameters = types;
         this.names = names;
         this.array = array;
+        this.passing = passing;
     }
 
     /**
