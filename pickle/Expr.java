@@ -11,11 +11,11 @@ public class Expr {
 
         int funcBool = 0;
 
-        while(     !parser.scanner.currentToken.tokenStr.equals(";")
-                && !parser.scanner.currentToken.tokenStr.equals(":")
+        while(     !(parser.scanner.currentToken.tokenStr.equals(";") && parser.scanner.currentToken.subClassif != SubClassif.STRING)
+                && !(parser.scanner.currentToken.tokenStr.equals(":") && parser.scanner.currentToken.subClassif != SubClassif.STRING)
                 && !(parser.scanner.currentToken.tokenStr.equals("to") && parser.scanner.currentToken.subClassif != SubClassif.STRING)
-                && !parser.scanner.currentToken.tokenStr.equals("by")
-                && !parser.scanner.currentToken.tokenStr.equals("=")) {
+                && !(parser.scanner.currentToken.tokenStr.equals("by") && parser.scanner.currentToken.subClassif != SubClassif.STRING)
+                && !(parser.scanner.currentToken.tokenStr.equals("=") && parser.scanner.currentToken.subClassif != SubClassif.STRING)) {
 
             if (funcBool == 0 && parser.scanner.currentToken.tokenStr.equals(",") && parser.scanner.currentToken.subClassif != SubClassif.STRING) {
                 break;
