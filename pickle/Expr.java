@@ -884,6 +884,13 @@ public class Expr {
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
 
+                                if (! parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param.strValue);
+
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param.strValue);
+                                }
+
                                 if (entry.primClassif == Classif.EMPTY) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
                                 }
@@ -895,6 +902,13 @@ public class Expr {
 
                                 try {
                                     param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (! parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+
+                                        if (scope != -1)
+                                            param = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
 
                                     if (id.dclType == SubClassif.STRING) {
                                         param = Date.validateDate(param.strValue);
@@ -911,6 +925,13 @@ public class Expr {
                             if (param2.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param2.strValue);
 
+                                if (! parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param2.strValue);
+
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param2.strValue);
+                                }
+
                                 if (entry.primClassif == Classif.EMPTY) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
                                 }
@@ -922,6 +943,14 @@ public class Expr {
 
                                 try {
                                     param2 = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (! parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+
+                                        if (scope != -1)
+                                            param2 = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
+
 
                                     if (id.dclType == SubClassif.STRING) {
                                         param2 = Date.validateDate(param2.strValue);
@@ -957,6 +986,14 @@ public class Expr {
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
 
+                                if (! parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param.strValue);
+
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param.strValue);
+
+                                }
+
                                 if (entry.primClassif == Classif.EMPTY) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
                                 }
@@ -968,6 +1005,13 @@ public class Expr {
 
                                 try {
                                     param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (! parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+
+                                        if (scope != -1)
+                                            param = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
 
                                     if (id.dclType == SubClassif.STRING) {
                                         param = Date.validateDate(param.strValue);
@@ -984,6 +1028,13 @@ public class Expr {
                             if (param2.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param2.strValue);
 
+                                if (! parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param2.strValue);
+
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param2.strValue);
+                                }
+
                                 if (entry.primClassif == Classif.EMPTY) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initialized");
                                 }
@@ -995,6 +1046,13 @@ public class Expr {
 
                                 try {
                                     param2 = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (! parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+
+                                        if (scope != -1)
+                                            param2 = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
                                 } catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use array value with dateDiff function");
                                 }
@@ -1024,6 +1082,13 @@ public class Expr {
                             if (param.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param.strValue);
 
+                                if (! parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param.strValue);
+
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param.strValue);
+                                }
+
                                 if (entry.primClassif == Classif.EMPTY) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
                                 }
@@ -1035,6 +1100,13 @@ public class Expr {
 
                                 try {
                                     param = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (! parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+
+                                        if (scope != -1)
+                                            param = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
 
                                     if (id.dclType == SubClassif.STRING) {
                                         param = Date.validateDate(param.strValue);
@@ -1051,6 +1123,13 @@ public class Expr {
                             if (param2.dataType == SubClassif.IDENTIFIER) {
                                 STEntry entry = parser.symbolTable.getSymbol(param2.strValue);
 
+                                if (! parser.activationRecordStack.isEmpty()) {
+                                    int scope = parser.activationRecordStack.peek().findSymbolScope(param2.strValue);
+
+                                    if (scope != -1)
+                                        entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(param2.strValue);
+                                }
+
                                 if (entry.primClassif == Classif.EMPTY) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Identifier must be initilized");
                                 }
@@ -1062,6 +1141,13 @@ public class Expr {
 
                                 try {
                                     param2 = (ResultValue) parser.storageManager.getVariable(id.symbol);
+
+                                    if (! parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
+
+                                        if (scope != -1)
+                                            param2 = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                    }
 
                                     if (id.dclType == SubClassif.STRING) {
                                         param2 = Date.validateDate(param2.strValue);
