@@ -25,24 +25,38 @@ public class Expr {
                 case OPERAND:
                     //System.out.printf("Outing operand '%s' onto stack\n", parser.scanner.currentToken.tokenStr);
                     Token temp;
-                    if (parser.scanner.nextToken.tokenStr.equals("[")) {
+                    if (parser.scanner.nextToken.tokenStr.equals("[") && parser.scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
                         parser.scanner.currentToken.tokenStr = parser.scanner.currentToken.tokenStr.concat(parser.scanner.nextToken.tokenStr);
                         parser.scanner.currentToken.operatorPrecedence = OperatorPrecedence.ARRAY;
                         stack.push(parser.scanner.currentToken);
+                        Token slice = new Token();
+                        slice.tokenStr = "SLICE";
+                        slice.primClassif = Classif.OPERAND;
+                        postfix.add(slice);
                         parser.scanner.getNext();
                     } else {
+
+                        if (!stack.empty() && stack.peek().tokenStr.equals("~")) {
+                            postfix.add(stack.pop());
+                        }
+
                         postfix.add(parser.scanner.currentToken);
                     }
                     break;
                 case OPERATOR:
+                    if (!stack.empty() && stack.peek().tokenStr.equals("~")) {
+                        postfix.add(stack.pop());
+                    }
+
                     while (!stack.empty()) {
                        /* System.out.printf("%s\n", stack.peek().tokenStr);
                         System.out.printf("Checking precedence:\n\t'%s'\t'%s'\n\t'%d'\t'%d'\n",
                                 parser.scanner.currentToken.tokenStr,
                                 stack.peek().tokenStr,
                                 parser.scanner.currentToken.operatorPrecedence.tokenPrecedence,
-                                stack.peek().operatorPrecedence.stackPrecedence);
-*/
+                                stack.peek().operatorPrecedence.stackPrecedence);*/
+
+
                         if (parser.scanner.currentToken.operatorPrecedence.tokenPrecedence > stack.peek().operatorPrecedence.stackPrecedence) {
                             break;
                         }
@@ -137,11 +151,15 @@ public class Expr {
 
         ResultValue res;
 
+        int sliceBool = 0;
         if (postFix.size() == 0) {
             throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression");
         }
 
-        for (Token token : postFix) {
+        for (int i = 0; i < postFix.size(); i++) {
+            Token token = postFix.get(i);
+
+
             switch (token.primClassif) {
                 case OPERAND:
                     ResultValue tmp = new ResultValue(token.tokenStr, token.subClassif);
@@ -155,6 +173,8 @@ public class Expr {
                                 entry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(token.tokenStr);
                         }
 
+                        ResultValue neg = new ResultValue("0", SubClassif.INTEGER);
+
                         if (entry.primClassif != Classif.EMPTY && ((STIdentifier)entry).structure.equals("array") ) {
 
                             ResultValue index = stack.pop();
@@ -167,37 +187,170 @@ public class Expr {
                                         array = (ResultList) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(token.tokenStr);
                                 }
 
-                                if (index.dataType != SubClassif.INTEGER) {
-                                    if (index.dataType == SubClassif.IDENTIFIER) {
-                                        STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
-                                        if (!parser.activationRecordStack.isEmpty()) {
-                                            int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
-                                            if (scope != -1)
-                                                subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
-                                        }
+                                if (index.strValue.equals("~")) {
+                                    //just an lower bound
+                                    ResultValue lower = stack.pop();
+                                    if (!stack.pop().strValue.equals("SLICE")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                    }
 
-                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
-                                            try {
-                                                index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
-                                                if (!parser.activationRecordStack.isEmpty()) {
-                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
-                                                    if (scope != -1)
-                                                        index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                    if (lower.dataType != SubClassif.INTEGER) {
+                                        if (lower.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                            if (!parser.activationRecordStack.isEmpty()) {
+                                                int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                                if (scope != -1)
+                                                    subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                            }
+
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    if (!parser.activationRecordStack.isEmpty()) {
+                                                        int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                        if (scope != -1)
+                                                            lower = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                    }
+
+                                               } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                 }
-
-                                            } catch (Exception e) {
-                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
                                             }
                                         } else {
-                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
-                                        }
-                                    } else {
 
-                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
                                     }
+
+                                    if (Utility.lessThan(parser, lower, neg).strValue.equals("T")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                    }
+
+                                    return Utility.getArraySlice(parser, array, Integer.parseInt(lower.strValue), -1);
+
+
+                                } else if (stack.peek().strValue.equals("~")) {
+                                    stack.pop();
+                                    // possible upper and lower or just upper
+                                    if (stack.peek().strValue.equals("SLICE")) {
+                                        //just upper bound
+                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                        }
+                                        if (index.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+                                        if (Utility.lessThan(parser, index, neg).strValue.equals("T")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                        }
+
+                                        return Utility.getArraySlice(parser, array, -1, Integer.parseInt(index.strValue));
+                                    } else {
+                                        ResultValue lower = stack.pop();
+                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                        }
+                                        // check upper bound for number
+                                        if (index.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+
+                                        // check lower bound for number
+                                        if (lower.dataType != SubClassif.INTEGER) {
+                                            if (lower.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(lower.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+                                        if (Utility.lessThan(parser, index, neg).strValue.equals("T")
+                                        || Utility.lessThan(parser, lower, neg).strValue.equals("T")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                        }
+
+                                        return Utility.getArraySlice(parser, array, Integer.parseInt(lower.strValue), Integer.parseInt(index.strValue));
+
+                                    }
+
                                 }
 
-                                tmp = array.getItem(parser, Integer.parseInt(index.strValue));
+                                // no slicing
+                                else {
+
+
+                                    if (index.dataType != SubClassif.INTEGER) {
+                                        if (index.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                }
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                            }
+                                        } else {
+
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
+                                    }
+
+
+                                    tmp = array.getItem(parser, Integer.parseInt(index.strValue));
+
+
+
+                                    ResultValue leftover = stack.pop();
+
+                                    if (!leftover.strValue.equals("SLICE")) {
+                                        stack.push(leftover);
+                                    }
+                                }
                             } catch (PickleException p) {
                                 throw p;
                             }
@@ -214,49 +367,180 @@ public class Expr {
                             ResultValue index = stack.pop();
 
                             try {
+                                ResultValue str = (ResultValue) parser.storageManager.getVariable(entry.symbol);
 
+                                if (index.strValue.equals("~")) {
+                                    //just an lower bound
+                                    ResultValue lower = stack.pop();
+                                    if (!stack.pop().strValue.equals("SLICE")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                    }
 
-                                if (index.dataType != SubClassif.INTEGER) {
-                                    if (index.dataType == SubClassif.IDENTIFIER) {
-                                        STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
-                                        if (!parser.activationRecordStack.isEmpty()) {
-                                            int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
-                                            if (scope != -1)
-                                                subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
-                                        }
+                                    if (lower.dataType != SubClassif.INTEGER) {
+                                        if (lower.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                            if (!parser.activationRecordStack.isEmpty()) {
+                                                int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                                if (scope != -1)
+                                                    subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                            }
 
-                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
-                                            try {
-                                                index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
-                                                if (!parser.activationRecordStack.isEmpty()) {
-                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
-                                                    if (scope != -1)
-                                                        index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    if (!parser.activationRecordStack.isEmpty()) {
+                                                        int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                        if (scope != -1)
+                                                            lower = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                    }
+
+                                                } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                 }
-
-                                            } catch (Exception e) {
-                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
                                             }
                                         } else {
-                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
-                                        }
-                                    } else {
 
-                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
+                                    }
+
+                                    if (Utility.lessThan(parser, lower, neg).strValue.equals("T")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                    }
+
+                                    tmp = Utility.getStringSlice(parser, str, Integer.parseInt(lower.strValue), -1);
+
+
+                                } else if (stack.peek().strValue.equals("~")) {
+                                    stack.pop();
+                                    // possible upper and lower or just upper
+                                    if (stack.peek().strValue.equals("SLICE")) {
+                                        //just upper bound
+                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                        }
+                                        if (index.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+
+                                        if (Utility.lessThan(parser, index, neg).strValue.equals("T")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                        }
+
+                                        tmp = Utility.getStringSlice(parser, str, -1, Integer.parseInt(index.strValue));
+
+                                    } else {
+                                        ResultValue lower = stack.pop();
+                                        if (!stack.pop().strValue.equals("SLICE")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid slice expression");
+                                        }
+                                        // check upper bound for number
+                                        if (index.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+
+                                        // check lower bound for number
+                                        if (lower.dataType != SubClassif.INTEGER) {
+                                            if (index.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                                if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                    try {
+                                                        lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    } catch (Exception e) {
+                                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                    }
+                                                } else {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                                }
+                                            } else {
+
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                            }
+                                        }
+
+                                        if (Utility.lessThan(parser, index, neg).strValue.equals("T")
+                                        || Utility.lessThan(parser, lower, neg).strValue.equals("T")) {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                        }
+
+                                        tmp = Utility.getStringSlice(parser, str, Integer.parseInt(lower.strValue), Integer.parseInt(index.strValue));
+
+                                    }
+
+                                } else {
+                                    str = (ResultValue) parser.storageManager.getVariable(entry.symbol);
+                                    if (!parser.activationRecordStack.isEmpty()) {
+                                        int scope = parser.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                                        if (scope != -1)
+                                            str = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+                                    }
+
+                                    if (index.dataType != SubClassif.INTEGER) {
+                                        if (index.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                }
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                            }
+                                        } else {
+
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
+                                    }
+                                    tmp = Utility.valueAtIndex(parser, str, Integer.parseInt(index.strValue));
+
+
+                                    ResultValue leftover = stack.pop();
+
+                                    if (!leftover.strValue.equals("SLICE")) {
+                                        stack.push(leftover);
                                     }
                                 }
 
-                                ResultValue str = (ResultValue) parser.storageManager.getVariable(entry.symbol);
-                                if (!parser.activationRecordStack.isEmpty()) {
-                                    int scope = parser.activationRecordStack.peek().findSymbolScope(entry.symbol);
-                                    if (scope != -1)
-                                        str = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
-                                }
-
-                                tmp = Utility.valueAtIndex(parser, str, Integer.parseInt(index.strValue));
-
-                            } catch (Exception e) {
-
+                            } catch (PickleException p) {
+                                throw p;
+                            }
+                            catch (Exception e) {
+                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Unexpected or undefined value on stack");
                             }
 
                         }
@@ -265,6 +549,11 @@ public class Expr {
                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot index on empty array");
                         }
 
+                    }
+
+
+                    if (token.tokenStr.equals("SLICE")) {
+                        sliceBool += 1;
                     }
                     stack.push(tmp);
                     break;
@@ -652,9 +941,9 @@ public class Expr {
                                 for (String names : funcName.names)
                                     parameters.add(new ResultValue("", SubClassif.EMPTY));
 
-                                for(int i = funcName.numArgs - 1; i >= 0; i--) {
+                                for(int j = funcName.numArgs - 1; j >= 0; j--) {
                                     if (!stack.empty()) {
-                                        parameters.set(i, stack.pop());
+                                        parameters.set(j, stack.pop());
                                     } else {
                                         throw  new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid number of parameters passed");
                                     }
@@ -682,9 +971,16 @@ public class Expr {
                     // 1 = first operand
                     Bool bOp1;
                     Bool bOp2;
+                    ResultValue operand2;
+                    ResultValue operand1;
 
-                    ResultValue operand2  = stack.pop();
-                    ResultValue operand1 = new ResultValue("", SubClassif.EMPTY);
+                    if (stack.empty()) {
+                        operand2 = new ResultValue("", SubClassif.EMPTY);
+                    } else {
+                        operand2 = stack.pop();
+                    }
+
+                    operand1 = new ResultValue("", SubClassif.EMPTY);
 
                     if (operand2.dataType == SubClassif.IDENTIFIER) {
                         STEntry entry = parser.symbolTable.getSymbol(operand2.strValue);
@@ -718,6 +1014,118 @@ public class Expr {
                         bOp2 = new Bool(parser, operand2);
                         res = Utility.boolNot(parser, bOp2);
 
+                    } else if (token.tokenStr.equals("~")) {
+                        if (sliceBool > 0) {
+                            stack.push(operand2);
+                            res = new ResultValue(token.tokenStr, SubClassif.EMPTY);
+                            sliceBool -= 1;
+                        } else {
+                            ResultValue empty = new ResultValue("-1", SubClassif.INTEGER);
+                            ArrayList<ResultValue>bounds = new ArrayList<ResultValue>();
+
+                            // if stack is not empty than possible upper and lower bound
+                            ResultValue lower = operand2;
+
+                            if (lower.dataType != SubClassif.EMPTY) {
+                                // if end of postFix then just lower bound
+                                if (lower.dataType != SubClassif.INTEGER) {
+                                    if (lower.dataType == SubClassif.IDENTIFIER) {
+                                        STEntry subEntry = parser.symbolTable.getSymbol(lower.strValue);
+
+                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                            try {
+                                                lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                            } catch (Exception e) {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                            }
+                                        } else {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                        }
+                                    } else {
+
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                    }
+                                }
+                                if (Utility.lessThanOrEqualTo(parser, lower, empty).strValue.equals("T")) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                }
+
+
+                                if (i + 1 >= postFix.size()) {
+
+                                    bounds.add(lower);
+                                    bounds.add(empty);
+
+                                } else {
+                                    // get upper bound
+
+                                    ResultValue upper = (ResultValue) Expr.evaluatePostFix(parser, new ArrayList<Token>(postFix.subList(i+1, postFix.size())));
+                                    if (upper.dataType != SubClassif.INTEGER) {
+                                        if (upper.dataType == SubClassif.IDENTIFIER) {
+                                            STEntry subEntry = parser.symbolTable.getSymbol(upper.strValue);
+
+                                            if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                                try {
+                                                    upper = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                } catch (Exception e) {
+                                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                                }
+                                            } else {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                            }
+                                        } else {
+
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                        }
+                                    }
+                                    if (Utility.lessThanOrEqualTo(parser, upper, empty).strValue.equals("T")) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                    }
+
+
+                                    bounds.add(lower);
+                                    bounds.add(upper);
+
+                                }
+                            } else {
+                                if (i >= postFix.size()) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Invalid indices for slice operation");
+                                }
+
+
+                                ResultValue upper = (ResultValue) Expr.evaluatePostFix(parser, new ArrayList<Token>(postFix.subList(i+1, postFix.size())));
+                                if (upper.dataType != SubClassif.INTEGER) {
+                                    if (upper.dataType == SubClassif.IDENTIFIER) {
+                                        STEntry subEntry = parser.symbolTable.getSymbol(upper.strValue);
+
+                                        if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
+                                            try {
+                                                upper = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                            } catch (Exception e) {
+                                                throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
+                                            }
+                                        } else {
+                                            throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be an Integer");
+                                        }
+                                    } else {
+
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be integer value");
+                                    }
+                                }
+                                if (Utility.lessThanOrEqualTo(parser, upper, empty).strValue.equals("T")) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Slice index cannot be negative");
+                                }
+
+
+
+                                bounds.add(empty);
+                                bounds.add(upper);
+                            }
+                            // if stack is empty then just upper bound
+
+
+                            return new ResultList(parser, bounds, 2, SubClassif.INTEGER);
+                        }
                     } else {
                         operand1  = stack.pop();
 
@@ -746,7 +1154,6 @@ public class Expr {
 
 
                         switch (token.tokenStr) {
-
                             case "+":
                                 res = Utility.add(parser,
                                         getNumeric(parser, operand1, token.tokenStr, "First Operand for addition"),
