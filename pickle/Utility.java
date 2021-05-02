@@ -268,7 +268,7 @@ public class Utility {
      */
     public static ResultValue builtInIN(Parser parser, ResultValue value, ResultList array) throws PickleException
     {
-        String res = "";
+        String res = "F";
         Numeric valueNum;
         Numeric elementNum;
 

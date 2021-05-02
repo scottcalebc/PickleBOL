@@ -2028,13 +2028,95 @@ public class Parser {
 
     }
 
+    private ResultValue inNotIn() throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected Identifier found " + scanner.currentToken.tokenStr);
+        }
+
+        String identifier = scanner.currentToken.tokenStr;
+
+        STEntry entry = this.symbolTable.getSymbol(identifier);
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(identifier);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(identifier);
+        }
+
+        if (entry.primClassif == Classif.EMPTY) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Identifier not found");
+        }
+
+        if (!(entry instanceof STIdentifier)) {
+            throw new PickleException();
+        }
+
+        Result value = this.storageManager.getVariable(identifier);
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(identifier);
+            if (scope != -1)
+                value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(identifier);
+        }
+
+        if (!(value instanceof ResultValue)) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected primitive, found");
+        }
+
+        String inORout = scanner.getNext(); // set string for later utility usage
+
+        if (!inORout.equals("IN") && !inORout.equals("NOTIN")) {
+            throw new PickleException();
+        }
+
+        if (!scanner.getNext().equals("{")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected start of list (\"{\") found");
+        }
+
+        //now we hit that list bby
+        ResultList list = new ResultList(this, new ArrayList<ResultValue>(), 0, scanner.nextToken.subClassif);
+        ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>();
+
+
+
+        //loop through 'em
+        while (!scanner.currentToken.tokenStr.equals("}")) {
+            scanner.getNext();
+
+            if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != list.dataType) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "List element data type conflict");
+            }
+
+            arrayList.add(new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif));
+
+            scanner.getNext();
+        }
+
+        list.arrayList = arrayList;
+        list.allocatedSize = arrayList.size();
+        list.capacity = arrayList.size();
+
+        if (inORout.equals("IN")) {
+            res = Utility.builtInIN(this, (ResultValue) value, list);
+        }
+        else {
+            res = Utility.builtInNOTIN(this, (ResultValue) value, list);
+        }
+
+        scanner.getNext(); //skip to the ':' token
+
+        return res;
+    }
+
     private ResultValue evalCond() throws PickleException {
-
-
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
         scanner.getNext();
         try {
-            res = (ResultValue) expr();
+            if (scanner.nextToken.tokenStr.equals("IN") || scanner.nextToken.tokenStr.equals("NOTIN")) {
+                res = inNotIn();
+            }
+            else {
+                res = (ResultValue) expr();
+            }
         } catch (PickleException p) {
             throw p;
         } catch (Exception e) {
