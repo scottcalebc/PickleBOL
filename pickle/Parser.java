@@ -397,7 +397,19 @@ public class Parser {
 
 
 
-            ResultValue old = (ResultValue) this.storageManager.getVariable(varStr);
+            Result oldType =  this.storageManager.getVariable(varStr);
+
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+                if (scope != -1) {
+                    oldType = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(varStr);
+                }
+            }
+
+            if (!(oldType instanceof ResultValue)) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot perform assignment of array into primitive");
+            }
+            ResultValue old = (ResultValue) oldType;
 
             if (!assignStr.equals("=") && old.dataType == SubClassif.EMPTY) {
                 throw new ScannerParserException(varToken, scanner.sourceFileNm, "Cannot use operator '" + assignStr + "' on uninitialized variable");
