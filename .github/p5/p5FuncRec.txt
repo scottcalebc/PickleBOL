@@ -1,0 +1,27 @@
+
+
+def Int factorial(Int x):
+    if x == 0:
+        return 1;
+    endif;
+
+    return x * factorial(x-1);
+enddef;
+
+print(factorial(5));
+
+def Void tower(Int n, String src, String dest, String aux):
+    if n == 0:
+        return;
+    endif;
+
+    tower(n-1, src, aux, dest);
+
+    print("Move the disk", n, "from", src, dest);
+
+    tower(n-1, aux, dest, src);
+
+enddef;
+
+
+tower(3, "source", "destination", "auxiliary");

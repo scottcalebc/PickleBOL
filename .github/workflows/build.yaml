@@ -32,6 +32,25 @@ jobs:
           java pickle.Pickle .github/p4/p4Func.txt
           java pickle.Pickle .github/p4/p4String.txt
 
+  p5:
+      runs-on: ubuntu-20.04
+      name: Program 4 run
+      steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-java@v2
+          with:
+            distribution: 'adopt'
+            java-version: '11'
+            check-latest: true
+        - run: |
+            javac pickle/*.java
+            java pickle.Pickle .github/p5/p5FuncRec
+            java pickle.Pickle .github/p5/p5FuncUser.txt
+            java pickle.Pickle .github/p5/p5Funky.txt
+            java pickle.Pickle .github/p5/p5ScopeEx3.txt
+            java pickle.Pickle .github/p5/p5ScopeEx4.txt
+            java pickle.Pickle .github/p5/p5Select.txt
+
 
 
 #  Comment out Test until push of unit tests with Date
