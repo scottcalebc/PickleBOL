@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class STFunction extends STEntry
 {
     public SubClassif returnType;                    // Return data type
+    public Boolean    returnArray;                   // Return array boolean
     public SubClassif definedBy;                     // Who/what defined it (e.g. user or builtin)
     public int numArgs;                              // Number of arguments (VAR_ARGS for variable length)
     public ArrayList<SubClassif> parameters;         // Reference to an ArrayList of the parameter types
@@ -30,10 +31,11 @@ public class STFunction extends STEntry
      * @param colPos        Column position of defined function
      * @param types         List of parameter types
      */
-    public STFunction(String symbol, Classif primClassIf, SubClassif returnType, SubClassif definedBy, int numArgs, int lineNum, int colPos, ArrayList<SubClassif> types, ArrayList<String> names, ArrayList<Boolean> array, ArrayList<String> passing)
+    public STFunction(String symbol, Classif primClassIf, SubClassif returnType, Boolean returnArray, SubClassif definedBy, int numArgs, int lineNum, int colPos, ArrayList<SubClassif> types, ArrayList<String> names, ArrayList<Boolean> array, ArrayList<String> passing)
     {
         super(symbol, primClassIf);
         this.returnType = returnType;
+        this.returnArray = returnArray;
         this.definedBy = definedBy;
         this.numArgs = numArgs;
         this.symbol = symbol;

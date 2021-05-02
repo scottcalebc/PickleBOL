@@ -690,7 +690,7 @@ public class Parser {
         return (ResultValue) res;
     }
 
-    public ResultValue callUserFunction(STFunction function, ArrayList<Result>parameters) throws PickleException {
+    public Result callUserFunction(STFunction function, ArrayList<Result>parameters) throws PickleException {
         ActivationRecord newAcc = new ActivationRecord(function.record);
         // verify parameter types
 
@@ -773,7 +773,7 @@ public class Parser {
         scanner.setPosition(function.lineNum, function.colPos);
 
         ResultValue returnStatus = statements(iExecMode.EXECUTE);
-        ResultValue returnValue = new ResultValue("", SubClassif.EMPTY);
+        Result returnValue = new ResultValue("", SubClassif.EMPTY);
 
         // end user function
         scanner.setPosition(savedSourceLineNr, savedColPos);
@@ -788,13 +788,24 @@ public class Parser {
             } else if (newAcc.returnVal != null) {
 
                 if (newAcc.returnVal instanceof ResultValue) {
+                    if (function.returnArray) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an array to be returned");
+                    }
                     if (((ResultValue) newAcc.returnVal).dataType != function.returnType) {
                         returnValue = Utility.coerce(this, (ResultValue) newAcc.returnVal, function.returnType);
                     } else {
-                        returnValue = (ResultValue)newAcc.returnVal;
+                        returnValue = newAcc.returnVal;
                     }
                 } else {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Do not support returning arrays from functions");
+                    if (!function.returnArray) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Can not return array as primitive type " + function.returnType);
+                    }
+
+                    if ( ((ResultList)newAcc.returnVal).dataType != function.returnType) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Can not return array of different type " + function.returnType);
+                    }
+
+                    returnValue = newAcc.returnVal;
                 }
             } else if (function.returnType != SubClassif.VOID && newAcc != null ) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function return type: " + function.returnType.name());
@@ -1086,9 +1097,19 @@ public class Parser {
         int currLineNum = scanner.iSourceLineNr;
         int colPos = scanner.iColPos;
         int numArgs = 0;
+        boolean returnArray = false;
 
         scanner.getNext(); //skip the 'def' token, current token now should be the return value
         SubClassif returnValue = getDataType(scanner.currentToken.tokenStr);
+
+        if (scanner.nextToken.tokenStr.equals("[")) {
+            scanner.getNext();
+            if (!scanner.getNext().equals("]")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid Return type");
+            }
+            returnArray = true;
+        }
+
         String functionName = scanner.getNext(); //advance token to function name and set string accordingly
 
         if (!scanner.getNext().equals("(")) { //if the next token is not the start of the parameter list, well thats no good bubby 🤷‍
@@ -1114,7 +1135,7 @@ public class Parser {
         }
 
         if (execMode == iExecMode.EXECUTE) {
-            STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, SubClassif.USER, numArgs, currLineNum, colPos, types, names, array, passing);
+            STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, returnArray, SubClassif.USER, numArgs, currLineNum, colPos, types, names, array, passing);
 
             //set up functions activation record
             if (!this.activationRecordStack.isEmpty()) {
