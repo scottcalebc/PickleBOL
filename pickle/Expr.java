@@ -216,12 +216,19 @@ public class Expr {
 
 
                             ResultList array;
+                            Result arrayTemp;
                             try {
-                                array = (ResultList)parser.storageManager.getVariable(token.tokenStr);
+                                arrayTemp = parser.storageManager.getVariable(token.tokenStr);
                                 if (!parser.activationRecordStack.isEmpty()) {
                                     int scope = parser.activationRecordStack.peek().findSymbolScope(token.tokenStr);
                                     if (scope != -1)
-                                        array = (ResultList) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(token.tokenStr);
+                                        arrayTemp =  parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(token.tokenStr);
+                                }
+
+                                if (!(arrayTemp instanceof ResultList)) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot index into non array type");
+                                } else {
+                                    array = (ResultList) arrayTemp;
                                 }
 
                                 if (index.strValue.equals("~")) {
