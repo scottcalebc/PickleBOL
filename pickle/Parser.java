@@ -738,6 +738,7 @@ public class Parser {
                         value = this.storageManager.getVariable(argI.strValue);
                     }
 
+
                     // assign paramaters into activation record storagemanager
                     if ((value instanceof ResultValue) && !function.array.get(i)) {
                         // coerce
@@ -747,7 +748,6 @@ public class Parser {
                             }
                             value = Utility.coerce(this, (ResultValue) value, paramType);
                         }
-
                         newAcc.storageManager.updateVariable(function.names.get(i), value);
                     }
                     if ((value instanceof ResultList) && function.array.get(i)) {
@@ -756,8 +756,9 @@ public class Parser {
                             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
                         }
 
+                        ResultList newList = new ResultList(this, (ArrayList<ResultValue>) ((ResultList) value).arrayList.clone(), ((ResultList) value).capacity, ((ResultList) value).dataType);
 
-                        newAcc.storageManager.updateVariable(function.names.get(i), value);
+                        newAcc.storageManager.updateVariable(function.names.get(i), newList);
                     }
 
 
@@ -2132,33 +2133,63 @@ public class Parser {
             throw new PickleException();
         }
 
-        if (!scanner.getNext().equals("{")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected start of list (\"{\") found");
-        }
+        scanner.getNext();
 
-        //now we hit that list bby
         ResultList list = new ResultList(this, new ArrayList<ResultValue>(), 0, scanner.nextToken.subClassif);
         ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>();
 
-
-
-        //loop through 'em
-        while (!scanner.currentToken.tokenStr.equals("}")) {
-            scanner.getNext();
-
-            if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != list.dataType) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "List element data type conflict");
+        if (scanner.currentToken.primClassif == Classif.OPERAND && scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
+            entry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+                if (scope != -1)
+                    entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
             }
 
-            arrayList.add(new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif));
+            if (entry.primClassif == Classif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "valueList not initialized");
+            }
 
-            scanner.getNext();
+            Result l = this.storageManager.getVariable(entry.symbol);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                if (scope != -1)
+                    l = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+            }
+
+            if (l instanceof ResultValue) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "value must be a list");
+            }
+            else if (l instanceof ResultList) {
+                list = (ResultList) l;
+            }
+            else {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "value must be a list");
+            }
+
         }
+        else if (!scanner.currentToken.tokenStr.equals("{")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected start of list (\"{\") found");
+        }
+        else {
+            //now we hit that list bby
+            //loop through 'em
+            while (!scanner.currentToken.tokenStr.equals("}")) {
+                scanner.getNext();
 
-        list.arrayList = arrayList;
-        list.allocatedSize = arrayList.size();
-        list.capacity = arrayList.size();
+                if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != list.dataType) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "List element data type conflict");
+                }
 
+                arrayList.add(new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif));
+
+                scanner.getNext();
+            }
+
+            list.arrayList = arrayList;
+            list.allocatedSize = arrayList.size();
+            list.capacity = arrayList.size();
+        }
         if (inORout.equals("IN")) {
             res = Utility.builtInIN(this, (ResultValue) value, list);
         }
