@@ -426,7 +426,8 @@ public class Utility {
         ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>(size);
         // Assign same value to all indexes of list
         for (int i = 0; i < size; i++) {
-            arrayList.add(value);
+            ResultValue tmp = new ResultValue(value.strValue, value.dataType);
+            arrayList.add(tmp);
         }
         // return the ResultList
         return new ResultList(parser, arrayList, size, value.dataType);
