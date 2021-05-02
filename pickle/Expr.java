@@ -149,7 +149,7 @@ public class Expr {
         }
 
         if (sliceI > 0)
-            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression missing closing ']' ");
+            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression missing or extra ']' ");
 
         if (funcBool > 0)
             throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid function call missing closing ')'");
@@ -510,11 +510,11 @@ public class Expr {
 
                                     if (lower.dataType != SubClassif.INTEGER) {
                                         if (lower.dataType == SubClassif.IDENTIFIER) {
-                                            STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                            STEntry subEntry = parser.symbolTable.getSymbol(lower.strValue);
                                             if (!parser.activationRecordStack.isEmpty()) {
-                                                int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                                int scope = parser.activationRecordStack.peek().findSymbolScope(lower.strValue);
                                                 if (scope != -1)
-                                                    subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                                    subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(lower.strValue);
                                             }
 
                                             if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier)subEntry).dclType == SubClassif.INTEGER) {
@@ -557,9 +557,24 @@ public class Expr {
                                             if (index.dataType == SubClassif.IDENTIFIER) {
                                                 STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
 
+                                                if (!parser.activationRecordStack.isEmpty()) {
+                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+
+                                                    if (scope != -1)
+                                                        subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                                }
+
                                                 if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                     try {
                                                         index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+
+                                                        if (!parser.activationRecordStack.isEmpty()){
+                                                            int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                            if (scope != -1)
+                                                                index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                        }
+
+
                                                     } catch (Exception e) {
                                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                     }
@@ -596,9 +611,21 @@ public class Expr {
                                             if (index.dataType == SubClassif.IDENTIFIER) {
                                                 STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
 
+                                                if (!parser.activationRecordStack.isEmpty()){
+                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                                    if (scope != -1)
+                                                        subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                                }
+
                                                 if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                     try {
                                                         index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+
+                                                        if (!parser.activationRecordStack.isEmpty()){
+                                                            int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                            if (scope != -1)
+                                                                index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                        }
                                                     } catch (Exception e) {
                                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                     }
@@ -613,12 +640,24 @@ public class Expr {
 
                                         // check lower bound for number
                                         if (lower.dataType != SubClassif.INTEGER) {
-                                            if (index.dataType == SubClassif.IDENTIFIER) {
-                                                STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
+                                            if (lower.dataType == SubClassif.IDENTIFIER) {
+                                                STEntry subEntry = parser.symbolTable.getSymbol(lower.strValue);
+                                                if (!parser.activationRecordStack.isEmpty()){
+                                                    int scope = parser.activationRecordStack.peek().findSymbolScope(lower.strValue);
+                                                    if (scope != -1)
+                                                        subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                                }
+
 
                                                 if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                     try {
                                                         lower = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+
+                                                        if (!parser.activationRecordStack.isEmpty()){
+                                                            int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                            if (scope != -1)
+                                                                lower = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                        }
                                                     } catch (Exception e) {
                                                         throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                     }
@@ -652,9 +691,20 @@ public class Expr {
                                         if (index.dataType == SubClassif.IDENTIFIER) {
                                             STEntry subEntry = parser.symbolTable.getSymbol(index.strValue);
 
+                                            if (!parser.activationRecordStack.isEmpty()) {
+                                                int scope = parser.activationRecordStack.peek().findSymbolScope(index.strValue);
+                                                if (scope != -1)
+                                                    subEntry = parser.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(index.strValue);
+                                            }
+
                                             if (subEntry.primClassif != Classif.EMPTY && ((STIdentifier) subEntry).dclType == SubClassif.INTEGER) {
                                                 try {
                                                     index = (ResultValue) parser.storageManager.getVariable(subEntry.symbol);
+                                                    if (!parser.activationRecordStack.isEmpty()){
+                                                        int scope = parser.activationRecordStack.peek().findSymbolScope(subEntry.symbol);
+                                                        if (scope != -1)
+                                                            index = (ResultValue) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(subEntry.symbol);
+                                                    }
                                                 } catch (Exception e) {
                                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Index must be primitive type");
                                                 }
