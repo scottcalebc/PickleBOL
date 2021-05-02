@@ -89,6 +89,7 @@ public class SymbolTable implements Cloneable{
 		this.symbolTable.put("not", new STEntry("not", Classif.OPERATOR));
 		this.symbolTable.put("in", new STEntry("in", Classif.OPERATOR));
 		this.symbolTable.put("notin", new STEntry("notin", Classif.OPERATOR));
+		this.symbolTable.put("unbound", new STEntry("unbound", Classif.OPERATOR));
 
 		ArrayList<SubClassif> print = new ArrayList<SubClassif>();
 		ArrayList<SubClassif> string = new ArrayList<SubClassif>();

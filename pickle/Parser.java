@@ -275,7 +275,13 @@ public class Parser {
             }
         }
         else {
-            res = (ResultValue) expr(); //get value in square brackets
+            if (scanner.currentToken.tokenStr.equals("unbound")) {
+                scanner.currentToken.tokenStr = "-1";
+                scanner.currentToken.primClassif = Classif.OPERAND;
+                scanner.currentToken.subClassif = SubClassif.INTEGER;
+            }
+                res = (ResultValue) expr(); //get value in square brackets
+            //res = (ResultValue) expr(); //get value in square brackets
             if (res.dataType != SubClassif.INTEGER) {
                 res = Utility.castNumericToInt(this, new Numeric(this, res, "+", "expr ret value"));
             }
