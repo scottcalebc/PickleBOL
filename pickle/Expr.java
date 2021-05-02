@@ -872,12 +872,18 @@ public class Expr {
                                 }
 
                                 try {
-                                    paramM = (ResultList) parser.storageManager.getVariable(id.symbol);
+                                    Result paramTemp = parser.storageManager.getVariable(id.symbol);
                                     if (!parser.activationRecordStack.isEmpty()) {
                                         int scope = parser.activationRecordStack.peek().findSymbolScope(id.symbol);
                                         if (scope != -1)
-                                            paramM = (ResultList) parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
+                                            paramTemp = parser.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(id.symbol);
                                     }
+
+                                    if (!(paramTemp instanceof ResultList)) {
+                                        throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Expects and array as parameters");
+                                    }
+
+                                    paramM = (ResultList) paramTemp;
                                 }catch (Exception e) {
                                     throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Value must be array type");
                                 }
