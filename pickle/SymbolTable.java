@@ -96,6 +96,13 @@ public class SymbolTable implements Cloneable{
 		ArrayList<SubClassif> array = new ArrayList<SubClassif>();
 		array.add(SubClassif.VOID);
 
+		ArrayList<SubClassif> dates = new ArrayList<>();
+		dates.add(SubClassif.DATE);
+		dates.add(SubClassif.DATE);
+		ArrayList<SubClassif> dates2 = new ArrayList<>();
+		dates2.add(SubClassif.DATE);
+		dates2.add(SubClassif.INTEGER);
+
 		final int VAR_ARGS = -1;  // Value for variable args
 
 		this.symbolTable.put("print", new STFunction("print", Classif.FUNCTION, SubClassif.VOID, SubClassif.BUILTIN, VAR_ARGS, print, new Builtin() {
@@ -127,6 +134,24 @@ public class SymbolTable implements Cloneable{
 			@Override
 			public ResultValue execute(ArrayList<Result> param) {
 				return Utility.builtInMAXELEM(param);
+			}
+		}));
+		this.symbolTable.put("dateAdj", new STFunction("dateAdj", Classif.FUNCTION, SubClassif.DATE, SubClassif.BUILTIN, 2, dates2, new Builtin() {
+			@Override
+			public ResultValue execute(ArrayList<Result> param) {
+				return null;
+			}
+		}));
+		this.symbolTable.put("dateDiff", new STFunction("dateDiff", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 2, dates, new Builtin() {
+			@Override
+			public ResultValue execute(ArrayList<Result> param) {
+				return null;
+			}
+		}));
+		this.symbolTable.put("dateAge", new STFunction("dateAge", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 2, dates, new Builtin() {
+			@Override
+			public ResultValue execute(ArrayList<Result> param) {
+				return null;
 			}
 		}));
 	}
