@@ -1,6 +1,7 @@
 package pickle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ActivationRecord implements Cloneable {
     public ArrayList<ActivationRecord> environmentVector;
@@ -28,7 +29,8 @@ public class ActivationRecord implements Cloneable {
         this.environmentVector = new ArrayList<ActivationRecord>();
         this.environmentVector.add(this);
         this.storageManager = new StorageManager();
-        this.symbolTable = record.symbolTable.clone();
+        this.symbolTable = new SymbolTable(record.symbolTable.scopeName);
+        this.symbolTable.symbolTable = (HashMap<String, STEntry>) record.symbolTable.symbolTable.clone();
 
         for(ActivationRecord paren : record.environmentVector) {
             this.environmentVector.add(paren);

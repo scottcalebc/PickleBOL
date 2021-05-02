@@ -10,6 +10,7 @@ public class Expr {
         Stack<Token> stack = new Stack<Token>();
 
         int funcBool = 0;
+        int sliceI = 0;
 
         while(     !(parser.scanner.currentToken.tokenStr.equals(";") && parser.scanner.currentToken.subClassif != SubClassif.STRING)
                 && !(parser.scanner.currentToken.tokenStr.equals(":") && parser.scanner.currentToken.subClassif != SubClassif.STRING)
@@ -33,6 +34,7 @@ public class Expr {
                         slice.tokenStr = "SLICE";
                         slice.primClassif = Classif.OPERAND;
                         postfix.add(slice);
+                        sliceI++;
                         parser.scanner.getNext();
                     } else {
 
@@ -111,7 +113,7 @@ public class Expr {
                                         popped = stack.pop();
                                     }
 
-
+                                    sliceI--;
                                     postfix.add(popped);
 
 
@@ -145,6 +147,12 @@ public class Expr {
         while (!stack.empty()) {
             postfix.add(stack.pop());
         }
+
+        if (sliceI > 0)
+            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression missing closing ']' ");
+
+        if (funcBool > 0)
+            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid function call missing closing ')'");
 
         return postfix;
     }
