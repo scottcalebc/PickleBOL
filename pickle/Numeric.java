@@ -27,7 +27,7 @@ public class Numeric {
      *                                  or the value cannot be parsed.
      */
     public Numeric(Parser parser, ResultValue resValue, String operator, String operandDesc)
-            throws NumericConstantException
+            throws PickleException
     {
         // store the given result value string
         strValue = resValue.strValue;
@@ -63,7 +63,7 @@ public class Numeric {
      * @throws NumericConstantException if the string is not an int or float
      *                                  or the value cannot be parsed.
      */
-    private void parseString(Parser parser, String str) throws NumericConstantException
+    private void parseString(Parser parser, String str) throws ScannerParserException
     {
         // string is one or more digits
         if (str.matches("-?\\d+"))
@@ -80,7 +80,9 @@ public class Numeric {
         // string is not an int or float
         else
         {
-            throw new NumericConstantException(parser.scanner.currentToken, parser.scanner.sourceFileNm);
+            parser.scanner.currentToken.tokenStr = str;
+            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid non-numeric data");
+
         }
     }
 

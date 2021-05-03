@@ -48,12 +48,12 @@ public class Expr {
                         postfix.add(parser.scanner.currentToken);
                         size++;
 
-                        if (!stack.empty() && stack.peek().primClassif == Classif.OPERATOR) {
+                        /*if (!stack.empty() && stack.peek().primClassif == Classif.OPERATOR && parser.scanner.nextToken.primClassif != Classif.OPERATOR) {
                             postfix.add(stack.pop());
                             if (postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.UNARYMINUS && postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.NOT)
                                 size = size - 1;
                             expr--;
-                        }
+                        }*/
 
                     }
                     break;
@@ -85,6 +85,9 @@ public class Expr {
 
                         Token popped = stack.pop();
                         postfix.add(popped);
+
+                        if (popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS && popped.operatorPrecedence != OperatorPrecedence.NOT)
+                            size--;
 
                         expr--;
                         //System.out.printf("Outing operator '%s'\n", popped.tokenStr);
@@ -123,7 +126,7 @@ public class Expr {
                                             break;
                                         }
 
-                                        if (size != 2
+                                        if (size < 2
                                                 && !((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                         || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                         || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
@@ -159,7 +162,7 @@ public class Expr {
                                         Token popped = stack.pop();
 
 
-                                        if (size != 2
+                                        if (size < 2
                                                 && !((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                 || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                 || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
@@ -189,17 +192,17 @@ public class Expr {
                                     Token popped = stack.pop();
                                     while (!stack.empty() && popped.primClassif != Classif.FUNCTION) {
 
-                                        if (size != 2
+                                        if (size < 2
                                                 && !((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                 || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                 || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression operation");
 
                                         if (size < 1 &&
                                                 ((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                         || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                         || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression operation");
 
                                         if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
                                             size--;
@@ -223,17 +226,17 @@ public class Expr {
                                     Token popped = stack.pop();
 
                                     while(!stack.empty() && !popped.tokenStr.endsWith("[")) {
-                                        if (size != 2
+                                        if (size < 2
                                                 && !((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                 || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                 || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression operation");
 
                                         if (size < 1 &&
                                                 ((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                         || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                         || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression operation");
 
                                         if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
                                             size--;
@@ -296,17 +299,18 @@ public class Expr {
                 throw new ScannerParserException(popped, parser.scanner.sourceFileNm, "Missing ')'");
             }
 
-            if (size != 2
+            if (size < 2
                     && !((popped.operatorPrecedence == OperatorPrecedence.NOT
                     || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
-                    || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+                    || popped.operatorPrecedence == OperatorPrecedence.FUNC))) {
+                throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "Invalid expression operation");
+            }
 
             if (size < 1 &&
                     ((popped.operatorPrecedence == OperatorPrecedence.NOT
                             || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                             || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+                throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "Invalid expression operation");
 
             postfix.add(popped);
 
@@ -1886,6 +1890,9 @@ public class Expr {
             case INTEGER:
             case FLOAT:
                 n = new Numeric(parser, res, operator, desc);
+                break;
+            default:
+                    n = new Numeric(parser, Utility.coerce(parser, res, SubClassif.INTEGER), operator, desc);
         }
 
         return n;

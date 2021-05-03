@@ -1297,8 +1297,9 @@ public class Utility {
         {
             // If the second operand is not a Numeric, throw exception
             if (resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
-                throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
-                                              "Operator '>' cannot be applied Numeric and String");
+                resVal2 = Utility.coerce(parser, resVal2, resVal1.dataType);
+                //throw new OperationException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                                              //"Operator '>' cannot be applied Numeric and String");
 
             // Convert both result values into Numerics
             // if they cannot be parsed a NumericConstantException will be thrown
