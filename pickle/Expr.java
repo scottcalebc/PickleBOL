@@ -11,6 +11,9 @@ public class Expr {
 
         int funcBool = 0;
         int sliceI = 0;
+        int expr = 0;
+
+        int size = 0;
 
         while(     !(parser.scanner.currentToken.tokenStr.equals(";") && parser.scanner.currentToken.subClassif != SubClassif.STRING)
                 && !(parser.scanner.currentToken.tokenStr.equals(":") && parser.scanner.currentToken.subClassif != SubClassif.STRING)
@@ -43,9 +46,25 @@ public class Expr {
                         }
 
                         postfix.add(parser.scanner.currentToken);
+                        size++;
+
+                        if (!stack.empty() && stack.peek().primClassif == Classif.OPERATOR) {
+                            postfix.add(stack.pop());
+                            if (postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.UNARYMINUS && postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.NOT)
+                                size = size - 1;
+                            expr--;
+                        }
+
                     }
                     break;
                 case OPERATOR:
+                    if (postfix.size() > 0 && postfix.get(postfix.size()-1).primClassif != Classif.OPERAND && expr != 0
+                        && (postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.UNARYMINUS
+                    && postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.NOT)) {
+                        throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+                    }
+
+
                     if (!stack.empty() && stack.peek().tokenStr.equals("~")) {
                         postfix.add(stack.pop());
                     }
@@ -65,13 +84,31 @@ public class Expr {
 
                         Token popped = stack.pop();
                         postfix.add(popped);
+
+                        expr--;
                         //System.out.printf("Outing operator '%s'\n", popped.tokenStr);
                     }
+
+                    if (size == 0 &&
+                            !(parser.scanner.currentToken.operatorPrecedence == OperatorPrecedence.UNARYMINUS || parser.scanner.currentToken.operatorPrecedence == OperatorPrecedence.NOT)) {
+                        throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+                    }
+
                     stack.push(parser.scanner.currentToken);
+
+                    if (parser.scanner.currentToken.operatorPrecedence != OperatorPrecedence.UNARYMINUS && parser.scanner.currentToken.operatorPrecedence != OperatorPrecedence.NOT)
+                        expr++;
+
+
                     break;
                 case SEPARATOR:
                         switch (parser.scanner.currentToken.tokenStr) {
                             case "(":
+                                if (stack.empty() && postfix.size() > 0) {
+                                    throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "operator expected, found");
+                                }
+
+
                                 stack.push(parser.scanner.currentToken);
                                 break;
                             case ")":
@@ -81,7 +118,27 @@ public class Expr {
                                         if (popped.tokenStr.equals("(")) {
                                             break;
                                         }
+
+                                        if (size != 2
+                                                && !((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                                        || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                                        || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                            throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+
+                                        if (size < 1 &&
+                                                ((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                                        || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                                        || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                            throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+
                                         postfix.add(popped);
+
+                                        if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
+                                            size--;
+
+
+                                        if (popped.primClassif == Classif.OPERATOR)
+                                            expr--;
 
                                         if (popped.primClassif == Classif.FUNCTION) {
                                             funcBool--;
@@ -89,15 +146,58 @@ public class Expr {
                                         }
                                     }
 
+                                    if (!stack.empty() && stack.peek().primClassif == Classif.OPERATOR) {
+                                        Token popped = stack.pop();
+
+
+                                        if (size != 2
+                                                && !((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                                || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                                || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                            throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+
+                                        if (size < 1 &&
+                                                ((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                                        || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                                        || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                            throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+
+                                        if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
+                                            size--;
+
+                                        postfix.add(popped);
+                                        expr--;
+                                    }
 
 
                                     break;
                                 }
+                                break;
                             case ",":
                                 if (!stack.empty()) {
                                     Token popped = stack.pop();
                                     while (!stack.empty() && popped.primClassif != Classif.FUNCTION) {
+
+                                        if (size != 2
+                                                && !((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                                || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                                || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                            throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+
+                                        if (size < 1 &&
+                                                ((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                                        || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                                        || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                            throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+
+                                        if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
+                                            size--;
+
                                         postfix.add(popped);
+
+
+
+
                                         popped = stack.pop();
                                     }
                                     stack.push(popped);
@@ -109,6 +209,21 @@ public class Expr {
                                     Token popped = stack.pop();
 
                                     while(!stack.empty() && !popped.tokenStr.endsWith("[")) {
+                                        if (size != 2
+                                                && !((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                                || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                                || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+
+                                        if (size < 1 &&
+                                                ((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                                        || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                                        || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+
+                                        if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
+                                            size--;
+
                                         postfix.add(popped);
                                         popped = stack.pop();
                                     }
@@ -127,7 +242,24 @@ public class Expr {
                         break;
                 case FUNCTION:
                         if (!stack.empty() && stack.peek().tokenStr.equals("~")){
-                            postfix.add(stack.pop());
+                            Token popped = stack.pop();
+
+                            if (size != 2
+                                    && !((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                    || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                    || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+
+                            if (size < 1 &&
+                                    ((popped.operatorPrecedence == OperatorPrecedence.NOT
+                                            || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                                            || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+
+                            postfix.add(popped);
+
+                            if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
+                                size--;
                         }
 
                         stack.push(parser.scanner.currentToken);
@@ -142,10 +274,42 @@ public class Expr {
 
             }
 
+            if (parser.scanner.currentToken.equals(")") && parser.scanner.nextToken.equals(";"))
+                break;
             parser.scanner.getNext();
         }
+
+
+
         while (!stack.empty()) {
-            postfix.add(stack.pop());
+            Token popped = stack.pop();
+
+            if (popped.tokenStr.equals("(") && funcBool > 0) {
+                throw new ScannerParserException(popped, parser.scanner.sourceFileNm, "invalid function expression");
+            }
+            if (popped.tokenStr.equals("(")) {
+                if (!stack.empty())
+                    popped = stack.pop();
+                else
+                    break;
+            }
+
+            if (size != 2
+                    && !((popped.operatorPrecedence == OperatorPrecedence.NOT
+                    || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                    || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+
+            if (size < 1 &&
+                    ((popped.operatorPrecedence == OperatorPrecedence.NOT
+                            || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
+                            || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+
+            postfix.add(popped);
+
+            if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
+                size--;
         }
 
         if (sliceI > 0)
@@ -854,6 +1018,11 @@ public class Expr {
                             } else if (param.dataType == SubClassif.STRING) {
                                 paramsSpace.add(param);
                                 res = Utility.builtInLENGTH(paramsSpace);
+                            } else if (param.dataType != SubClassif.STRING && param.dataType != SubClassif.EMPTY) {
+                                param = Utility.coerce(parser, param, SubClassif.STRING);
+
+                                paramsSpace.add(param);
+                                res = Utility.builtInSPACES(paramsSpace);
                             }
                             else {
                                 token.tokenStr = param.strValue;
@@ -1468,6 +1637,19 @@ public class Expr {
                         if (isResultType(stack, 1)) {
                             operand1 = (ResultValue) stack.pop();
                         } else {
+                            if (stack.empty() && (i + 1) >= postFix.size()){
+                                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
+                            }
+
+                            if (stack.empty() && (i+1) < postFix.size()) {
+                                Token t = postFix.get(++i);
+                                if (postFix.get(i).tokenStr.equals("("))
+                                    t = parser.scanner.currentToken;
+
+                                throw new ScannerParserException(t, parser.scanner.sourceFileNm, "Expected operand found");
+                            }
+
+
                             throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Cannot use arrays in expressions");
                         }
 
@@ -1589,6 +1771,15 @@ public class Expr {
         }
 
         res = stack.pop();
+
+        if (!stack.empty()) {
+            if (res instanceof ResultValue) {
+                parser.scanner.currentToken.tokenStr = ((ResultValue) res).strValue;
+                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "operand was not expected, found");
+            } else if (res instanceof ResultList) {
+                throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "operand was not expecting array");
+            }
+        }
 
         Result ret = res;
 

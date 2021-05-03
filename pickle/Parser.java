@@ -70,7 +70,7 @@ public class Parser {
             case CONTROL:
                 return controlStmt(execMode);
             case OPERATOR:
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot evaluate starting on operator:");
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot evaluate starting on operator");
             default:
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown token to evaluate");
         }
