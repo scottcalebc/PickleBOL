@@ -21,7 +21,7 @@ f = open(os.path.join("./tests/", sys.argv[2]), 'w')
 for file in sorted_alphanumeric(os.listdir(sys.argv[1])):
     if file.endswith(".txt"):
         f2 = open(os.path.join(sys.argv[1], file))
-        f.write("// " + file)
+        f.write("// " + file[:-4])
         f.write("\n")
         for line in f2.readlines():
             f.write(line)
