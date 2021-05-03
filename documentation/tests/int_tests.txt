@@ -1,0 +1,341 @@
+// 1 - Int_declaration.txtInt i;
+Int i = 2;
+print(i);
+
+// 10 - Int_var_less_than_Int_var_operation.txtInt i = 3;
+Int j = 102;
+if i < j:
+	print("Less than (i < j)");
+endif;
+if j < i:
+	print("Less than (j < i)");
+endif;
+if i < i:
+	print("Less than (i < i)");
+endif;
+
+// 11 - Int_const_less_than_Int_const_opertaion.txtif 0 < 1000:
+	print("Less than (0 < 1000)");
+endif;
+if 1000 < 0:
+	print("Less than (1000 < 0)");
+endif;
+if 0 < 0:
+	print("Less than (0 < 0)");
+endif;
+
+// 12 - Int_var_greater_than_Int_const_operation.txtInt i = 12;
+if i > 2:
+	print("Greater than (i > 2)");
+endif;
+if i > 14:
+	print("Greater than (i > 14)");
+endif;
+if i > 12:
+	print("Greater than (1 > 12)");
+endif;
+
+// 13 - Int_var_greater_than_Int_var_operation.txtInt i = 20;
+Int j = 10;
+if i > j:
+	print("Greater than (i > j)");
+endif;
+if j > i:
+	print("Greater than (j > i)");
+endif;
+if i > i:
+	print("Greater than (i > i)");
+endif;
+
+// 14 - Int_const_greater_than_Int_const_operation.txtif 3 > 1:
+	print("Greater than (3 > 1)");
+endif;
+if 1 > 3:
+	print("Greater than (1 > 3)");
+endif;
+if 1 > 1:
+	print("Greater than (1 > 1)");
+endif;
+
+// 15 - Int_var_less_than_or_equal_Int_const_operation.txtInt i = 11;
+if i <= 15:
+	print("Less than or equal to (i <= 15)");
+endif;
+if i <= 1:
+	print("Less than or equal to (i <= 1)");
+endif;
+if i <= 11:
+	print("Less than or equal to (i <= 11)");
+endif;
+
+// 16 - Int_var_less_than_or_equal_Int_var_operation.txtInt i = 11;
+Int j = 18;
+if i <= j:
+	print("Less than or equal to (i <= j)");
+endif;
+if j <= i:
+	print("Less than or equal to (j <= i)");
+endif;
+if i <= i:
+	print("Less than or equal to (i <= i)");
+endif;
+
+// 17 - Int_const_less_than_or_equal_Int_const_operation.txtif 10 <= 15:
+	print("Less than or equal to (i <= 15)");
+endif;
+if 10 <= 6:
+	print("Less than or equal to (i <= 1)");
+endif;
+if 10 <= 10:
+	print("Less than or equal to (i <= 11)");
+endif;
+
+// 18 - Int_var_greater_than_or_equal_Int_const_operation.txtInt i = 14;
+if i >= 3:
+	print("Greater than or equal (i >= 3));
+endif;
+if i >= 22:
+	print("Greater than or equal (i >= 22));
+endif;
+if i >= 14:
+	print("Greater than or equal (i >= 14));
+endif;
+
+// 19 - Int_var_greater_than_or_equal_Int_var_operation.txtInt i = 14;
+Int j = 5;
+if i >= j:
+	print("Greater than or equal (i >= j));
+endif;
+if j >= i:
+	print("Greater than or equal (j >= i));
+endif;
+if i >= i:
+	print("Greater than or equal (i >= i));
+endif;
+
+// 2 - Int_assignment.txtInt i;
+i = 5;
+Int j = 2;
+print(i, j);
+
+// 20 - Int_const_greater_than_or_equal_Int_const_operation.txtif 5 >= 0:
+	print("Greater than or equal (5 >= 0));
+endif;
+if 5 >= 51:
+	print("Greater than or equal (5 >= 51));
+endif;
+if 5 >= 5:
+	print("Greater than or equal (5 >= 5));
+endif;
+
+// 21 - Int_const_binary_plus_Int_const_operation.txtInt i = 5 + 5;
+print("5 + 5 =", i);
+
+// 22 - Int_var_binary_plus_Int_const_operation.txtInt i = 5;
+Int j = i + 5;
+print("i + 5 =", j);
+
+// 23 - Int_var_binary_plus_Int_var_operation.txtInt i = 5;
+Int j = 5;
+Int k = i + j;
+print("i + j =", k);
+
+// 24 - Int_const_binary_minus_Int_const_operation.txtInt i = 12 - 6;
+print("12 - 6=", i);
+
+// 25 - Int_var_binary_minus_int_const_operation.txtInt i = 12;
+Int j = i - 6;
+print("i - 6=", j);
+
+// 26 - Int_var_binary_minus_int_var_operation.txtInt i = 12;
+Int j = 6;
+Int k = i - j;
+print("i - j =", k);
+
+// 27 - Int_const_unary_minus_operation.txtInt i = -4;
+print("i = -4: ", i);
+
+// 28 - Int_var_unary_minus_operation.txtInt i = 6;
+Int j = -i;
+print("j = -i: ", j);
+
+// 29 - Int_const_multiplication_Int_const_operation.txtInt i = 5 * 10;
+print("5 * 10 =", i);
+
+// 3 - Int_const_equal_to_Int_const_operation.txtif 2 == 2:
+	print("Equal (2 == 2)");
+endif;
+if 2 == 3:
+	print("Equal (2 == 3)");
+endif;
+
+// 30 - Int_var_multiplication_Int_const_operation.txtInt i = 5;
+Int j = i * 20;
+print("i * 20 =", j);
+
+// 31 - Int_var_multiplication_Int_var_operation.txtInt i = 5;
+Int j = 100;
+Int k = i * j;
+print("i * j =", k);
+
+// 32 - Int_const_division_Int_const_operation.txtInt i = 10 / 2;
+print("10 / 2 =", i);
+
+// 33 - Int_var_division_Int_const_operation.txtInt i = 20;
+Int j = i / 2;
+print("i / 2 =", j);
+
+// 34 - Int_var_division_Int_var_operation.txtInt i = 30;
+Int j = 15;
+Int k = i / j;
+print("i / j =", k);
+
+// 35 - Int_const_exponentiation_Int_const_operation.txtInt i = 2^5;
+print("2^5 =", i);
+
+// 36 - Int_var_exponentiation_Int_const_operation.txtInt i = 3;
+Int j = i^2;
+print("i^2 =", j);
+j = 2^i;
+print("2^i =", j);
+
+// 37 - Int_var_exponentiation_Int_var_operation.txtInt i = 2;
+Int j = 3;
+Int k = i^j;
+print("i^j =", k);
+
+// 38 - Int_const_addition_assignment_operation.txtInt i = 5;
+i += 5;
+print("i += 5: ", i);
+
+// 39 - Int_var_addition_assignment_operation.txtInt i = 5;
+Int j = 5;
+i += j;
+print("i += j :", i);
+
+// 4 - Int_var_equal_to_Int_const_operation.txtInt i = 0;
+if i == 0:
+	print("Is equal (i == 0)");
+endif;
+if i == 2:
+	print("Is equal (i == 2)");
+endif;
+
+// 40 - Int_const_subtraction_assignment_operation.txtInt i = 15;
+i -= 5;
+print("i -= 5: ", i);
+
+// 41 - Int_var_subtraction_assignment_operation.txtInt i = 15;
+Int j = 5;
+i -= j;
+print("i -= j :", i);
+
+// 42 - Int_coerce_Float.txtInt i = 4.4;
+print(i);
+
+// 43 - Int_coerce_String.txtInt i = "4";
+print(i);
+i = "4.4";
+print(i);
+
+// 44 - Int_for_cv_to_endVal.txtfor i=0 to 10:
+	print(i);
+endfor
+print("-----");
+for i=0 to 10 by 2:
+	print(i);
+endfor;
+
+// 45 - Int_for_item_in_arr.txtInt arr[] = 1, 2, 3, 4, 5, 6;
+for i in arr:
+	print(i);
+endfor;
+
+// 46 - Int_parameters.txtdef Void checkIntParam(Int a, Ref Int b, Value Int c):
+	a = 1;
+	b = 2;
+	c = 3;
+enddef;
+
+Int x = 10;
+Int y = 11;
+Int z = 12;
+print("Before function: x=", x, "y=", y, "z=", z);
+checkIntParam(x, y, z);
+print("After function: x=", x, "y=", y, "z=", z);
+
+// 47 - Int_returning.txtdef Int checkIntReturn(x, y):
+	return x + y;
+enddef;
+
+Int x = checkIntReturn(2, 3);
+print(x);
+
+// 48 - Int_slices.txtInt arr[] = 1, 2, 3, 4, 5, 6;
+print(arr[2~]);
+
+// 49 - Int_IN.txtInt i = 5;
+Int arr[] = 1, 2, 3, 4, 5;
+if i IN {1, 2, 3, 4, 5}:
+	print("i is IN list");
+endif
+if i IN arr:
+	print("i is IN arr");
+endif;
+
+// 5 - Int_var_equal_to_Int_var_operation.txtInt i = 0;
+Int j = 0;
+Int k = 1;
+
+if i == j:
+	print("Equal (i == j)");
+endif;
+if i == k:
+	print("Equal (i == k)");
+endif;
+
+
+// 50 - Int_NOTIN.txtInt j = 10;
+Int arr[] = 1, 2, 3, 4, 5;
+if j NOTIN {1, 2, 3, 4, 5}:
+	print("j is NOTIN list");
+endif
+if j NOTIN arr:
+	print("j is NOTIN arr");
+endif;
+
+// 6 - Int_var_not_equal_to_Int_const_operation.txtInt i = 2;
+if i != 0:
+	print("Not Equal (i != 0)");
+endif;
+if i != 2:
+	print("Not Equal (i != 2)");
+endif;
+
+// 7 - Int_var_not_equal_to_Int_var_operation.txtInt i = 1;
+Int j = 2;
+if i != j:
+	print("Not Equal (i != j)");
+endif;
+if i != i:
+	print("Not Equal (i != i)");
+endif;
+
+// 8 - Int_const_not_equal_to_Int_const_operation.txtif 0 != 2:
+	print("Not equal (0 != 2)");
+endif;
+if 0 != 0:
+	print("Not equal (0 != 0)");
+endif;
+
+// 9 - Int_var_less_than_Int_const_operation.txtInt i = 3;
+if i < 10:
+	print("Less than (i < 10)");
+endif;
+if i < 1:
+	print("Less than (i < 1)");
+endif;
+if i < 3:
+	print("Less than (i < 3)");
+endif;
+
