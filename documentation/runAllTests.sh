@@ -1,4 +1,3 @@
-rm *_Output.txt
 python3 testRunner.py tests/Bool &> Bool_Output.txt
 python3 testRunner.py tests/Date &> Date_Output.txt
 python3 testRunner.py tests/Expressions &> Expressions_Output.txt
