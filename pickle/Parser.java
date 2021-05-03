@@ -219,7 +219,7 @@ public class Parser {
         if (this.activationRecordStack.isEmpty()) { //in global scope
             STEntry varEntry = symbolTable.getSymbol(varStr);
 
-            if (varEntry.symbol.isEmpty()) {
+            /*if (varEntry.symbol.isEmpty()) {*/
                 // put symbol into table
                 symbolTable.putSymbol(varStr, new STIdentifier(
                         varStr,
@@ -229,15 +229,15 @@ public class Parser {
                         "none",
                         0
                 ));
-            }
+            /*}
             else {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
-            }
+            }*/
         }
         else { //in a function's scope
             STEntry varEntry = this.activationRecordStack.peek().symbolTable.getSymbol(varStr);
 
-            if (varEntry.symbol.isEmpty()) {
+            /*if (varEntry.symbol.isEmpty()) {*/
                 this.activationRecordStack.peek().symbolTable.putSymbol(varStr, new STIdentifier(
                         varStr,
                         Classif.OPERAND,
@@ -246,10 +246,10 @@ public class Parser {
                         "none",
                         0
                 ));
-            }
+            /*}
             else {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
-            }
+            }*/
         }
 
         // if assignment being performed during declaration ensure to assign value before exiting
