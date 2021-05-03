@@ -16,6 +16,7 @@ for file in os.listdir(sys.argv[1]):
     if file.endswith(".txt"):
         f2 = open(os.path.join(sys.argv[1], file))
         f.write("// " + file)
+        f.write("\n")
         for line in f2.readlines():
             f.write(line)
         f.write("\n\n")
