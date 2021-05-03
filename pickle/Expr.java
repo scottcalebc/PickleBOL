@@ -58,11 +58,12 @@ public class Expr {
                     }
                     break;
                 case OPERATOR:
-                    if (postfix.size() > 0 && postfix.get(postfix.size()-1).primClassif != Classif.OPERAND && expr != 0
+                    /*if (postfix.size() > 0 && postfix.get(postfix.size()-1).primClassif != Classif.OPERAND && expr != 0
                         && (postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.UNARYMINUS
-                    && postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.NOT)) {
+                    && postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.NOT
+                    && postfix.get(postfix.size()-1).operatorPrecedence != OperatorPrecedence.PARMS)) {
                         throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
-                    }
+                    }*/
 
 
                     if (!stack.empty() && stack.peek().tokenStr.equals("~")) {
@@ -112,10 +113,13 @@ public class Expr {
                                 stack.push(parser.scanner.currentToken);
                                 break;
                             case ")":
+
                                 if (!stack.empty()) {
+                                    Boolean parenCheck = false;
                                     while (!stack.empty() ) {
                                         Token popped = stack.pop();
                                         if (popped.tokenStr.equals("(")) {
+                                            parenCheck = true;
                                             break;
                                         }
 
@@ -141,11 +145,16 @@ public class Expr {
                                             expr--;
 
                                         if (popped.primClassif == Classif.FUNCTION) {
+                                            parenCheck = true;
+                                            size++;
                                             funcBool--;
                                             break;
                                         }
                                     }
 
+                                    if (!parenCheck) {
+                                        throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Missing '('");
+                                    }
                                     if (!stack.empty() && stack.peek().primClassif == Classif.OPERATOR) {
                                         Token popped = stack.pop();
 
@@ -170,7 +179,9 @@ public class Expr {
                                     }
 
 
-                                    break;
+
+                                } else {
+                                    throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Missing '('");
                                 }
                                 break;
                             case ",":
@@ -182,13 +193,13 @@ public class Expr {
                                                 && !((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                 || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                 || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                                            throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
 
                                         if (size < 1 &&
                                                 ((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                         || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                         || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                                            throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+                                            throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
 
                                         if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
                                             size--;
@@ -202,7 +213,10 @@ public class Expr {
                                     }
                                     stack.push(popped);
 
+                                    size--;
+
                                 }
+
                                 break;
                             case "]":
                                 if (!stack.empty()) {
@@ -255,7 +269,6 @@ public class Expr {
                         parms.operatorPrecedence = OperatorPrecedence.PARMS;
                         postfix.add(parms);
 
-
                         funcBool++;
                         if (!parser.scanner.getNext().equals("(")) {
                             throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Functions must be followed by a '(' token");
@@ -267,8 +280,7 @@ public class Expr {
 
             }
 
-            if (parser.scanner.currentToken.equals(")") && parser.scanner.nextToken.equals(";"))
-                break;
+
             parser.scanner.getNext();
         }
 
@@ -281,10 +293,7 @@ public class Expr {
                 throw new ScannerParserException(popped, parser.scanner.sourceFileNm, "invalid function expression");
             }
             if (popped.tokenStr.equals("(")) {
-                if (!stack.empty())
-                    popped = stack.pop();
-                else
-                    break;
+                throw new ScannerParserException(popped, parser.scanner.sourceFileNm, "Missing ')'");
             }
 
             if (size != 2
@@ -908,7 +917,39 @@ public class Expr {
                     ResultValue param;
                     ResultValue param2;
                     ResultList paramM;
+                    ArrayList<Result> parameters;
+
+                    if (token.tokenStr.equals("print")) {
+
+
+
+
+
+                    }
+
+
+
                     switch (token.tokenStr) {
+                        case "print":
+                            parameters = new ArrayList<Result>();
+                            Stack<Result> paramStack = new Stack<Result>();
+
+                            while(!stack.empty()) {
+                                if (isResultType(stack, 1)) {
+                                    if (((ResultValue)stack.peek()).strValue.equals("PARMS")) {
+                                        break;
+                                    }
+                                }
+                                paramStack.push(stack.pop());
+                            }
+
+                            while(!paramStack.empty()) {
+                                parameters.add(paramStack.pop());
+                            }
+
+                            parser.print(parameters);
+                            res = new ResultValue("", SubClassif.VOID);
+                            break;
                         case "LENGTH":
                             ArrayList<Result> paramsLen = new ArrayList<Result>();
                             if (isResultType(stack, 1)) {
@@ -1433,7 +1474,7 @@ public class Expr {
 
                                 STFunction funcName = (STFunction) entry;
 
-                                ArrayList<Result> parameters = new ArrayList<Result>();
+                                parameters = new ArrayList<Result>();
                                 for (String names : funcName.names)
                                     parameters.add(new ResultValue("", SubClassif.EMPTY));
 
