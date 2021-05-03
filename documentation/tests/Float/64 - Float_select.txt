@@ -9,4 +9,4 @@ select fVal:
 		print("12.0, 14.0");
 	default:
 		print("default");
-endselect
+endselect;

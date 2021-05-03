@@ -1,3 +1,5 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
 /mnt/s/College/2021 Spring/Compilers/PickleBOL
 Java Build Result: 0
 Testing File: 1 - Int_declaration.txt
@@ -209,46 +211,43 @@ Testing File: 45 - Int_for_item_in_arr.txt
 
 
 Testing File: 46 - Int_parameters.txt
-Line 1 Invalid assignment: 'Void', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/46 - Int_parameters.txt
-	at pickle.Parser.assignmentStmt(Parser.java:380)
-	at pickle.Parser.getNext(Parser.java:61)
-	at pickle.Parser.run(Parser.java:1389)
-	at pickle.Pickle.main(Pickle.java:30)
+Before function: x= 10 y= 11 z= 12 
+After function: x= 1 y= 2 z= 12 
 
 
 Testing File: 47 - Int_returning.txt
-Line 1 Invalid assignment: 'Int', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/47 - Int_returning.txt
-	at pickle.Parser.assignmentStmt(Parser.java:380)
-	at pickle.Parser.getNext(Parser.java:61)
-	at pickle.Parser.run(Parser.java:1389)
-	at pickle.Pickle.main(Pickle.java:30)
+5 
 
 
 Testing File: 48 - Int_slices.txt
-3 4 5 6 
+Line 2 Invalid expression operation: ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/48 - Int_slices.txt
+	at pickle.Expr.postFixExpr(Expr.java:233)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 49 - Int_IN.txt
-Line 3 Identifier must be initialized: ',', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/49 - Int_IN.txt
-	at pickle.Expr.evaluatePostFix(Expr.java:1113)
-	at pickle.Parser.expr(Parser.java:487)
-	at pickle.Parser.evalCond(Parser.java:1366)
-	at pickle.Parser.ifStmt(Parser.java:845)
-	at pickle.Parser.controlStmt(Parser.java:98)
-	at pickle.Parser.getNext(Parser.java:67)
-	at pickle.Parser.run(Parser.java:1389)
+Line 3 valueList not initialized: '{1', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/49 - Int_IN.txt
+	at pickle.Parser.inNotIn(Parser.java:2332)
+	at pickle.Parser.evalCond(Parser.java:2392)
+	at pickle.Parser.ifStmt(Parser.java:1537)
+	at pickle.Parser.controlStmt(Parser.java:123)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 50 - Int_NOTIN.txt
-Line 3 Identifier must be initialized: ',', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/50 - Int_NOTIN.txt
-	at pickle.Expr.evaluatePostFix(Expr.java:1113)
-	at pickle.Parser.expr(Parser.java:487)
-	at pickle.Parser.evalCond(Parser.java:1366)
-	at pickle.Parser.ifStmt(Parser.java:845)
-	at pickle.Parser.controlStmt(Parser.java:98)
-	at pickle.Parser.getNext(Parser.java:67)
-	at pickle.Parser.run(Parser.java:1389)
+Line 3 valueList not initialized: '{1', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/50 - Int_NOTIN.txt
+	at pickle.Parser.inNotIn(Parser.java:2332)
+	at pickle.Parser.evalCond(Parser.java:2392)
+	at pickle.Parser.ifStmt(Parser.java:1537)
+	at pickle.Parser.controlStmt(Parser.java:123)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
@@ -257,10 +256,12 @@ Testing File: 51 - Int_print.txt
 
 
 Testing File: 52 - Int_select.txt
-Line 2 Invalid assignment: 'i', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/52 - Int_select.txt
-	at pickle.Parser.assignmentStmt(Parser.java:380)
-	at pickle.Parser.getNext(Parser.java:61)
-	at pickle.Parser.run(Parser.java:1389)
+12, 14 
+Line 0 Missing ';': '', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/52 - Int_select.txt
+	at pickle.Parser.selectStmt(Parser.java:1367)
+	at pickle.Parser.controlStmt(Parser.java:164)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
@@ -275,13 +276,13 @@ True (i == 3 or j == 4)
 
 Testing File: 55 - Int_logical_not.txt
 Line 5 Identifier must be initialized: '==', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/55 - Int_logical_not.txt
-	at pickle.Expr.evaluatePostFix(Expr.java:1003)
-	at pickle.Parser.expr(Parser.java:487)
-	at pickle.Parser.evalCond(Parser.java:1366)
-	at pickle.Parser.ifStmt(Parser.java:845)
-	at pickle.Parser.controlStmt(Parser.java:98)
-	at pickle.Parser.getNext(Parser.java:67)
-	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Expr.evaluatePostFix(Expr.java:1714)
+	at pickle.Parser.expr(Parser.java:655)
+	at pickle.Parser.evalCond(Parser.java:2395)
+	at pickle.Parser.ifStmt(Parser.java:1537)
+	at pickle.Parser.controlStmt(Parser.java:123)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
 	at pickle.Pickle.main(Pickle.java:30)
 
 

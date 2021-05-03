@@ -1,0 +1,258 @@
+========== BOOL ERRORS ==========
+=================================
+! 3 - 20 nothing prints
+// 3 - Bool_const_equal_to_Bool_const_operation
+debug Postfix on;
+debug Expr on;
+if T == T:
+	print("True (T == T)");
+endif;
+if T == F:
+	print("True (T == F)");
+endif;
+
+Testing File: 3 - Bool_const_equal_to_Bool_const_operation.txt
+Postfix: T T == 
+... T == T is 
+Postfix: T F == 
+... T == F is 
+
+=================================
+// 30 - Bool_array_slicing
+Bool arr[] = T, F, T, F, T;
+print(arr[3~]);
+
+Testing File: 30 - Bool_array_slicing.txt
+Line 2 Invalid expression operation: ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/30 - Bool_array_slicing.txt
+	at pickle.Expr.postFixExpr(Expr.java:233)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+=================================
+// 33 - Bool_select
+Bool b = T;
+select b:
+	when T:
+		print("True");
+	when F:
+		print("False");
+endselect;
+
+Testing File: 33 - Bool_select.txt
+
+=================================
+// 34 - Bool_IN
+Bool b = T;
+Bool arr[] = T, F, T, F;
+if b IN {F, T, F, F}:
+	print("b is IN list");
+endif;
+
+if b IN arr:
+	print("b is IN arr");
+endif
+
+Testing File: 34 - Bool_IN.txt
+Line 3 valueList not initialized: '{F', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/34 - Bool_IN.txt
+	at pickle.Parser.inNotIn(Parser.java:2332)
+	at pickle.Parser.evalCond(Parser.java:2392)
+	at pickle.Parser.ifStmt(Parser.java:1537)
+	at pickle.Parser.controlStmt(Parser.java:123)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+=================================
+// 35 - Bool_NOTIN
+Bool b = T;
+Bool arr[] = F, F, F, F;
+if b NOTIN {F, T, F, F}:
+	print("b is NOTIN list");
+endif;
+
+if b NOTIN arr:
+	print("b is NOTIN arr");
+endif
+
+Testing File: 35 - Bool_NOTIN.txt
+Line 3 valueList not initialized: '{F', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/35 - Bool_NOTIN.txt
+	at pickle.Parser.inNotIn(Parser.java:2332)
+	at pickle.Parser.evalCond(Parser.java:2392)
+	at pickle.Parser.ifStmt(Parser.java:1537)
+	at pickle.Parser.controlStmt(Parser.java:123)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+========== DATE ERRORS ==========
+=================================
+3, 4, 6, 7 same as Bool errors, nothing prints
+
+
+========== EXPR ERRORS ==========
+=================================
+
+// 2 - Expression_simple_with_fuction
+def Int add2(Int x):
+	return x + 2;
+enddef;
+
+print(5 + add2(2) / 2);
+
+Testing File: 2 - Expression_simple_with_fuction.txt
+4 
+
+=================================
+// 7 - Expression_complex_boolean
+print(not (F and F or T and F) or F != F and T);
+
+Testing File: 7 - Expression_complex_boolean.txt
+Line 1 Invalid bool representation: ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Expressions/7 - Expression_complex_boolean.txt
+	at pickle.Bool.parseString(Bool.java:59)
+	at pickle.Bool.<init>(Bool.java:31)
+	at pickle.Expr.evaluatePostFix(Expr.java:1782)
+	at pickle.Parser.expr(Parser.java:655)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+========== FLOAT ERRORS ==========
+=================================
+
+// 56 - Float_for_cv_to_endVal
+print("For fVal:0.0 to 10.0");
+for fVal=0.0 to 10.0:
+	print(fVal);
+endfor
+print("For fVal:0.0 to 10.0 by 2.0");
+for fVal=0.0 to 10.0 by 2.0:
+	print(fVal);
+endfor;
+
+Testing File: 56 - Float_for_cv_to_endVal.txt
+For fVal:0.0 to 10.0 
+0.0 
+1.0 
+2.0 
+3.0 
+4.0 
+5.0 
+6.0 
+7.0 
+8.0 
+9.0 
+Uh Oh: Generic Pickle Error
+	at pickle.Parser.countingFor(Parser.java:2271)
+	at pickle.Parser.forStmt(Parser.java:1634)
+	at pickle.Parser.controlStmt(Parser.java:129)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+=================================
+// 58 - Float_parameters
+def Void checkFloatParam(Float a, Ref Float b, Value Float c):
+	a = 1.0;
+	b = 2.0;
+	c = 3.0;
+enddef;
+
+Float x = 10.0;
+Float y = 11.0;
+Float z = 12.0;
+print("Before function: x=", x, "y=", y, "z=", z);
+checkIntParam(x, y, z);
+print("After function: x=", x, "y=", y, "z=", z);
+
+Testing File: 58 - Float_parameters.txt
+Before function: x= 10.0 y= 11.0 z= 12.0 
+Line 10 Invalid assignment: '(', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/58 - Float_parameters.txt
+	at pickle.Parser.assignmentStmt(Parser.java:528)
+	at pickle.Parser.getNext(Parser.java:65)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+=================================
+// 60 - Float_slices
+Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
+print("slice [1.0, 2.0, 3.0, 4.0, 5.0] start to 2", arr[~2]);
+print("slice [1.0, 2.0, 3.0, 4.0, 5.0] 2 to end", arr[2~]);
+print("slice [1.0, 2.0, 3.0, 4.0, 5.0] 2 to 5", arr[2~5]);
+
+Testing File: 60 - Float_slices.txt
+Line 2 expected operand, found: '~', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/60 - Float_slices.txt
+	at pickle.Expr.postFixExpr(Expr.java:98)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+=================================
+// 61 - Float_IN
+Float fVal1 = 10.0;
+Float fVal2 = 2.0;
+Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
+print("fVal1:10.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal1 IN arr);
+print("fVal2:2.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal2 IN arr);
+
+Testing File: 61 - Float_IN.txt
+Line 4 Cannot call print on uknown identifier: 'IN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/61 - Float_IN.txt
+	at pickle.Parser.print(Parser.java:898)
+	at pickle.Expr.evaluatePostFix(Expr.java:954)
+	at pickle.Parser.expr(Parser.java:655)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+=================================
+// 62 - Float_NOTIN
+Float fVal1 = 10.0;
+Float fVal2 = 2.0;
+Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
+print("fVal1:10.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal1 NOTIN arr);
+print("fVal2:2.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal2 NOTIN arr);
+
+Testing File: 62 - Float_NOTIN.txt
+Line 4 Cannot call print on uknown identifier: 'NOTIN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/62 - Float_NOTIN.txt
+	at pickle.Parser.print(Parser.java:898)
+	at pickle.Expr.evaluatePostFix(Expr.java:954)
+	at pickle.Parser.expr(Parser.java:655)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+=================================
+A missing simicolon on line 12 is reported as missing on line 0
+// 64 - Float_select
+Float fVal = 12.0;
+print("select fVal:12.0:");
+select fVal:
+	when 0.0, 1.0, 2.0:
+		print("0.0, 1.0, 2.0");
+	when 6.0:
+		print("6.0");
+	when 12.0, 14.0:
+		print("12.0, 14.0");
+	default:
+		print("default");
+endselect
+
+Testing File: 64 - Float_select.txt
+select fVal:12.0: 
+12.0, 14.0 
+Line 0 Missing ';': '', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/64 - Float_select.txt
+	at pickle.Parser.selectStmt(Parser.java:1367)
+	at pickle.Parser.controlStmt(Parser.java:164)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+========== FLOW ERRORS ==========
+=================================

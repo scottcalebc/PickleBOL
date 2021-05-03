@@ -1,0 +1,98 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - Flow_if.txt
+True 
+False 
+
+
+Testing File: 2 - Flow_while.txt
+0 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+
+
+Testing File: 3 - Flow_for_char_in_string.txt
+I 
+  
+a 
+m 
+  
+S 
+t 
+r 
+i 
+n 
+g 
+Uh Oh: Generic Pickle Error
+	at pickle.Parser.charStringFor(Parser.java:1817)
+	at pickle.Parser.forStmt(Parser.java:1656)
+	at pickle.Parser.controlStmt(Parser.java:129)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 4 - Flow_for_item_in_array.txt
+23.454 
+0.213 
+
+
+Testing File: 5 - Flow_for_string_delimiter.txt
+Uh Oh: Generic Pickle Error
+	at pickle.Parser.charStringFor(Parser.java:1757)
+	at pickle.Parser.forStmt(Parser.java:1656)
+	at pickle.Parser.controlStmt(Parser.java:129)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 6 - Flow_for_sv_to_ev.txt
+0 
+1 
+2 
+3 
+4 
+---- 
+0 
+2 
+4 
+
+
+Testing File: 7 - Flow_select.txt
+Line 1 Expected a separator: '1', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Flow/7 - Flow_select.txt
+	at pickle.Parser.declareArrayStmt(Parser.java:349)
+	at pickle.Parser.declareStmt(Parser.java:201)
+	at pickle.Parser.controlStmt(Parser.java:115)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 8 - Flow_break.txt
+before break 
+2 
+0 
+1 
+2 
+0 
+1 
+2 
+3 
+
+
+Testing File: 9 - Flow_continue.txt
+before continue 
+2 
+
+
+tests done for: tests/Flow

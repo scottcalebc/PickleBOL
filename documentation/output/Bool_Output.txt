@@ -1,3 +1,5 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
 /mnt/s/College/2021 Spring/Compilers/PickleBOL
 Java Build Result: 0
 Testing File: 1 - Bool_declaration.txt
@@ -9,6 +11,10 @@ F
 
 
 Testing File: 3 - Bool_const_equal_to_Bool_const_operation.txt
+Postfix: T T == 
+... T == T is 
+Postfix: T F == 
+... T == F is 
 
 
 Testing File: 4 - Bool_var_equal_to_Bool_const_operation.txt
@@ -102,7 +108,13 @@ True (not F)
 
 
 Testing File: 30 - Bool_array_slicing.txt
-F T 
+Line 2 Invalid expression operation: ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/30 - Bool_array_slicing.txt
+	at pickle.Expr.postFixExpr(Expr.java:233)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 31 - Bool_for_item_array.txt
@@ -119,51 +131,37 @@ Testing File: 32 - Bool_while_loop.txt
 
 
 Testing File: 33 - Bool_select.txt
-Line 2 Invalid assignment: 'b', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/33 - Bool_select.txt
-	at pickle.Parser.assignmentStmt(Parser.java:380)
-	at pickle.Parser.getNext(Parser.java:61)
-	at pickle.Parser.run(Parser.java:1389)
-	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 34 - Bool_IN.txt
-Line 3 Identifier must be initialized: ',', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/34 - Bool_IN.txt
-	at pickle.Expr.evaluatePostFix(Expr.java:1113)
-	at pickle.Parser.expr(Parser.java:487)
-	at pickle.Parser.evalCond(Parser.java:1366)
-	at pickle.Parser.ifStmt(Parser.java:845)
-	at pickle.Parser.controlStmt(Parser.java:98)
-	at pickle.Parser.getNext(Parser.java:67)
-	at pickle.Parser.run(Parser.java:1389)
+Line 3 valueList not initialized: '{F', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/34 - Bool_IN.txt
+	at pickle.Parser.inNotIn(Parser.java:2332)
+	at pickle.Parser.evalCond(Parser.java:2392)
+	at pickle.Parser.ifStmt(Parser.java:1537)
+	at pickle.Parser.controlStmt(Parser.java:123)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 35 - Bool_NOTIN.txt
-Line 3 Identifier must be initialized: ',', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/35 - Bool_NOTIN.txt
-	at pickle.Expr.evaluatePostFix(Expr.java:1113)
-	at pickle.Parser.expr(Parser.java:487)
-	at pickle.Parser.evalCond(Parser.java:1366)
-	at pickle.Parser.ifStmt(Parser.java:845)
-	at pickle.Parser.controlStmt(Parser.java:98)
-	at pickle.Parser.getNext(Parser.java:67)
-	at pickle.Parser.run(Parser.java:1389)
+Line 3 valueList not initialized: '{F', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/35 - Bool_NOTIN.txt
+	at pickle.Parser.inNotIn(Parser.java:2332)
+	at pickle.Parser.evalCond(Parser.java:2392)
+	at pickle.Parser.ifStmt(Parser.java:1537)
+	at pickle.Parser.controlStmt(Parser.java:123)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 36 - Bool_parameters.txt
-Line 1 Invalid assignment: 'Void', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/36 - Bool_parameters.txt
-	at pickle.Parser.assignmentStmt(Parser.java:380)
-	at pickle.Parser.getNext(Parser.java:61)
-	at pickle.Parser.run(Parser.java:1389)
-	at pickle.Pickle.main(Pickle.java:30)
+Before function: x= F y= F z= F 
+After function: x= T y= F z= T 
 
 
 Testing File: 37 - Bool_returning.txt
-Line 1 Invalid assignment: 'Bool', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/37 - Bool_returning.txt
-	at pickle.Parser.assignmentStmt(Parser.java:380)
-	at pickle.Parser.getNext(Parser.java:61)
-	at pickle.Parser.run(Parser.java:1389)
-	at pickle.Pickle.main(Pickle.java:30)
+F 
 
 
 Testing File: 38 - Bool_coerce_String.txt

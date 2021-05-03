@@ -8,6 +8,8 @@ Bool b = F;
 print(b);
 
 // 3 - Bool_const_equal_to_Bool_const_operation
+debug Postfix on;
+debug Expr on;
 if T == T:
 	print("True (T == T)");
 endif;

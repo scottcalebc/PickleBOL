@@ -1,3 +1,5 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
 /mnt/s/College/2021 Spring/Compilers/PickleBOL
 Java Build Result: 0
 Testing File: 1 - Float_Declaration.txt
@@ -279,11 +281,11 @@ For fVal:0.0 to 10.0
 8.0 
 9.0 
 Uh Oh: Generic Pickle Error
-	at pickle.Parser.countingFor(Parser.java:1353)
-	at pickle.Parser.forStmt(Parser.java:942)
-	at pickle.Parser.controlStmt(Parser.java:104)
-	at pickle.Parser.getNext(Parser.java:67)
-	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Parser.countingFor(Parser.java:2271)
+	at pickle.Parser.forStmt(Parser.java:1634)
+	at pickle.Parser.controlStmt(Parser.java:129)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
@@ -298,35 +300,48 @@ For fVal in [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]: print fVal
 
 
 Testing File: 58 - Float_parameters.txt
-Line 1 Invalid assignment: 'Void', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/58 - Float_parameters.txt
-	at pickle.Parser.assignmentStmt(Parser.java:380)
-	at pickle.Parser.getNext(Parser.java:61)
-	at pickle.Parser.run(Parser.java:1389)
+Before function: x= 10.0 y= 11.0 z= 12.0 
+Line 10 Invalid assignment: '(', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/58 - Float_parameters.txt
+	at pickle.Parser.assignmentStmt(Parser.java:528)
+	at pickle.Parser.getNext(Parser.java:65)
+	at pickle.Parser.run(Parser.java:2419)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 59 - Float_returning.txt
-Line 1 Invalid assignment: 'Float', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/59 - Float_returning.txt
-	at pickle.Parser.assignmentStmt(Parser.java:380)
-	at pickle.Parser.getNext(Parser.java:61)
-	at pickle.Parser.run(Parser.java:1389)
-	at pickle.Pickle.main(Pickle.java:30)
+Checking for returned float: 5.0 
 
 
 Testing File: 60 - Float_slices.txt
-slice [1.0, 2.0, 3.0, 4.0, 5.0] start to 2 1.0 2.0 
-slice [1.0, 2.0, 3.0, 4.0, 5.0] 2 to end 3.0 4.0 5.0 
-slice [1.0, 2.0, 3.0, 4.0, 5.0] 2 to 5 3.0 4.0 5.0 
+Line 2 expected operand, found: '~', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/60 - Float_slices.txt
+	at pickle.Expr.postFixExpr(Expr.java:98)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 61 - Float_IN.txt
-fVal1:10.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]: 1.0 2.0 3.0 4.0 5.0 
-fVal2:2.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]: 1.0 2.0 3.0 4.0 5.0 
+Line 4 Cannot call print on uknown identifier: 'IN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/61 - Float_IN.txt
+	at pickle.Parser.print(Parser.java:898)
+	at pickle.Expr.evaluatePostFix(Expr.java:954)
+	at pickle.Parser.expr(Parser.java:655)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 62 - Float_NOTIN.txt
-fVal1:10.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]: 1.0 2.0 3.0 4.0 5.0 
-fVal2:2.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]: 1.0 2.0 3.0 4.0 5.0 
+Line 4 Cannot call print on uknown identifier: 'NOTIN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/62 - Float_NOTIN.txt
+	at pickle.Parser.print(Parser.java:898)
+	at pickle.Expr.evaluatePostFix(Expr.java:954)
+	at pickle.Parser.expr(Parser.java:655)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 63 - Float_print.txt
@@ -335,10 +350,12 @@ print 4.0: 4.0
 
 Testing File: 64 - Float_select.txt
 select fVal:12.0: 
-Line 3 Invalid assignment: 'fVal', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/64 - Float_select.txt
-	at pickle.Parser.assignmentStmt(Parser.java:380)
-	at pickle.Parser.getNext(Parser.java:61)
-	at pickle.Parser.run(Parser.java:1389)
+12.0, 14.0 
+Line 0 Missing ';': '', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/64 - Float_select.txt
+	at pickle.Parser.selectStmt(Parser.java:1367)
+	at pickle.Parser.controlStmt(Parser.java:164)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
 	at pickle.Pickle.main(Pickle.java:30)
 
 

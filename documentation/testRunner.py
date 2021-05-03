@@ -41,3 +41,5 @@ for file in sorted_alphanumeric(os.listdir(testDir)):
 # clean pickle
 os.chdir("pickle")
 os.system("rm -r *.class")
+
+print("tests done for:", sys.argv[1])

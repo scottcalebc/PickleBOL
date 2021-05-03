@@ -1,3 +1,4 @@
+#!/bin/bash
 python3 testWriter.py tests/bool_tests.txt Bool
 python3 testWriter.py tests/date_tests.txt Date
 python3 testWriter.py tests/expr_tests.txt Expressions

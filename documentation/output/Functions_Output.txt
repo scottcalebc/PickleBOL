@@ -1,0 +1,142 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - function_print.txt
+5 
+3.14159 
+Howdy 
+T 
+2002-04-12 
+4 2.168 Hello 2.168 2012-12-13 
+1 2 3 4 5 6 7 8 9 0 
+
+
+Testing File: 2 - function_LENGTH.txt
+Line 4 Value must be non array type: 'LENGTH', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/2 - function_LENGTH.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:987)
+	at pickle.Parser.expr(Parser.java:655)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 3 - function_SPACES.txt
+F 
+F 
+T 
+T 
+
+
+Testing File: 4 - function_ELEM.txt
+4 
+4 
+Line 6 Invalid function call missing closing ')': ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/4 - function_ELEM.txt
+	at pickle.Expr.postFixExpr(Expr.java:325)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 5 - function_MAXELEM.txt
+4 
+4 
+Line 6 Invalid function call missing closing ')': ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/5 - function_MAXELEM.txt
+	at pickle.Expr.postFixExpr(Expr.java:325)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:693)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 6 - function_dateDiff.txt
+8036 days 
+
+
+Testing File: 7 - function_dateAdj.txt
+1999-03-09 
+
+
+Testing File: 8 - function_dateAge.txt
+8036 years 
+
+
+Testing File: 9 - function_IN.txt
+Is in 
+Line 6 valueList not initialized: '{', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/9 - function_IN.txt
+	at pickle.Parser.inNotIn(Parser.java:2332)
+	at pickle.Parser.evalCond(Parser.java:2392)
+	at pickle.Parser.ifStmt(Parser.java:1537)
+	at pickle.Parser.controlStmt(Parser.java:123)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 10 - function_NOTIN.txt
+Line 6 valueList not initialized: '{', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/10 - function_NOTIN.txt
+	at pickle.Parser.inNotIn(Parser.java:2332)
+	at pickle.Parser.evalCond(Parser.java:2392)
+	at pickle.Parser.ifStmt(Parser.java:1537)
+	at pickle.Parser.controlStmt(Parser.java:123)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 11 - function_user_scoping.txt
+Line 0 expected operand, found: 'PARMS', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/11 - function_user_scoping.txt
+	at pickle.Expr.postFixExpr(Expr.java:139)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:711)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 12 - function_user_return.txt
+Line 0 expected operand, found: 'PARMS', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/12 - function_user_return.txt
+	at pickle.Expr.postFixExpr(Expr.java:139)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:711)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 13 - function_user_parameters.txt
+12 
+3.1415 
+T 
+STRING 
+1998-06-21 
+2.34 687.45 
+Line 30 Invalid expression operation: ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/13 - function_user_parameters.txt
+	at pickle.Expr.postFixExpr(Expr.java:233)
+	at pickle.Parser.expr(Parser.java:645)
+	at pickle.Parser.functionStmt(Parser.java:711)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2419)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 14 - function_user_recursion.txt
+10! = 3628800 
+
+
+Testing File: 15 - function_user_by_reference_param.txt
+Before x= 10 
+Inside x= 12 
+After x= 12 
+
+
+Testing File: 15 - function_user_by_value_param.txt
+Before x= 10 
+Inside x= 12 
+After x= 10 
+
+

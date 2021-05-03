@@ -1,3 +1,5 @@
+debug Postfix on;
+debug Expr on;
 if T == T:
 	print("True (T == T)");
 endif;
