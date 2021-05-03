@@ -70,7 +70,7 @@ public class Parser {
             case CONTROL:
                 return controlStmt(execMode);
             case OPERATOR:
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot evaluate starting on operator:");
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot evaluate starting on operator");
             default:
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown token to evaluate");
         }
@@ -690,7 +690,7 @@ public class Parser {
         if (func.definedBy == SubClassif.BUILTIN) {
             switch (scanner.currentToken.tokenStr) {
                 case "print":
-                    print();
+                    res = expr();
                     break;
                 case "LENGTH":
                 case "SPACES":
@@ -879,6 +879,45 @@ public class Parser {
     }
 
 
+    public void print(ArrayList<Result> parameters) throws PickleException {
+        StringBuilder sb = new StringBuilder();
+
+        for (Result val : parameters) {
+            if (val instanceof ResultValue) {
+                if (((ResultValue) val).dataType == SubClassif.IDENTIFIER) {
+                    STEntry entry = this.symbolTable.getSymbol(((ResultValue) val).strValue);
+
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(((ResultValue) val).strValue);
+                        if (scope != -1)
+                            entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(((ResultValue) val).strValue);
+                    }
+
+                    if (entry.primClassif == Classif.EMPTY) {
+                        scanner.currentToken.tokenStr = ((ResultValue) val).strValue;
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot call print on uknown identifier");
+                    }
+
+                    val = this.storageManager.getVariable(entry.symbol);
+
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                        if (scope != -1)
+                            val = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+                    }
+
+                }
+            }
+
+
+
+
+            sb.append(val.printResult());
+            sb.append(" ");
+        }
+
+        System.out.println(sb.toString());
+    }
 
     /**
      * BUILTIN print function

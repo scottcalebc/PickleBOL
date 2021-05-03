@@ -78,8 +78,9 @@ public class ResultList implements Result
         // throw error if index is out of bounds.
         if (normalizedIndex > this.capacity-1)
         {
+            parser.scanner.currentToken.tokenStr = String.valueOf(index);
             throw new ResultListException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
-                                     "Array index Out of Bounds.");
+                                     "Array index Out of Bounds");
         }
         return arrayList.get(normalizedIndex);
     }
