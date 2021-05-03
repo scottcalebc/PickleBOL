@@ -233,8 +233,11 @@ public class Parser {
                         0
                 ));
             }
-            else {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            else { //if var already exists
+                if (getDataType(declareTypeStr) != ((STIdentifier) varEntry).dclType) {
+                    ((STIdentifier) varEntry).dclType = getDataType(declareTypeStr);
+                }
+                //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
             }
         }
         else { //in a function's scope
@@ -250,8 +253,11 @@ public class Parser {
                         0
                 ));
             }
-            else {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            else { //if var exits already
+                if (getDataType(declareTypeStr) != ((STIdentifier) varEntry).dclType) {
+                    ((STIdentifier) varEntry).dclType = getDataType(declareTypeStr);
+                }
+                //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
             }
         }
 
@@ -274,7 +280,7 @@ public class Parser {
 
         if (scanner.getNext().equals("]")) { //if square brackets contain no value
             if (!scanner.getNext().equals("=")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Expected assignment values for unbounded array");
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Expected assignment values for array");
             }
         }
         else {
