@@ -32,6 +32,10 @@ def Float[] sliceFcn():
 	Float arr[] = 1.23, 2.34, 3.45, 4.56, 5.67, 6.78, 7.89;
 	return arr[2~4];
 enddef;
+def Int exprFcn():
+	print("I return an expr's value");
+	return 2 * 6 + 2 / 2^2;
+enddef;
 voidFcn();
 print(intFcn());
 print(floatFcn());
@@ -40,3 +44,4 @@ print(stringFcn());
 print(dateFcn());
 print(arrayFcn());
 print(sliceFcn());
+print(exprFcn());

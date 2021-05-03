@@ -19,6 +19,11 @@ enddef;
 def Void sliceFcn(Int arr[]):
 	print(arr);
 enddef;
+
+def Void exprFcn(Int x):
+	print(x);
+enddef;
+
 intFcn(12);
 floatFcn(3.1415);
 boolFcn(T);
@@ -28,3 +33,4 @@ Float arr[] = 2.34, 687.45;
 arrayFcn(arr);
 Int arr2[] = 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
 sliceFcn(arr[5~]);
+exprFcn(5 + 2 / 1 * 2);
