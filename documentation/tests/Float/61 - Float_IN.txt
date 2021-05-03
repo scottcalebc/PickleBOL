@@ -1,0 +1,5 @@
+Float fVal1 = 10.0;
+Float fVal2 = 2.0;
+Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
+print("fVal1:10.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal1 IN arr);
+print("fVal2:2.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal2 IN arr);

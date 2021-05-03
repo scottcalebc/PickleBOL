@@ -1,0 +1,5 @@
+Float fVal1 = 2.0;
+Float fVal2 = 4.0;
+print("fVal1:2.0 == 2.0 and fVal2:4.0 == 4.0:", (fVal1 == 2.0 and fVal2 == 4.0));
+print("fVal1:2.0 == 3.0 and fVal2:4.0 == 4.0:", (fVal1 == 3.0 and fVal2 == 4.0));
+print("fVal1:2.0 == 5.0 and fVal2:4.0 == 5.0:", (fVal1 == 5.0 and fVal2 == 5.0));

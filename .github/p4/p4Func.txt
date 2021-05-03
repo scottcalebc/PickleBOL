@@ -42,8 +42,19 @@ String str = "";
 print("str=", str, "SPACES(str)=", SPACES(str));
 str = ' ';
 print("str=", str, "SPACES(str)=", SPACES(str));
-print("str=", str, "LENGTH(SPACES(str))=", LENGTH(SPACES(str)));
+//print("str=", str, "LENGTH(SPACES(str))=", LENGTH(SPACES(str)));
 
 Int x;
 x = (2 + 3) * LENGTH(name);
 print("x=", x);
+
+Bool bVal1 = "T";
+Bool bVal2 = "F";
+Bool bVal3 = "F";
+Bool bVal4 = "T";
+String strValM[] = bVal1, bVal2, bVal3, bVal4;
+print("String array from bools:", strValM);
+
+Int arr[] = 1, 3, 4, 5;
+Int arr;
+print(arr);

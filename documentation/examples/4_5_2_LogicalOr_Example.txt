@@ -1,0 +1,4 @@
+print(T or T); // T
+print(T or F); // T
+print(F or T); // T
+print(F or F); // F

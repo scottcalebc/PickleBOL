@@ -1,0 +1,11 @@
+Int i = 3;
+Int j = 102;
+if i < j:
+	print("Less than (i < j)");
+endif;
+if j < i:
+	print("Less than (j < i)");
+endif;
+if i < i:
+	print("Less than (i < i)");
+endif;

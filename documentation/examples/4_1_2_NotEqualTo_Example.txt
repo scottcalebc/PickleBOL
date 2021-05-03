@@ -1,0 +1,5 @@
+print("1" != 1);       // F
+print("fun" != "fun"); // F
+print("fun" != "nuf"); // T
+print(1 != 1);         // F
+print(1 != 2);         // T

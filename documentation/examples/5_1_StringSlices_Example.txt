@@ -1,0 +1,13 @@
+String str;
+
+str = "goodbye";
+print(str[0~4]); // good
+print(str[~4]);  // good
+print(str[4~]);  // bye
+
+str = "tacobell";
+str[~4] = "school";
+print(str);         // schoolbell
+
+str[0~6] = "";
+print(str);         // bell

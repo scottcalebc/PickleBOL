@@ -1,0 +1,3 @@
+Date dataVal = "1993-01-01";
+String strVal = dataVal;
+print("String from dataVal:", strVal);

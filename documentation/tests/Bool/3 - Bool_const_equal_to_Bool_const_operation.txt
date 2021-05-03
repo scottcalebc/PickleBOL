@@ -1,0 +1,6 @@
+if T == T:
+	print("True (T == T)");
+endif;
+if T == F:
+	print("True (T == F)");
+endif;

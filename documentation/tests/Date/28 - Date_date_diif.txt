@@ -1,0 +1,3 @@
+Date d = "1998-06-21";
+Date d2 = "2021-05-03";
+print(dateDiff(d, d2));

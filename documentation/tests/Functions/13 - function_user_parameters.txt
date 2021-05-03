@@ -1,0 +1,30 @@
+def Void intFcn(Int i):
+	print(i);
+enddef;
+def Void floatFcn(Float f):
+	print(f);
+enddef;
+def Void boolFcn(Bool b):
+	print(b);
+enddef;
+def Void stringFcn(String s):
+	print(s);
+enddef;
+def Void dateFcn(Date d):
+	print(d);
+enddef;
+def Void arrayFcn(Float arr[]):
+	print(arr);
+enddef;
+def Void sliceFcn(Int arr[]):
+	print(arr);
+enddef;
+intFcn(12);
+floatFcn(3.1415);
+boolFcn(T);
+stringFcn("STRING");
+dateFcn("1998-06-21");
+Float arr[] = 2.34, 687.45;
+arrayFcn(arr);
+Int arr2[] = 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
+sliceFcn(arr[5~]);

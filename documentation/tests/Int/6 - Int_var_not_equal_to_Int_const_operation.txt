@@ -1,0 +1,7 @@
+Int i = 2;
+if i != 0:
+	print("Not Equal (i != 0)");
+endif;
+if i != 2:
+	print("Not Equal (i != 2)");
+endif;

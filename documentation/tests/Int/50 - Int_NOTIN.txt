@@ -1,0 +1,8 @@
+Int j = 10;
+Int arr[] = 1, 2, 3, 4, 5;
+if j NOTIN {1, 2, 3, 4, 5}:
+	print("j is NOTIN list");
+endif
+if j NOTIN arr:
+	print("j is NOTIN arr");
+endif;

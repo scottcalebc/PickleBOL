@@ -1,0 +1,5 @@
+String str = “not empty”;
+
+print(SPACES(str));   // F
+print(SPACES(““));    // T
+print(SPACES(“   “)); // T

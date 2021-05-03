@@ -1,0 +1,6 @@
+Int arr[12] = 5, 6, 7, 8, 9, 10;
+Int arr2[] = 1;
+Int arr3[unbound] = 3, 4, 5;
+print(LENGTH(arr));
+print(LENGTH(arr2));
+print(LENGTH(arr3));

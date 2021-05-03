@@ -1,0 +1,135 @@
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - function_print.txt
+5 
+3.14159 
+Howdy 
+T 
+2002-04-12 
+4 2.168 Hello 2.168 2012-12-13 
+1 2 3 4 5 6 7 8 9 0 
+
+
+Testing File: 2 - function_LENGTH.txt
+Line 3 Identifier must be initialized: '=', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/2 - function_LENGTH.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:1113)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.declareArrayStmt(Parser.java:210)
+	at pickle.Parser.declareStmt(Parser.java:151)
+	at pickle.Parser.controlStmt(Parser.java:90)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 3 - function_SPACES.txt
+F 
+F 
+T 
+T 
+
+
+Testing File: 4 - function_ELEM.txt
+Line 2 Identifier must be initialized: '=', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/4 - function_ELEM.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:1113)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.declareArrayStmt(Parser.java:210)
+	at pickle.Parser.declareStmt(Parser.java:151)
+	at pickle.Parser.controlStmt(Parser.java:90)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 5 - function_MAXELEM.txt
+Line 2 Identifier must be initialized: '=', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/5 - function_MAXELEM.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:1113)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.declareArrayStmt(Parser.java:210)
+	at pickle.Parser.declareStmt(Parser.java:151)
+	at pickle.Parser.controlStmt(Parser.java:90)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 6 - function_dateDiff.txt
+8036 days 
+
+
+Testing File: 7 - function_dateAdj.txt
+1999-03-09 
+
+
+Testing File: 8 - function_dateAge.txt
+8036 years 
+
+
+Testing File: 9 - function_IN.txt
+java.lang.ClassCastException: pickle.ResultList cannot be cast to pickle.ResultValue
+	at pickle.Parser.evalCond(Parser.java:1366)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 10 - function_NOTIN.txt
+java.lang.ClassCastException: pickle.ResultList cannot be cast to pickle.ResultValue
+	at pickle.Parser.evalCond(Parser.java:1366)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 11 - function_user_scoping.txt
+Line 1 Invalid assignment: 'Void', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/11 - function_user_scoping.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 12 - function_user_return.txt
+Line 1 Invalid assignment: 'Void', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/12 - function_user_return.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 13 - function_user_parameters.txt
+Line 1 Invalid assignment: 'Void', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/13 - function_user_parameters.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 14 - function_user_recursion.txt
+Line 1 Invalid assignment: 'Int', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/14 - function_user_recursion.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 15 - function_user_by_reference_param.txt
+Line 1 Invalid assignment: 'Void', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/15 - function_user_by_reference_param.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 15 - function_user_by_value_param.txt
+Line 1 Invalid assignment: 'Void', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/15 - function_user_by_value_param.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
