@@ -160,6 +160,9 @@ public class Parser {
                             Utility.skipTo(scanner, ";");
                         }
                         break;
+                    case "select":
+                        res = selectStmt(execMode);
+                        break;
                     default:
                         throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown Control token");
 
@@ -1262,6 +1265,140 @@ public class Parser {
         else {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected separator, found: " + scanner.currentToken.tokenStr);
         }
+    }
+
+    /**
+     * Executes select statements
+     * <p></p>
+     *
+     * @param execMode
+     * @return  ResultValue
+     */
+    private ResultValue selectStmt(iExecMode execMode) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        ResultValue returnMode = new ResultValue("", SubClassif.EMPTY);
+        returnMode.execMode = execMode;
+
+        scanner.getNext(); // skip to the control variable
+
+        Result var = expr(); //get the value of the control variable
+
+        if (!(var instanceof ResultValue)) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Control variable for select statement cannot be a list");
+        }
+
+        ResultValue controlVar = (ResultValue) var;
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "select statement missing ':' ");
+        }
+
+        scanner.getNext(); //skip to first when
+
+        //loop through all the selects until a default or endselect is hit
+        while (scanner.currentToken.tokenStr.equals("when")) {
+            res = whenStmt(execMode, controlVar);
+            if (res.execMode != iExecMode.IGNORE_EXEC) {
+                execMode = iExecMode.IGNORE_EXEC;
+                returnMode.execMode = res.execMode;
+            }
+        }
+
+        if (!scanner.currentToken.tokenStr.equals("default") && !scanner.currentToken.tokenStr.equals("endselect")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected endselect or default statement");
+        }
+
+        if (scanner.currentToken.tokenStr.equals("default")) {
+            res = defaultStmt(execMode);
+            if (res.execMode != execMode) {
+                returnMode.execMode = res.execMode;
+            }
+            if (!res.terminatingString.equals("endselect")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected endselect statement");
+            }
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing ';'");
+        }
+
+        res.execMode = returnMode.execMode;
+        return res;
+    }
+
+    /**
+     * Executes when statements
+     * <p></p>
+     *
+     * @param execMode
+     * @return ResultValue
+     */
+    private ResultValue whenStmt(iExecMode execMode, ResultValue controlVar) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+
+        scanner.getNext(); //skip to the value to compare
+
+        while (!scanner.currentToken.tokenStr.equals(":")) {
+            Result cond = expr();
+            if (!(cond instanceof ResultValue)) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "when statements must not include a list");
+            }
+
+            ResultValue compare = (ResultValue) cond;
+
+            if (compare.dataType != controlVar.dataType) {
+                compare = Utility.coerce(this, compare, controlVar.dataType);
+            }
+
+            if (compare.dataType == SubClassif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Error coercing data types");
+            }
+
+            if (Utility.equal(this, compare, controlVar).strValue.equals("T")) {
+                if (!scanner.currentToken.tokenStr.equals(":"))
+                    Utility.skipTo(scanner,":");
+                res = statements(execMode);
+                res.dataType = SubClassif.VOID;
+                break;
+            }
+
+            if (scanner.currentToken.tokenStr.equals(",")) {
+                scanner.getNext();
+            }
+            else if (!scanner.currentToken.tokenStr.equals(":")){
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "err");
+            }
+
+        }
+
+        if (res.dataType == SubClassif.EMPTY) {
+            res = statements(iExecMode.IGNORE_EXEC);
+        }
+
+        if (!res.terminatingString.equals("default") && !res.terminatingString.equals("when") && !res.terminatingString.equals("endselect")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected select statement end flow, found");
+        }
+
+        return res;
+    }
+
+    /**
+     * Executes default statements
+     * <p></p>
+     *
+     * @param execMode
+     * @return ResultValue
+     */
+    private ResultValue defaultStmt(iExecMode execMode) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+
+        if (!scanner.getNext().equals(":")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ':', found");
+        }
+
+        res = statements(execMode);
+
+        return res;
     }
 
     /**

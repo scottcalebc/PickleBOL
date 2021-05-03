@@ -532,8 +532,8 @@ public class Scanner {
             case ">=":
             case "==":
             case "!=":
-            case "in":
-            case "notin":
+            case "IN":
+            case "NOTIN":
                 nextToken.operatorPrecedence = OperatorPrecedence.BOOLEANOPS;
 
                 break;
