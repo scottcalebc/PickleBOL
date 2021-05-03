@@ -792,6 +792,15 @@ public class Expr {
                                     paramsLen.add(param);
                                     res = Utility.builtInLENGTH(paramsLen);
                                 }
+                            } else if (param.dataType != SubClassif.STRING) {
+                                param = Utility.coerce(parser, param, SubClassif.STRING);
+
+                                if (param.dataType == SubClassif.EMPTY) {
+                                    throw new ScannerParserException(token, parser.scanner.sourceFileNm, "Parameter must be string constant or variable");
+                                }
+
+                                paramsLen.add(param);
+                                res = Utility.builtInLENGTH(paramsLen);
                             } else if (param.dataType == SubClassif.STRING) {
                                 paramsLen.add(param);
                                 res = Utility.builtInLENGTH(paramsLen);
