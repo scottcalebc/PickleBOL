@@ -1,0 +1,10 @@
+Int i = 11;
+if i <= 15:
+	print("Less than or equal to (i <= 15)");
+endif;
+if i <= 1:
+	print("Less than or equal to (i <= 1)");
+endif;
+if i <= 11:
+	print("Less than or equal to (i <= 11)");
+endif;

@@ -1,0 +1,4 @@
+Int i = 30;
+Int j = 15;
+Int k = i / j;
+print("i / j =", k);

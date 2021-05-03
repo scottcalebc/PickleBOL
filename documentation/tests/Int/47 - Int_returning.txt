@@ -1,0 +1,6 @@
+def Int checkIntReturn(x, y):
+	return x + y;
+enddef;
+
+Int x = checkIntReturn(2, 3);
+print(x);

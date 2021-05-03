@@ -1,0 +1,4 @@
+Int i = "4";
+print(i);
+i = "4.4";
+print(i);

@@ -1,0 +1,10 @@
+Int i = 12;
+if i > 2:
+	print("Greater than (i > 2)");
+endif;
+if i > 14:
+	print("Greater than (i > 14)");
+endif;
+if i > 12:
+	print("Greater than (1 > 12)");
+endif;
