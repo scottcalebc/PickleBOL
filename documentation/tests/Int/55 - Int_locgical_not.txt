@@ -1,0 +1,7 @@
+Int i = 2;
+if not i == 2:
+	print("True (not i == 2)");
+endif;
+if not j == 4:
+	print("True (not j == 4)");
+endif;

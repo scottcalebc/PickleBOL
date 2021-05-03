@@ -1,0 +1,174 @@
+// 1 - Bool_declaration
+Bool b;
+Bool b = T;
+print(b);
+
+// 2 - Bool_assignment
+Bool b = F;
+print(b);
+
+// 3 - Bool_const_equal_to_Bool_const_operation
+if T == T:
+	print("True (T == T)");
+endif;
+if T == F:
+	print("True (T == F)");
+endif;
+
+// 4 - Bool_var_equal_to_Bool_const_operation
+Bool b = T;
+if b == T:
+	print("True (b == T)");
+endif;
+if b == F:
+	print("True (b == F)");
+endif;
+
+// 5 Bool_var_equal_to_Bool_var_operation
+Bool b = T;
+Bool b2 = T;
+if b == b2:
+	print("True (b == b2)");
+endif;
+b2 = F;
+if b == b2:
+	print("True (b == b2)");
+endif;
+
+// 6 - Bool_const_not_equal_to_Bool_const_operation
+if T != T:
+	print("True (T != T)");
+endif;
+if T != F:
+	print("True (T != F)");
+endif;
+
+// 7 - Bool_var_not_equal_to_Bool_const_operation
+Bool b = T;
+if b != T:
+	print("True (b != T)");
+endif;
+if b != F:
+	print("True (b != F)");
+endif;
+
+// 8 Bool_var_not_equal_to_Bool_var_operation
+Bool b = T;
+Bool b2 = T;
+if b != b2:
+	print("True (b == b2)");
+endif;
+b2 = F;
+if b != b2:
+	print("True (b == b2)");
+endif;
+
+// 9 - Bool_var_less_than_Bool_const_operation
+Bool b = T;
+if b < F:
+	print("True (b < F)");
+endif
+if F < b:
+	print("True (F < b)");
+endif;
+
+// 10 - Bool_var_less_than_Bool_var_operation
+Bool b = T;
+Bool b2 = F;
+if b < b2:
+	print("True (b < b2)");
+endif
+if b2 < b:
+	print("True (b2 < b)");
+endif;
+
+// 11 - Bool_const_less_than_Bool_const_operation
+if T < F:
+	print("True (b < F)");
+endif
+if F < T:
+	print("True (F < b)");
+endif;
+
+// 12 - Bool_var_greater_than_Bool_const_operation
+Bool b = T;
+if b > F:
+	print("True (b > F)");
+endif
+if F > b:
+	print("True (F > b)");
+endif;
+
+// 13 - Bool_var_greater_than_Bool_var_operation
+Bool b = T;
+Bool b2 = F;
+if b > b2:
+	print("True (b > b2)");
+endif
+if b2 > b:
+	print("True (b2 > b)");
+endif;
+
+// 14 - Bool_const_greater_than_Bool_const_operation
+if T > F:
+	print("True (b > F)");
+endif
+if F > T:
+	print("True (F > b)");
+endif;
+
+// 15 - Bool_var_less_than_or_equal_Bool_const_operation
+Bool b = T;
+if b <= F:
+	print("True (b <= F)");
+endif
+if F <= b:
+	print("True (F <= b)");
+endif;
+
+// 16 - Bool_var_less_than_or_equal_Bool_var_operation
+Bool b = T;
+Bool b2 = F;
+if b <= b2:
+	print("True (b <= b2)");
+endif
+if b2 <= b:
+	print("True (b2 <= b)");
+endif;
+
+// 17 - Bool_const_less_than_or_equal_Bool_const_operation
+if T <= F:
+	print("True (b <= F)");
+endif
+if F <= T:
+	print("True (F <= b)");
+endif;
+
+// 18 - Bool_var_greater_than_or_equal_Bool_const_operation
+Bool b = T;
+if b >= F:
+	print("True (b >= F)");
+endif
+if F >= b:
+	print("True (F >= b)");
+endif;
+
+// 19 - Bool_var_greater_than_or_equal_Bool_var_operation
+Bool b = T;
+Bool b2 = F;
+if b >= b2:
+	print("True (b >= b2)");
+endif
+if b2 >= b:
+	print("True (b2 >= b)");
+endif;
+
+// 20 - Bool_const_greater_than_or_equal_Bool_const_operation
+if T >= F:
+	print("True (b >= F)");
+endif
+if F >= T:
+	print("True (F >= b)");
+endif;
+
+// 21 - Bool_const_
