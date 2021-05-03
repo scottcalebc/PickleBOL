@@ -1,0 +1,11 @@
+Date d = "1995-05-05";
+Date c = "1999-12-12";
+if d < c:
+	print("True (d < c)");
+endif;
+if c < d:
+	print("True (c < d)");
+endif;
+if d < d:
+	print("True (d < d)");
+endif
