@@ -1,0 +1,2 @@
+Bool b = F;
+print(b);

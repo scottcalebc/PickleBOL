@@ -3,6 +3,81 @@ Int i;
 Int i = 2;
 print(i);
 
+// 2 - Int_assignment.txt
+Int i;
+i = 5;
+Int j = 2;
+print(i, j);
+
+// 3 - Int_const_equal_to_Int_const_operation.txt
+if 2 == 2:
+	print("Equal (2 == 2)");
+endif;
+if 2 == 3:
+	print("Equal (2 == 3)");
+endif;
+
+// 4 - Int_var_equal_to_Int_const_operation.txt
+Int i = 0;
+if i == 0:
+	print("Is equal (i == 0)");
+endif;
+if i == 2:
+	print("Is equal (i == 2)");
+endif;
+
+// 5 - Int_var_equal_to_Int_var_operation.txt
+Int i = 0;
+Int j = 0;
+Int k = 1;
+
+if i == j:
+	print("Equal (i == j)");
+endif;
+if i == k:
+	print("Equal (i == k)");
+endif;
+
+
+// 6 - Int_var_not_equal_to_Int_const_operation.txt
+Int i = 2;
+if i != 0:
+	print("Not Equal (i != 0)");
+endif;
+if i != 2:
+	print("Not Equal (i != 2)");
+endif;
+
+// 7 - Int_var_not_equal_to_Int_var_operation.txt
+Int i = 1;
+Int j = 2;
+if i != j:
+	print("Not Equal (i != j)");
+endif;
+if i != i:
+	print("Not Equal (i != i)");
+endif;
+
+// 8 - Int_const_not_equal_to_Int_const_operation.txt
+if 0 != 2:
+	print("Not equal (0 != 2)");
+endif;
+if 0 != 0:
+	print("Not equal (0 != 0)");
+endif;
+
+// 9 - Int_var_less_than_Int_const_operation.txt
+Int i = 3;
+if i < 10:
+	print("Less than (i < 10)");
+endif;
+if i < 1:
+	print("Less than (i < 1)");
+endif;
+if i < 3:
+	print("Less than (i < 3)");
+endif;
+
 // 10 - Int_var_less_than_Int_var_operation.txt
 Int i = 3;
 Int j = 102;
@@ -124,12 +199,6 @@ if i >= i:
 	print("Greater than or equal (i >= i));
 endif;
 
-// 2 - Int_assignment.txt
-Int i;
-i = 5;
-Int j = 2;
-print(i, j);
-
 // 20 - Int_const_greater_than_or_equal_Int_const_operation.txt
 if 5 >= 0:
 	print("Greater than or equal (5 >= 0));
@@ -184,14 +253,6 @@ print("j = -i: ", j);
 Int i = 5 * 10;
 print("5 * 10 =", i);
 
-// 3 - Int_const_equal_to_Int_const_operation.txt
-if 2 == 2:
-	print("Equal (2 == 2)");
-endif;
-if 2 == 3:
-	print("Equal (2 == 3)");
-endif;
-
 // 30 - Int_var_multiplication_Int_const_operation.txt
 Int i = 5;
 Int j = i * 20;
@@ -245,15 +306,6 @@ Int i = 5;
 Int j = 5;
 i += j;
 print("i += j :", i);
-
-// 4 - Int_var_equal_to_Int_const_operation.txt
-Int i = 0;
-if i == 0:
-	print("Is equal (i == 0)");
-endif;
-if i == 2:
-	print("Is equal (i == 2)");
-endif;
 
 // 40 - Int_const_subtraction_assignment_operation.txt
 Int i = 15;
@@ -327,19 +379,6 @@ if i IN arr:
 	print("i is IN arr");
 endif;
 
-// 5 - Int_var_equal_to_Int_var_operation.txt
-Int i = 0;
-Int j = 0;
-Int k = 1;
-
-if i == j:
-	print("Equal (i == j)");
-endif;
-if i == k:
-	print("Equal (i == k)");
-endif;
-
-
 // 50 - Int_NOTIN.txt
 Int j = 10;
 Int arr[] = 1, 2, 3, 4, 5;
@@ -403,42 +442,10 @@ if not j == 4:
 endif;
 
 
-// 6 - Int_var_not_equal_to_Int_const_operation.txt
+// 56 - Int_While.txt
 Int i = 2;
-if i != 0:
-	print("Not Equal (i != 0)");
-endif;
-if i != 2:
-	print("Not Equal (i != 2)");
-endif;
-
-// 7 - Int_var_not_equal_to_Int_var_operation.txt
-Int i = 1;
-Int j = 2;
-if i != j:
-	print("Not Equal (i != j)");
-endif;
-if i != i:
-	print("Not Equal (i != i)");
-endif;
-
-// 8 - Int_const_not_equal_to_Int_const_operation.txt
-if 0 != 2:
-	print("Not equal (0 != 2)");
-endif;
-if 0 != 0:
-	print("Not equal (0 != 0)");
-endif;
-
-// 9 - Int_var_less_than_Int_const_operation.txt
-Int i = 3;
-if i < 10:
-	print("Less than (i < 10)");
-endif;
-if i < 1:
-	print("Less than (i < 1)");
-endif;
-if i < 3:
-	print("Less than (i < 3)");
-endif;
+while i >= 0:
+	print(i);
+	i -= 1;
+endwhile;
 
