@@ -1,0 +1,3 @@
+Bool b;
+Bool b = T;
+print(b);

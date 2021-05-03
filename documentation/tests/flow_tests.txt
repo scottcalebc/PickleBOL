@@ -1,0 +1,144 @@
+// 1 - Flow_if
+if T:
+	print("True");
+else:
+	print("False");
+endif;
+
+if F:
+	print("True");
+else:
+	print("False");
+endif;
+
+// 2 - Flow_while
+Int i = 0;
+
+while i < 10:
+	print(i);
+	i += 1;
+endwhile;
+
+// 3 - Flow_for_char_in_string
+String s = "I am String";
+
+for c in s:
+	print(c);
+endfor
+
+// 4 - Flow_for_item_in_array
+Float arr[] = 23.454, 0.213;
+
+for f in arr:
+	print(f);
+endfor;
+
+// 5 - Flow_for_string_delimiter
+String delim = " ";
+String s = "Hi Prof. Clark";
+
+for token in s by delim:
+	print(token);
+endfor;
+
+for token in s by "THISISNOTAGOODDELIMITER":
+	print(token):
+endfor;
+
+// 6 - Flow_for_sv_to_ev
+for i=0 to 5:
+	print(i);
+endfor;
+print("----");
+for i=0 to 5 by 2:
+	print(i);
+endfor;
+
+// 7 - Flow_select
+
+Int arr[] = 1, 34, -1, 3;
+
+for i in arr:
+	select i:
+		when -1:
+			print("-1");
+		when 0:
+			print("0");
+		when 5, 4, 3, 2, 1:
+			print("5, 4, 3, 2, 1");
+		default:
+			print("default"):
+	endselect;
+endfor;
+
+// 8 - Flow_break
+
+if T:
+	print("before break");
+	break;
+	print("after break");
+else:
+	print("else");
+endif;
+
+Int i = 2;
+
+while T:
+	if (i == 3):
+		break;
+	endif;
+	print(i);
+	i = i + 1;
+endwhile;
+
+for i=0 to 5 by 1:
+	if (i == 3):
+		break;
+	endif;
+	print(i);
+endfor;
+
+for i=0 to 5 by 1:
+	select i:
+		when 4:
+			break;
+		default:
+			print(i);
+	endselect;
+endfor;
+
+// 9 - Flow_continue
+
+if T:
+	print("before continue");
+	continue;
+	print("after continue");
+else:
+	print("else");
+endif;
+
+Int i = 2;
+
+while i < 6:
+	if (i == 3):
+		continue;
+	endif;
+	print(i);
+	i = i + 1;
+endwhile;
+
+for i=0 to 5 by 1:
+	if (i == 3):
+		continue;
+	endif;
+	print(i);
+endfor;
+
+for i=0 to 5 by 1:
+	select i:
+		when 4:
+			continue;
+		default:
+			print(i);
+	endselect;
+endfor;

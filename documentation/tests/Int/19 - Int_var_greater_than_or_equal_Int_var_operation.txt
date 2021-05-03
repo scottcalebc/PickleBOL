@@ -1,0 +1,11 @@
+Int i = 14;
+Int j = 5;
+if i >= j:
+	print("Greater than or equal (i >= j));
+endif;
+if j >= i:
+	print("Greater than or equal (j >= i));
+endif;
+if i >= i:
+	print("Greater than or equal (i >= i));
+endif;

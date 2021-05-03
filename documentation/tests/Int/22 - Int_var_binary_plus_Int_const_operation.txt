@@ -1,0 +1,3 @@
+Int i = 5;
+Int j = i + 5;
+print("i + 5 =", j);

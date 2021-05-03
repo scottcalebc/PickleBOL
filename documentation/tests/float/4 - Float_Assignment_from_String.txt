@@ -1,0 +1,2 @@
+Float fVal = "4.0";
+print("Float from \"4.0\"", fVal);

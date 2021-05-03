@@ -1,0 +1,9 @@
+Bool b = T;
+Bool b2 = F;
+if b or b2:
+	print("True (b or b2)");
+endif;
+b2 = T;
+if b or b2:
+	print("True (b or b2)");
+endif

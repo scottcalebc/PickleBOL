@@ -1,0 +1,4 @@
+Int i = 2;
+Int j = 3;
+Int k = i^j;
+print("i^j =", k);

@@ -1,0 +1,7 @@
+for i=0 to 5:
+	print(i);
+endfor;
+print("----");
+for i=0 to 5 by 2:
+	print(i);
+endfor;

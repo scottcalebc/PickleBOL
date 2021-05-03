@@ -1,0 +1,9 @@
+Bool b = T;
+Int i = 0;
+while b:
+	if i == 1:
+		b = F;
+	endif;
+	print(i);
+	i += 1;
+endwhile;

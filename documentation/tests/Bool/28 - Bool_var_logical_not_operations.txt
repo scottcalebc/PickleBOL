@@ -1,0 +1,7 @@
+Bool b = T;
+if not b:
+	print("True (not b)");
+endif;
+if not b or T:
+	print("True (not b or T)");
+endif

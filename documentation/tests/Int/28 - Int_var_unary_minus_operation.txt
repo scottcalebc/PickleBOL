@@ -1,0 +1,3 @@
+Int i = 6;
+Int j = -i;
+print("j = -i: ", j);
