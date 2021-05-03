@@ -1,0 +1,43 @@
+def Void A():
+	Int x;
+	Int y;
+	Int z;
+	def Void D():
+		Int w;
+		print("D before assign", "x=", x, "y=", y, "z=", z); //D before assign x= 30 y= 11 z= 12
+		x = 40;
+		y = 41;
+		w = 44;
+		print("D after assign", "x=", x, "y=", y, "z=", z); //D after assign x= 40 y= 41 z= 12
+	enddef; //end of D
+	
+def Void B():
+	Int z;
+	Int y;
+	
+	def Void C():
+		Int y;
+		x = 30;
+		y = 31;
+		z = 32;
+			print("C before", "x=", x, "y=", y, "z=", z); //C before x= 30 y= 31 z= 32
+			D();
+			print("C after", "x=", x, "y=", y, "z=", z); //C after x= 40 y= 31 z=32
+		enddef; //end of C
+		
+		x = 20;
+		y = 21;
+		z = 22;
+		print("B before", "x=", x, "y=", y, "z=", z); //B before x= 20 y= 21 z= 22
+		C();
+		print"B after", "x=", x, "y=", y, "z=", z); //B after x= 40 y= 21 z= 32
+	enddef; //end of B
+	
+	x = 10;
+	y = 11;
+	z = 12;
+	print("A before", "x=", x, "y=", y, "z=", z); //A before x= 10 y= 11 z= 12
+	B();
+	print("A after", "x=", x, "y=", y, "z=", z); //A after x= 40 y= 41 z= 12
+	enddef; //end of A
+A();

@@ -1,0 +1,8 @@
+def Int factorial(Int x):
+	if x == 0:
+		return 1;
+	else:
+		return x * factorial(x - 1);
+	endif;
+enddef;
+print("10! =", factorial(10));
