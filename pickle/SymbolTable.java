@@ -83,12 +83,19 @@ public class SymbolTable implements Cloneable{
 		this.symbolTable.put("String", new STControl("String", Classif.CONTROL, SubClassif.DECLARE));
 		this.symbolTable.put("Bool", new STControl("Bool", Classif.CONTROL, SubClassif.DECLARE));
 		this.symbolTable.put("Date", new STControl("Date", Classif.CONTROL, SubClassif.DECLARE));
+		this.symbolTable.put("break", new STControl("break", Classif.CONTROL, SubClassif.FLOW));
+		this.symbolTable.put("continue", new STControl("continue", Classif.CONTROL, SubClassif.FLOW));
+		this.symbolTable.put("select", new STControl("select", Classif.CONTROL, SubClassif.FLOW));
+		this.symbolTable.put("endselect", new STControl("endselect", Classif.CONTROL, SubClassif.END));
+		this.symbolTable.put("when", new STControl("when", Classif.CONTROL, SubClassif.END));
+		this.symbolTable.put("default", new STControl("default", Classif.CONTROL, SubClassif.END));
 
 		this.symbolTable.put("and", new STEntry("and", Classif.OPERATOR));
 		this.symbolTable.put("or", new STEntry("or", Classif.OPERATOR));
 		this.symbolTable.put("not", new STEntry("not", Classif.OPERATOR));
 		this.symbolTable.put("in", new STEntry("in", Classif.OPERATOR));
 		this.symbolTable.put("notin", new STEntry("notin", Classif.OPERATOR));
+		this.symbolTable.put("unbound", new STEntry("unbound", Classif.OPERATOR));
 
 		ArrayList<SubClassif> print = new ArrayList<SubClassif>();
 		ArrayList<SubClassif> string = new ArrayList<SubClassif>();

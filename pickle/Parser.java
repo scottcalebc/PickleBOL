@@ -160,6 +160,9 @@ public class Parser {
                             Utility.skipTo(scanner, ";");
                         }
                         break;
+                    case "select":
+                        res = selectStmt(execMode);
+                        break;
                     default:
                         throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown Control token");
 
@@ -275,11 +278,19 @@ public class Parser {
             }
         }
         else {
-            res = (ResultValue) expr(); //get value in square brackets
+            if (scanner.currentToken.tokenStr.equals("unbound")) {
+                scanner.currentToken.tokenStr = "-1";
+                scanner.currentToken.primClassif = Classif.OPERAND;
+                scanner.currentToken.subClassif = SubClassif.INTEGER;
+                resList = new ResultList(this, new ArrayList<ResultValue>(), -1, arrType);
+            }
+                res = (ResultValue) expr(); //get value in square brackets
+            //res = (ResultValue) expr(); //get value in square brackets
             if (res.dataType != SubClassif.INTEGER) {
                 res = Utility.castNumericToInt(this, new Numeric(this, res, "+", "expr ret value"));
             }
-            resList.capacity = Integer.parseInt(res.strValue);
+            if (!res.strValue.equals("-1"))
+                resList.capacity = Integer.parseInt(res.strValue);
             ResultValue empty = new ResultValue("", SubClassif.EMPTY);
             for (int i = 0; i < resList.capacity; i++) {
                 resList.arrayList.add(empty);
@@ -730,6 +741,7 @@ public class Parser {
                         value = this.storageManager.getVariable(argI.strValue);
                     }
 
+
                     // assign paramaters into activation record storagemanager
                     if ((value instanceof ResultValue) && !function.array.get(i)) {
                         // coerce
@@ -739,7 +751,6 @@ public class Parser {
                             }
                             value = Utility.coerce(this, (ResultValue) value, paramType);
                         }
-
                         newAcc.storageManager.updateVariable(function.names.get(i), value);
                     }
                     if ((value instanceof ResultList) && function.array.get(i)) {
@@ -748,8 +759,9 @@ public class Parser {
                             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
                         }
 
+                        ResultList newList = new ResultList(this, (ArrayList<ResultValue>) ((ResultList) value).arrayList.clone(), ((ResultList) value).capacity, ((ResultList) value).dataType);
 
-                        newAcc.storageManager.updateVariable(function.names.get(i), value);
+                        newAcc.storageManager.updateVariable(function.names.get(i), newList);
                     }
 
 
@@ -1253,6 +1265,140 @@ public class Parser {
         else {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected separator, found: " + scanner.currentToken.tokenStr);
         }
+    }
+
+    /**
+     * Executes select statements
+     * <p></p>
+     *
+     * @param execMode
+     * @return  ResultValue
+     */
+    private ResultValue selectStmt(iExecMode execMode) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        ResultValue returnMode = new ResultValue("", SubClassif.EMPTY);
+        returnMode.execMode = execMode;
+
+        scanner.getNext(); // skip to the control variable
+
+        Result var = expr(); //get the value of the control variable
+
+        if (!(var instanceof ResultValue)) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Control variable for select statement cannot be a list");
+        }
+
+        ResultValue controlVar = (ResultValue) var;
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "select statement missing ':' ");
+        }
+
+        scanner.getNext(); //skip to first when
+
+        //loop through all the selects until a default or endselect is hit
+        while (scanner.currentToken.tokenStr.equals("when")) {
+            res = whenStmt(execMode, controlVar);
+            if (res.execMode != iExecMode.IGNORE_EXEC) {
+                execMode = iExecMode.IGNORE_EXEC;
+                returnMode.execMode = res.execMode;
+            }
+        }
+
+        if (!scanner.currentToken.tokenStr.equals("default") && !scanner.currentToken.tokenStr.equals("endselect")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected endselect or default statement");
+        }
+
+        if (scanner.currentToken.tokenStr.equals("default")) {
+            res = defaultStmt(execMode);
+            if (res.execMode != execMode) {
+                returnMode.execMode = res.execMode;
+            }
+            if (!res.terminatingString.equals("endselect")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected endselect statement");
+            }
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing ';'");
+        }
+
+        res.execMode = returnMode.execMode;
+        return res;
+    }
+
+    /**
+     * Executes when statements
+     * <p></p>
+     *
+     * @param execMode
+     * @return ResultValue
+     */
+    private ResultValue whenStmt(iExecMode execMode, ResultValue controlVar) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+
+        scanner.getNext(); //skip to the value to compare
+
+        while (!scanner.currentToken.tokenStr.equals(":")) {
+            Result cond = expr();
+            if (!(cond instanceof ResultValue)) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "when statements must not include a list");
+            }
+
+            ResultValue compare = (ResultValue) cond;
+
+            if (compare.dataType != controlVar.dataType) {
+                compare = Utility.coerce(this, compare, controlVar.dataType);
+            }
+
+            if (compare.dataType == SubClassif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Error coercing data types");
+            }
+
+            if (Utility.equal(this, compare, controlVar).strValue.equals("T")) {
+                if (!scanner.currentToken.tokenStr.equals(":"))
+                    Utility.skipTo(scanner,":");
+                res = statements(execMode);
+                res.dataType = SubClassif.VOID;
+                break;
+            }
+
+            if (scanner.currentToken.tokenStr.equals(",")) {
+                scanner.getNext();
+            }
+            else if (!scanner.currentToken.tokenStr.equals(":")){
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "err");
+            }
+
+        }
+
+        if (res.dataType == SubClassif.EMPTY) {
+            res = statements(iExecMode.IGNORE_EXEC);
+        }
+
+        if (!res.terminatingString.equals("default") && !res.terminatingString.equals("when") && !res.terminatingString.equals("endselect")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected select statement end flow, found");
+        }
+
+        return res;
+    }
+
+    /**
+     * Executes default statements
+     * <p></p>
+     *
+     * @param execMode
+     * @return ResultValue
+     */
+    private ResultValue defaultStmt(iExecMode execMode) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+
+        if (!scanner.getNext().equals(":")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ':', found");
+        }
+
+        res = statements(execMode);
+
+        return res;
     }
 
     /**
@@ -2124,33 +2270,63 @@ public class Parser {
             throw new PickleException();
         }
 
-        if (!scanner.getNext().equals("{")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected start of list (\"{\") found");
-        }
+        scanner.getNext();
 
-        //now we hit that list bby
         ResultList list = new ResultList(this, new ArrayList<ResultValue>(), 0, scanner.nextToken.subClassif);
         ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>();
 
-
-
-        //loop through 'em
-        while (!scanner.currentToken.tokenStr.equals("}")) {
-            scanner.getNext();
-
-            if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != list.dataType) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "List element data type conflict");
+        if (scanner.currentToken.primClassif == Classif.OPERAND && scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
+            entry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+                if (scope != -1)
+                    entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
             }
 
-            arrayList.add(new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif));
+            if (entry.primClassif == Classif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "valueList not initialized");
+            }
 
-            scanner.getNext();
+            Result l = this.storageManager.getVariable(entry.symbol);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                if (scope != -1)
+                    l = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+            }
+
+            if (l instanceof ResultValue) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "value must be a list");
+            }
+            else if (l instanceof ResultList) {
+                list = (ResultList) l;
+            }
+            else {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "value must be a list");
+            }
+
         }
+        else if (!scanner.currentToken.tokenStr.equals("{")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected start of list (\"{\") found");
+        }
+        else {
+            //now we hit that list bby
+            //loop through 'em
+            while (!scanner.currentToken.tokenStr.equals("}")) {
+                scanner.getNext();
 
-        list.arrayList = arrayList;
-        list.allocatedSize = arrayList.size();
-        list.capacity = arrayList.size();
+                if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != list.dataType) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "List element data type conflict");
+                }
 
+                arrayList.add(new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif));
+
+                scanner.getNext();
+            }
+
+            list.arrayList = arrayList;
+            list.allocatedSize = arrayList.size();
+            list.capacity = arrayList.size();
+        }
         if (inORout.equals("IN")) {
             res = Utility.builtInIN(this, (ResultValue) value, list);
         }

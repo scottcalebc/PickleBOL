@@ -389,6 +389,8 @@ public class Utility {
         ResultValue emptyValue = new ResultValue("", SubClassif.EMPTY);
         ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>();
 
+        if (targetArray.unbounded) return new ResultList(parser, sourceArray.arrayList, -1, targetArray.dataType);
+
         // copy items from source to target until:
         //         target array is full
         //      or source array has no more items
@@ -422,6 +424,11 @@ public class Utility {
      * @throws ResultListException if the Result List could not be created.
      */
     public static ResultList assignScalarToArray(Parser parser, ResultValue value, int size) throws ResultListException {
+        if (size == -1)
+        {
+            throw new ResultListException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    "Cannot assign scalar to unbounded array.");
+        }
         // Create List of ResultValues to become ResultList
         ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>(size);
         // Assign same value to all indexes of list
