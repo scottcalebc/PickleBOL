@@ -1,5 +1,7 @@
 // Float_Declaration
 Float fVal;
+Float fVal = 2;
+print("fVal")
 
 // Float_Initialization_from_Numeric_Constant_Float
 Float fVal = 4.0;

@@ -2,6 +2,7 @@ import sys
 import os
 
 if len(sys.argv) != 3: 
+    print("args: textFileWithTests outputDirName")
     sys.exit()
 
 f = open(sys.argv[1], 'r')
