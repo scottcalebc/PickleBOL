@@ -222,7 +222,7 @@ public class Parser {
         if (this.activationRecordStack.isEmpty()) { //in global scope
             STEntry varEntry = symbolTable.getSymbol(varStr);
 
-            /*if (varEntry.symbol.isEmpty()) {*/
+            if (varEntry.symbol.isEmpty()) {
                 // put symbol into table
                 symbolTable.putSymbol(varStr, new STIdentifier(
                         varStr,
@@ -232,15 +232,18 @@ public class Parser {
                         "none",
                         0
                 ));
-            /*}
-            else {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
-            }*/
+            }
+            else { //if var already exists
+                if (getDataType(declareTypeStr) != ((STIdentifier) varEntry).dclType) {
+                    ((STIdentifier) varEntry).dclType = getDataType(declareTypeStr);
+                }
+                //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
         }
         else { //in a function's scope
             STEntry varEntry = this.activationRecordStack.peek().symbolTable.getSymbol(varStr);
 
-            /*if (varEntry.symbol.isEmpty()) {*/
+            if (varEntry.symbol.isEmpty()) {
                 this.activationRecordStack.peek().symbolTable.putSymbol(varStr, new STIdentifier(
                         varStr,
                         Classif.OPERAND,
@@ -249,10 +252,13 @@ public class Parser {
                         "none",
                         0
                 ));
-            /*}
-            else {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
-            }*/
+            }
+            else { //if var exits already
+                if (getDataType(declareTypeStr) != ((STIdentifier) varEntry).dclType) {
+                    ((STIdentifier) varEntry).dclType = getDataType(declareTypeStr);
+                }
+                //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
         }
 
         // if assignment being performed during declaration ensure to assign value before exiting
@@ -274,7 +280,7 @@ public class Parser {
 
         if (scanner.getNext().equals("]")) { //if square brackets contain no value
             if (!scanner.getNext().equals("=")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Expected assignment values for unbounded array");
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Expected assignment values for array");
             }
         }
         else {
