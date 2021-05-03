@@ -1,7 +1,7 @@
 // 1 - Float_Declaration
 Float fVal;
 Float fVal = 2;
-print("fVal")
+print("fVal");
 
 // 2 - Float_Assignment_from_Numeric_Constant_Float
 Float fVal = 4.0;
@@ -13,7 +13,7 @@ print("Float from 4:", fVal);
 
 // 4 - Float_Assignment_from_String
 Float fVal = "4.0";
-print("Float from \"4.0\"", fVal);
+print("Float from \"4.0\":", fVal);
 
 // 5 - Float_var_Equal_To_Float_var_operation
 Float fVal1 = 4.0;
@@ -187,6 +187,7 @@ print("4.0 - 3.0:", 4.0 - 3.0);
 
 // 37 - Float_var_Unary_Minus_Assignment_operation
 Float fVal = -4.0;
+print("fVal");
 
 // 38 - Float_var_Unary_Minus_Float_var_operation
 Float fVal = 4.0;
@@ -258,8 +259,6 @@ print("fVal1:4.0 ^ 3.0:", fVal1 ^ 3.0);
 print("4.0 ^ 4.0:", 4.0 ^ 4.0);
 print("4.0 ^ 3.0:", 4.0 ^ 3.0);
 
-========== NOT DONE BELOW
-
 // 52 - Float_const_Addition_Assignment_operation
 Float fVal1 = 10.0;
 fVal1 += 5.0;
@@ -284,11 +283,11 @@ print("fVal1:10.0 -= fVal2:4.0: ", fVal1);
 
 // 56 - Float_for_cv_to_endVal
 print("For fVal:0.0 to 10.0");
-for Float fVal=0.0 to 10.0:
+for fVal=0.0 to 10.0:
 	print(fVal);
 endfor
 print("For fVal:0.0 to 10.0 by 2.0");
-for Float fVal=0.0 to 10.0 by 2.0:
+for fVal=0.0 to 10.0 by 2.0:
 	print(fVal);
 endfor;
 
@@ -346,7 +345,7 @@ print("print 4.0:", 4.0);
 
 // 64 - Float_select
 Float fVal = 12.0;
-print("select fval:12.0:");
+print("select fVal:12.0:");
 select fVal:
 	when 0.0, 1.0, 2.0:
 		print("0.0, 1.0, 2.0");

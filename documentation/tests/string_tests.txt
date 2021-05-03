@@ -1,120 +1,120 @@
-// String_Declaration
+// 1 - String_Declaration
 String strVal;
 
-// String_Initialization_from_String_Constant_Double_Quotes
+// 2 - String_Initialization_from_String_Constant_Double_Quotes
 String strVal = "test string";
 print("String from 'test string':", strVal);
 
-// String_Initialization_from_String_Constant_Single_Quotes
+// 3 - String_Initialization_from_String_Constant_Single_Quotes
 String strVal = "test string";
 print("String from 'test string':", strVal);
 
-// String_Initialization_from_Numeric_Constant_Int
+// 4 - String_Initialization_from_Numeric_Constant_Int
 String strVal = 1;
 print("String from 1:", strVal);
 
-// String_Initialization_from_Numeric_Constant_Int_Var
+// 5 - String_Initialization_from_Numeric_Constant_Int_Var
 int iVal = 10;
 String strVal = iVal;
 print("String from iVal:", strVal);
 
-// String_Initialization_from_Numeric_Constant_Float
+// 6 - String_Initialization_from_Numeric_Constant_Float
 String strVal = 4.4;
 print("String from 4.4:", strVal);
 
-// String_Initialization_from_Numeric_Constant_Float_Var
+// 7 - String_Initialization_from_Numeric_Constant_Float_Var
 Float fVal = 4.0;
 String strVal = fVal;
 print("String from fVal:", strVal);
 
-// String_Initialization_from_Date_Var
+// 8 - String_Initialization_from_Date_Var
 Date dataVal = "1993-01-01";
 String strVal = dataVal;
 print("String from dataVal:", strVal);
 
-// String_Initialization_from_Bool_Var
+// 9 - String_Initialization_from_Bool_Var
 Bool bVal = "T";
 String strVal = bVal;
 print("String from bVal:", strVal);
 
-// String_Initialization_from_StringConst_StringConst_Concat
+// 10 - String_Initialization_from_StringConst_StringConst_Concat
 String strVal = "Some" # "body";
 print("String from 'some' # 'body':" strVal);
 
-// String_Initialization_from_StringConst_StringVar_Concat
+// 11 - String_Initialization_from_StringConst_StringVar_Concat
 String strVal1 = "information";
 String strVal = "Some" # strVal1;
 print("String from 'some' # strVal1:'information' :" strVal);
 
-// String_Initialization_from_StringVar_StringVar_Concat
+// 12 - String_Initialization_from_StringVar_StringVar_Concat
 String strVal1 = "information";
 String strVal2 = "this"
 String strVal = strVal2 # strVal1;
 print("String from strVal2:'this' # strVal1:'information' :" strVal);
 
-// String_Initialization_from_StringConst_IntConst_Concat
+// 13 - String_Initialization_from_StringConst_IntConst_Concat
 String strVal = "Some" # 1;
 print("String from 'some' # 1 :" strVal);
 
-// String_Initialization_from_StringConst_IntVar_Concat
+// 14 - String_Initialization_from_StringConst_IntVar_Concat
 Int iVal = 120
 String strVal = "Some" # iVal;
 print("String from 'some' # iVal:120 :" strVal);
 
-// String_Initialization_from_StringVar_IntConst_Concat
+// 15 - String_Initialization_from_StringVar_IntConst_Concat
 String strVal1 = "information";
 String strVal = strVal1 # 1235;
 print("String from strVal1 # 1235 :" strVal);
 
-// String_Initialization_from_StringVar_IntVar_Concat
+// 16 - String_Initialization_from_StringVar_IntVar_Concat
 String strVal1 = "information";
 Int iVal = 728;
 String strVal = strVal1 # iVal;
 print("String from 'some' # strVal1:'information' :" strVal);
 
-// String_Initialization_from_String_Slice_Lower_Bound_Only
+// 17 - String_Initialization_from_String_Slice_Lower_Bound_Only
 String strVal1 = "tacobell";
 String strVal2 = strVal1[4~];
 print("String from slice, should be 'bell':", strVal2);
 
-// String_Initialization_from_String_Slice_Upper_Bound_Only
+// 18 - String_Initialization_from_String_Slice_Upper_Bound_Only
 String strVal1 = "tacobell";
 String strVal2 = strVal[~4];
 print("String from slice, should be 'taco':", strVal2);
 
-// String_Initialization_from_String_Slice_Lower_Upper_Bound
+// 19 - String_Initialization_from_String_Slice_Lower_Upper_Bound
 String strVal1 = "Maybe I don't feel well";
 String strVal2 = strVal[5~17];
 print("String from slice, should be 'I don't feel well':", strVal2);
 
-//String_Slice_Assignment_from_Lower_Bound_Only
+// 20 - String_Slice_Assignment_from_Lower_Bound_Only
 String strVal = "tacobell";
 strVal[4~] = "hut";
 print("String into slice, should be 'tacohut':", strVal);
 
-// String_Slice_Assignment__from_Upper_Bound_Only
+// 21 - String_Slice_Assignment__from_Upper_Bound_Only
 String strVal = "tacobell";
 strVal[~4] = "school";
 print("String into slice, should be 'schoolbell':, strVal);
 
-//String_Slice_Assignment_from_Lower_Upper_Bound
+// 22 - String_Slice_Assignment_from_Lower_Upper_Bound
 String strVal = "The wheels on the bus";
 strVal[4~10] = "seats";
 print("String into slice, should be 'The seats on the bus':, strVal);
 
-// String_Array_Initialization_from_String_Constant
+// 23 - String_Array_Initialization_from_String_Constant
 String strValM[] = "string 1", "string 2", "string 3", "string 4";
 print("String array from strings:", strValM);
 
-//String_Array_Initialization_from_Numeric_Constant_Int
+// 24 - String_Array_Initialization_from_Numeric_Constant_Int
 String strValM[] = 1, 2, 3, 4;
 print("String array from ints:", strValM);
 
-// String_Array_Initialization_from_Numeric_Constant_Float
+// 25 - String_Array_Initialization_from_Numeric_Constant_Float
 String strValM[] = 1.0, 2.1, 3.2, 4.3;
 print("String array from floats:", strValM);
 
-// StringVar_Equal_To_StringVar
+// 26 - StringVar_Equal_To_StringVar
 String strVal1 = "some";
 String strVal2 = "some";
 
@@ -125,7 +125,7 @@ else:
 endif;
 
 
-// StringVar_Equal_To_StringConst
+// 27 - StringVar_Equal_To_StringConst
 String strVal = "Clark";
 
 if strVal == "Clark":
@@ -134,7 +134,7 @@ else:
     print("ERROR: this should not print");
 endif;
 
-// StringConst_Equal_To_StringVar
+// 28 - StringConst_Equal_To_StringVar
 String strVal = "Maynard";
 
 if "Maynard" == strVal:
@@ -145,14 +145,14 @@ endif;
 
 
 
-// StringConst_Equal_To_StringConst
+// 29 - StringConst_Equal_To_StringConst
 if "Silvestro" != "Clark":
     print("String comparison should be True, 'Clark' == 'Clark' :" "Clark" == "Clark");
 else:
     print("ERROR: this should not print");
 endif;
 
-// StringVar_NotEqual_To_StringConst
+// 30 - StringVar_NotEqual_To_StringConst
 String strVal = "Silvestro";
 
 if strVal != "Clark":
@@ -161,7 +161,7 @@ else:
     print("ERROR: this should not print");
 endif;
 
-// StringConst_NotEqual_To_StringVar
+// 31 - StringConst_NotEqual_To_StringVar
 String strVal = "Maynard";
 
 if "Perl" != strVal:
@@ -171,7 +171,7 @@ else:
 endif;
 
 
-// StringConst_NotEqual_To_StringConst
+// 32 - StringConst_NotEqual_To_StringConst
 if "Clark" != "Ortiz":
     print("String comparison should be True, 'Clark' == 'Clark' :" "Clark" == "Clark");
 else:
@@ -179,7 +179,7 @@ else:
 endif;
 
 
-// String_Constant_IN_String_Array
+// 33 - String_Constant_IN_String_Array
 String strVal[] = "Clark", "Silvestro", "Slavin", "Fernandez";
 
 if "Clark" IN strVal:
@@ -188,7 +188,7 @@ else:
     print("ERROR: this should not print");
 endif;
 
-// String_Var_IN_String_Array
+// 34 - String_Var_IN_String_Array
 String strVal[] = "Clark", "Silvestro", "Slavin", "Fernandez";
 String strName = "Slavin";
 
@@ -198,14 +198,14 @@ else:
     print("ERROR: this should not print");
 endif;
 
-// String_Constant_IN_String_List
+// 35 - String_Constant_IN_String_List
 if "Clark" IN "Clark", "Silvestro", "Slavin", "Fernandez":
     print("String in array, "Clark" in strVal");
 else:
     print("ERROR: this should not print");
 endif;
 
-// String_Var_IN_String_List
+// 36 - String_Var_IN_String_List
 String strName = "Slavin";
 
 if strName IN "Clark", "Silvestro", "Slavin", "Fernandez":
@@ -214,7 +214,7 @@ else:
     print("ERROR: this should not print");
 endif;
 
-// String_Constant_NOTIN_String_Array
+// 37 - String_Constant_NOTIN_String_Array
 String strVal[] = "Clark", "Silvestro", "Slavin", "Fernandez";
 
 if "Ortiz" NOTIN strVal:
@@ -223,7 +223,7 @@ else:
     print("ERROR: this should not print");
 endif;
 
-// String_Var_NOTIN_String_Array
+// 38 - String_Var_NOTIN_String_Array
 String strVal[] = "Clark", "Silvestro", "Slavin", "Fernandez";
 String strName = "Ortiz";
 
@@ -233,14 +233,14 @@ else:
     print("ERROR: this should not print");
 endif;
 
-// String_Constant_NOTIN_String_List
+// 39 - String_Constant_NOTIN_String_List
 if "Ortiz" NOTIN "Clark", "Silvestro", "Slavin", "Fernandez":
     print("String in array, "Clark" in strVal");
 else:
     print("ERROR: this should not print");
 endif;
 
-// String_Var_NOTIN_String_List
+// 40 - String_Var_NOTIN_String_List
 String strName = "Ortiz";
 
 if strName NOTIN "Clark", "Silvestro", "Slavin", "Fernandez":

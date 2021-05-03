@@ -177,37 +177,37 @@ endif;
 // 18 - Int_var_greater_than_or_equal_Int_const_operation
 Int i = 14;
 if i >= 3:
-	print("Greater than or equal (i >= 3));
+	print("Greater than or equal (i >= 3)");
 endif;
 if i >= 22:
-	print("Greater than or equal (i >= 22));
+	print("Greater than or equal (i >= 22)");
 endif;
 if i >= 14:
-	print("Greater than or equal (i >= 14));
+	print("Greater than or equal (i >= 14)");
 endif;
 
 // 19 - Int_var_greater_than_or_equal_Int_var_operation
 Int i = 14;
 Int j = 5;
 if i >= j:
-	print("Greater than or equal (i >= j));
+	print("Greater than or equal (i >= j)");
 endif;
 if j >= i:
-	print("Greater than or equal (j >= i));
+	print("Greater than or equal (j >= i)");
 endif;
 if i >= i:
-	print("Greater than or equal (i >= i));
+	print("Greater than or equal (i >= i)");
 endif;
 
 // 20 - Int_const_greater_than_or_equal_Int_const_operation
 if 5 >= 0:
-	print("Greater than or equal (5 >= 0));
+	print("Greater than or equal (5 >= 0)");
 endif;
 if 5 >= 51:
-	print("Greater than or equal (5 >= 51));
+	print("Greater than or equal (5 >= 51)");
 endif;
 if 5 >= 5:
-	print("Greater than or equal (5 >= 5));
+	print("Greater than or equal (5 >= 5)");
 endif;
 
 // 21 - Int_const_binary_plus_Int_const_operation
@@ -331,7 +331,7 @@ print(i);
 // 44 - Int_for_cv_to_endVal
 for i=0 to 10:
 	print(i);
-endfor
+endfor;
 print("-----");
 for i=0 to 10 by 2:
 	print(i);

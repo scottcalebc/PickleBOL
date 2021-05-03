@@ -1,6 +1,6 @@
 if T < F:
 	print("True (b < F)");
-endif
+endif;
 if F < T:
 	print("True (F < b)");
 endif;

@@ -1,0 +1,2 @@
+String strVal = "test string";
+print("String from 'test string':", strVal);

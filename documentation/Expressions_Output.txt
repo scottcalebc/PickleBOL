@@ -1,0 +1,51 @@
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - Expression_simple.txt
+6 
+
+
+Testing File: 2 - Expression_simple_with_fuction.txt
+Line 1 Invalid assignment: 'Int', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Expressions/2 - Expression_simple_with_fuction.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 3 - Expression_complex.txt
+205 
+
+
+Testing File: 4 - Expression_complex_with_function.txt
+Line 1 Invalid assignment: 'Int', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Expressions/4 - Expression_complex_with_function.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 5 - Expression_nested_function_calls.txt
+Line 1 Invalid assignment: 'Int', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Expressions/5 - Expression_nested_function_calls.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 6 - Expression_simple_boolean.txt
+T 
+
+
+Testing File: 7 - Expression_complex_boolean.txt
+Line 1 Invalid bool representation: ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Expressions/7 - Expression_complex_boolean.txt
+	at pickle.Bool.parseString(Bool.java:59)
+	at pickle.Bool.<init>(Bool.java:31)
+	at pickle.Expr.evaluatePostFix(Expr.java:1066)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.print(Parser.java:560)
+	at pickle.Parser.functionStmt(Parser.java:515)
+	at pickle.Parser.getNext(Parser.java:64)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+

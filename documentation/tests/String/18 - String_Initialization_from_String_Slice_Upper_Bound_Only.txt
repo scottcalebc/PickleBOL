@@ -1,0 +1,3 @@
+String strVal1 = "tacobell";
+String strVal2 = strVal[~4];
+print("String from slice, should be 'taco':", strVal2);

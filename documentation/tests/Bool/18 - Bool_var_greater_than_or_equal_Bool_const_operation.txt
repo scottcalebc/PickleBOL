@@ -1,7 +1,7 @@
 Bool b = T;
 if b >= F:
 	print("True (b >= F)");
-endif
+endif;
 if F >= b:
 	print("True (F >= b)");
 endif;

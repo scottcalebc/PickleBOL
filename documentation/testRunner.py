@@ -31,8 +31,10 @@ print("Java Build Result:", res)
 # run the tests
 for file in sorted_alphanumeric(os.listdir(testDir)):
     if file.endswith(".txt"):
-        filepath = os.path.abspath(os.path.join(os.curdir, "documentation",file))
+        filepath = os.path.abspath(os.path.join(testDir, file))
         print("Testing File:", file)
+        sys.stdout.flush()
+        sys.stderr.flush()
         res = os.system("java pickle.Pickle \"" + filepath + "\"")
         print("\n")
 

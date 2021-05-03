@@ -1,0 +1,305 @@
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - String_Declaration.txt
+
+
+Testing File: 2 - String_Initialization_from_String_Constant_Double_Quotes.txt
+String from 'test string': test string 
+
+
+Testing File: 3 - String_Initialization_from_String_Constant_Single_Quotes.txt
+String from 'test string': test string 
+
+
+Testing File: 4 - String_Initialization_from_Numeric_Constant_Int.txt
+String from 1: 1 
+
+
+Testing File: 5 - String_Initialization_from_Numeric_Constant_Int_Var.txt
+Line 1 Invalid assignment: 'iVal', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/5 - String_Initialization_from_Numeric_Constant_Int_Var.txt
+	at pickle.Parser.assignmentStmt(Parser.java:380)
+	at pickle.Parser.getNext(Parser.java:61)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 6 - String_Initialization_from_Numeric_Constant_Float.txt
+String from 4.4: 4.4 
+
+
+Testing File: 7 - String_Initialization_from_Numeric_Constant_Float_Var.txt
+String from fVal: 4.0 
+
+
+Testing File: 8 - String_Initialization_from_Date_Var.txt
+String from dataVal: 1993-01-01 
+
+
+Testing File: 9 - String_Initialization_from_Bool_Var.txt
+String from bVal: T 
+
+
+Testing File: 10 - String_Initialization_from_StringConst_StringConst_Concat.txt
+Somebody 
+
+
+Testing File: 11 - String_Initialization_from_StringConst_StringVar_Concat.txt
+Someinformation 
+
+
+Testing File: 12 - String_Initialization_from_StringVar_StringVar_Concat.txt
+Line 3 Invalid token in expression: 'String', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/12 - String_Initialization_from_StringVar_StringVar_Concat.txt
+	at pickle.Expr.postFixExpr(Expr.java:134)
+	at pickle.Parser.expr(Parser.java:477)
+	at pickle.Parser.declareStmt(Parser.java:160)
+	at pickle.Parser.controlStmt(Parser.java:90)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 13 - String_Initialization_from_StringConst_IntConst_Concat.txt
+Some1 
+
+
+Testing File: 14 - String_Initialization_from_StringConst_IntVar_Concat.txt
+Line 2 Invalid token in expression: 'String', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/14 - String_Initialization_from_StringConst_IntVar_Concat.txt
+	at pickle.Expr.postFixExpr(Expr.java:134)
+	at pickle.Parser.expr(Parser.java:477)
+	at pickle.Parser.declareStmt(Parser.java:160)
+	at pickle.Parser.controlStmt(Parser.java:90)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 15 - String_Initialization_from_StringVar_IntConst_Concat.txt
+information1235 
+
+
+Testing File: 16 - String_Initialization_from_StringVar_IntVar_Concat.txt
+information728 
+
+
+Testing File: 17 - String_Initialization_from_String_Slice_Lower_Bound_Only.txt
+String from slice, should be 'bell': bell 
+
+
+Testing File: 18 - String_Initialization_from_String_Slice_Upper_Bound_Only.txt
+Line 2 Cannot index on empty array: 'strVal', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/18 - String_Initialization_from_String_Slice_Upper_Bound_Only.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:512)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.declareStmt(Parser.java:160)
+	at pickle.Parser.controlStmt(Parser.java:90)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 19 - String_Initialization_from_String_Slice_Lower_Upper_Bound.txt
+Line 2 Cannot index on empty array: 'strVal', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/19 - String_Initialization_from_String_Slice_Lower_Upper_Bound.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:512)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.declareStmt(Parser.java:160)
+	at pickle.Parser.controlStmt(Parser.java:90)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 20 - String_Slice_Assignment_from_Lower_Bound_Only.txt
+String into slice, should be 'tacohut': tacohut 
+
+
+Testing File: 21 - String_Slice_Assignment__from_Upper_Bound_Only.txt
+Line 3 Invalid string constant: 'String into slice, should be 'schoolbell':, strVal);', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/21 - String_Slice_Assignment__from_Upper_Bound_Only.txt
+	at pickle.Scanner.getStringConstant(Scanner.java:234)
+	at pickle.Scanner.classifyOperand(Scanner.java:464)
+	at pickle.Scanner.classifyPrimary(Scanner.java:440)
+	at pickle.Scanner.getToken(Scanner.java:326)
+	at pickle.Scanner.getNext(Scanner.java:347)
+	at pickle.Parser.print(Parser.java:544)
+	at pickle.Parser.functionStmt(Parser.java:515)
+	at pickle.Parser.getNext(Parser.java:64)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 22 - String_Slice_Assignment_from_Lower_Upper_Bound.txt
+Line 3 Invalid string constant: 'String into slice, should be 'The seats on the bus':, strVal);', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/22 - String_Slice_Assignment_from_Lower_Upper_Bound.txt
+	at pickle.Scanner.getStringConstant(Scanner.java:234)
+	at pickle.Scanner.classifyOperand(Scanner.java:464)
+	at pickle.Scanner.classifyPrimary(Scanner.java:440)
+	at pickle.Scanner.getToken(Scanner.java:326)
+	at pickle.Scanner.getNext(Scanner.java:347)
+	at pickle.Parser.print(Parser.java:544)
+	at pickle.Parser.functionStmt(Parser.java:515)
+	at pickle.Parser.getNext(Parser.java:64)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 23 - String_Array_Initialization_from_String_Constant.txt
+String array from strings: string 1 string 2 string 3 string 4 
+
+
+Testing File: 24 - String_Array_Initialization_from_Numeric_Constant_Int.txt
+String array from ints: 1 2 3 4 
+
+
+Testing File: 25 - String_Array_Initialization_from_Numeric_Constant_Float.txt
+String array from floats: 1.0 2.1 3.2 4.3 
+
+
+Testing File: 26 - StringVar_Equal_To_StringVar.txt
+T 
+
+
+Testing File: 27 - StringVar_Equal_To_StringConst.txt
+Line 3 Identifier must be initialized: '==', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/27 - StringVar_Equal_To_StringConst.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:1003)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.print(Parser.java:560)
+	at pickle.Parser.functionStmt(Parser.java:515)
+	at pickle.Parser.getNext(Parser.java:64)
+	at pickle.Parser.statements(Parser.java:721)
+	at pickle.Parser.ifStmt(Parser.java:850)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 28 - StringConst_Equal_To_StringVar.txt
+Line 3 Identifier must be initialized: '==', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/28 - StringConst_Equal_To_StringVar.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:1003)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.print(Parser.java:560)
+	at pickle.Parser.functionStmt(Parser.java:515)
+	at pickle.Parser.getNext(Parser.java:64)
+	at pickle.Parser.statements(Parser.java:721)
+	at pickle.Parser.ifStmt(Parser.java:850)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 29 - StringConst_Equal_To_StringConst.txt
+T 
+
+
+Testing File: 30 - StringVar_NotEqual_To_StringConst.txt
+Line 3 Identifier must be initialized: '==', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/30 - StringVar_NotEqual_To_StringConst.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:1003)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.print(Parser.java:560)
+	at pickle.Parser.functionStmt(Parser.java:515)
+	at pickle.Parser.getNext(Parser.java:64)
+	at pickle.Parser.statements(Parser.java:721)
+	at pickle.Parser.ifStmt(Parser.java:850)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 31 - StringConst_NotEqual_To_StringVar.txt
+Line 3 Identifier must be initialized: '==', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/31 - StringConst_NotEqual_To_StringVar.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:1003)
+	at pickle.Parser.expr(Parser.java:487)
+	at pickle.Parser.print(Parser.java:560)
+	at pickle.Parser.functionStmt(Parser.java:515)
+	at pickle.Parser.getNext(Parser.java:64)
+	at pickle.Parser.statements(Parser.java:721)
+	at pickle.Parser.ifStmt(Parser.java:850)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 32 - StringConst_NotEqual_To_StringConst.txt
+T 
+
+
+Testing File: 33 - String_Constant_IN_String_Array.txt
+java.lang.ClassCastException: pickle.ResultList cannot be cast to pickle.ResultValue
+	at pickle.Parser.evalCond(Parser.java:1366)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 34 - String_Var_IN_String_Array.txt
+java.lang.ClassCastException: pickle.ResultList cannot be cast to pickle.ResultValue
+	at pickle.Parser.evalCond(Parser.java:1366)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 35 - String_Constant_IN_String_List.txt
+Line 1 Conditions must be followed by ':' token :: ',', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/35 - String_Constant_IN_String_List.txt
+	at pickle.Parser.evalCond(Parser.java:1375)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 36 - String_Var_IN_String_List.txt
+Line 2 Conditions must be followed by ':' token :: ',', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/36 - String_Var_IN_String_List.txt
+	at pickle.Parser.evalCond(Parser.java:1375)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 37 - String_Constant_NOTIN_String_Array.txt
+java.lang.ClassCastException: pickle.ResultList cannot be cast to pickle.ResultValue
+	at pickle.Parser.evalCond(Parser.java:1366)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 38 - String_Var_NOTIN_String_Array.txt
+java.lang.ClassCastException: pickle.ResultList cannot be cast to pickle.ResultValue
+	at pickle.Parser.evalCond(Parser.java:1366)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 39 - String_Constant_NOTIN_String_List.txt
+Line 1 Conditions must be followed by ':' token :: ',', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/39 - String_Constant_NOTIN_String_List.txt
+	at pickle.Parser.evalCond(Parser.java:1375)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 40 - String_Var_NOTIN_String_List.txt
+Line 2 Conditions must be followed by ':' token :: ',', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/40 - String_Var_NOTIN_String_List.txt
+	at pickle.Parser.evalCond(Parser.java:1375)
+	at pickle.Parser.ifStmt(Parser.java:845)
+	at pickle.Parser.controlStmt(Parser.java:98)
+	at pickle.Parser.getNext(Parser.java:67)
+	at pickle.Parser.run(Parser.java:1389)
+	at pickle.Pickle.main(Pickle.java:30)
+
+

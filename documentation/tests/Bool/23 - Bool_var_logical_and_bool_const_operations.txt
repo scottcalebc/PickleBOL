@@ -4,4 +4,4 @@ if b and T:
 endif;
 if b and F:
 	print("True (b and F)");
-endif
+endif;

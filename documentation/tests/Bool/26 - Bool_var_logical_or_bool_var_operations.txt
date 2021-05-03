@@ -6,4 +6,4 @@ endif;
 b2 = T;
 if b or b2:
 	print("True (b or b2)");
-endif
+endif;

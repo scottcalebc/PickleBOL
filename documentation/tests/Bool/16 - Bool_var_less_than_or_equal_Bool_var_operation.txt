@@ -2,7 +2,7 @@ Bool b = T;
 Bool b2 = F;
 if b <= b2:
 	print("True (b <= b2)");
-endif
+endif;
 if b2 <= b:
 	print("True (b2 <= b)");
 endif;
