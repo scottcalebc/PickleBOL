@@ -244,25 +244,18 @@ public class Expr {
                         if (!stack.empty() && stack.peek().tokenStr.equals("~")){
                             Token popped = stack.pop();
 
-                            if (size != 2
-                                    && !((popped.operatorPrecedence == OperatorPrecedence.NOT
-                                    || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
-                                    || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                                throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
-
-                            if (size < 1 &&
-                                    ((popped.operatorPrecedence == OperatorPrecedence.NOT
-                                            || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
-                                            || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
-                                throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
-
                             postfix.add(popped);
 
-                            if (popped.operatorPrecedence != OperatorPrecedence.NOT && popped.operatorPrecedence != OperatorPrecedence.UNARYMINUS)
-                                size--;
                         }
 
                         stack.push(parser.scanner.currentToken);
+                        Token parms = new Token();
+                        parms.tokenStr = "PARMS";
+                        parms.primClassif = Classif.OPERATOR;
+                        parms.operatorPrecedence = OperatorPrecedence.PARMS;
+                        postfix.add(parms);
+
+
                         funcBool++;
                         if (!parser.scanner.getNext().equals("(")) {
                             throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Functions must be followed by a '(' token");
@@ -1464,10 +1457,21 @@ public class Expr {
 
 
                     }
+                    if (isResultType(stack, 1)) {
+                        if (((ResultValue)stack.peek()).strValue.equals("PARMS"))
+                            stack.pop();
+                    }
+
+
                     stack.push(res);
                     break;
 
                 case OPERATOR:
+
+                    if (token.operatorPrecedence == OperatorPrecedence.PARMS) {
+                        stack.push(new ResultValue(token.tokenStr, SubClassif.VOID));
+                        break;
+                    }
 
 
                     // 0 = second operand
