@@ -1,5 +1,0 @@
-String str = "abcdefg";
-print(str[0]);  // a
-print(str[1]);  // b
-print(str[-1]); // g
-print(str[-2]); // f

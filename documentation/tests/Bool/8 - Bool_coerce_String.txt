@@ -1,3 +1,0 @@
-Bool b = "T";
-Bool b2 = "F";
-print(b, b2);

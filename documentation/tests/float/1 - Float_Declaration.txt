@@ -1,3 +1,0 @@
-Float fVal;
-Float fVal = 2;
-print("fVal")

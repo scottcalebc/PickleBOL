@@ -1,3 +1,0 @@
-Date d;
-Date d = "1999-12-01";
-print(d);

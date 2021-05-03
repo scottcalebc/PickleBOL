@@ -1,6 +1,0 @@
-if 2 == 2:
-	print("Equal (2 == 2)");
-endif;
-if 2 == 3:
-	print("Equal (2 == 3)");
-endif;

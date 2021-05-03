@@ -1,4 +1,0 @@
-String s = "I am String";
-for c in s:
-	print(c);
-endfor

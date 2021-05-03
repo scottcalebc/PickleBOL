@@ -1,8 +1,0 @@
-Int i = 5;
-Int arr[] = 1, 2, 3, 4, 5;
-if i IN {1, 2, 3, 4, 5}:
-	print("i is IN list");
-endif
-if i IN arr:
-	print("i is IN arr");
-endif;

@@ -1,7 +1,0 @@
-Bool b = T;
-select b:
-	when T:
-		print("True");
-	when F:
-		print("False");
-endselect;

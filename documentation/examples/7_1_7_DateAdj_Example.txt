@@ -1,3 +1,0 @@
-Date date = "1999-02-27";
-
-print(dateAdj(date, 10));                    // 1999-03-09

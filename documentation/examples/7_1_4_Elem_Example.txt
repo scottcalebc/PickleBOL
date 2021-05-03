@@ -1,7 +1,0 @@
-Int array[8] = 10, 20, 30, 40, 50, 60;
-Int unboundedArray[unbound];
-unboundedArray[15] = 10;
-
-print(ELEM(array));    // 6
-
-print(ELEM(unboundedArray));    // 15

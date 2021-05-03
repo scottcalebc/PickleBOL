@@ -1,2 +1,0 @@
-print(not F); // T
-print(not T); // F

@@ -1,5 +1,0 @@
-Float fVal1 = 4.0;
-Float fVal2 = 4.0;
-Float fVal3 = 3.0;
-print("fVal1:4.0 != fVal2:4.0:", fVal1 != fVal2);
-print("fVal1:4.0 != fVal3:3.0:", fVal1 != fVal3);

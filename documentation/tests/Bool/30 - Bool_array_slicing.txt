@@ -1,2 +1,0 @@
-Bool arr[] = T, F, T, F, T;
-print(arr[3~]);

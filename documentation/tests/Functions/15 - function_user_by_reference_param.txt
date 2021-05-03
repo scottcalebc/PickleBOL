@@ -1,9 +1,0 @@
-def Void byValue(Ref Int x):
-	x = 12;
-	print ("Inside x=", x);
-enddef;
-Int x = 10;
-print ("Before x=", x);
-byValue(x);
-print ("After x=", x);
-	

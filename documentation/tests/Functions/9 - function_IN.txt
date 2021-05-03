@@ -1,8 +1,0 @@
-String s = "IN";
-String arr[] = "AM", "I", "IN", "THIS", "ARRAY";
-if s IN arr:
-	print("Is in");
-endif;
-if s IN {"GOOD LUCK"}:
-	print("Is in");
-endif;

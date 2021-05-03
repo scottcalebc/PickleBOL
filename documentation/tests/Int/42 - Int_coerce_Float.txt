@@ -1,2 +1,0 @@
-Int i = 4.4;
-print(i);

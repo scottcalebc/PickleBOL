@@ -1,4 +1,0 @@
-def Int multiply2(Int x):
-	return x * 2;
-enddef;
-print(2 * multiply2(multiply2(2)));

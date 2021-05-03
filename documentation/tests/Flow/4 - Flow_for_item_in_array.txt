@@ -1,4 +1,0 @@
-Float arr[] = 23.454, 0.213;
-for f in arr:
-	print(f);
-endfor;

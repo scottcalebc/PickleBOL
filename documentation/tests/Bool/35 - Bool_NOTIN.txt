@@ -1,8 +1,0 @@
-Bool b = T;
-Bool arr[] = F, F, F, F;
-if b NOTIN {F, T, F, F}:
-	print("b is NOTIN list");
-endif;
-if b NOTIN arr:
-	print("b is NOTIN arr");
-endif

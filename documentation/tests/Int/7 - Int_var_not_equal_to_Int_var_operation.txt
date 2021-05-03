@@ -1,8 +1,0 @@
-Int i = 1;
-Int j = 2;
-if i != j:
-	print("Not Equal (i != j)");
-endif;
-if i != i:
-	print("Not Equal (i != i)");
-endif;

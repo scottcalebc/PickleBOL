@@ -1,7 +1,0 @@
-Int iVal = 125;
-Float fVal = 15.25;
-
-print(iVal / 25);   // 5
-print(iVal / 15.9); // 8
-print(fVal / 2);    // 7.625
-print(fVal / 0.25); // 61.0

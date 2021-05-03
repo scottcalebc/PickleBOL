@@ -1,4 +1,0 @@
-def Bool testBoolReturning(Bool a, Bool b):
-	return a and b;
-enddef;
-print(testBoolReturning(T, F));

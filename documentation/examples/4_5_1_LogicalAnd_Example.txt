@@ -1,4 +1,0 @@
-print(T and T); // T
-print(T and F); // F
-print(F and T); // F
-print(F and F); // F

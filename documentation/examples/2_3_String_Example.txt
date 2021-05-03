@@ -1,4 +1,0 @@
-String str;
-str = "My name";
-print(str);    // My Name
-print("Jeff"); // Jeff

@@ -1,2 +1,0 @@
-Bool b = T and F or T or not T;
-print(b);

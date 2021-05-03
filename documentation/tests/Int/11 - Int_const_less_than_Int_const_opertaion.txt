@@ -1,9 +1,0 @@
-if 0 < 1000:
-	print("Less than (0 < 1000)");
-endif;
-if 1000 < 0:
-	print("Less than (1000 < 0)");
-endif;
-if 0 < 0:
-	print("Less than (0 < 0)");
-endif;

@@ -1,4 +1,0 @@
-def Int divide2(Int x):
-	return x / 2;
-enddef;
-print(divide2((5 * 4 / 2)^2) * 2 - -5);

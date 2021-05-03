@@ -1,6 +1,0 @@
-print(1 < 2);     // T
-print(1 < 0);     // F
-print(1 < 1);     // F
-print("1" < 1);   // F
-print("1" < "2"); // T
-print("1" < "0"); // F

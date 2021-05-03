@@ -1,7 +1,0 @@
-Int iVal = -25;
-Float fVal = -0.25;
-
-print(-iVal); // 25
-print(-12);   // -12
-print(-fVal); // 0.25
-print(-0.33); // -0.33

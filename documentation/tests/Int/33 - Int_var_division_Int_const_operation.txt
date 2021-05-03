@@ -1,3 +1,0 @@
-Int i = 20;
-Int j = i / 2;
-print("i / 2 =", j);

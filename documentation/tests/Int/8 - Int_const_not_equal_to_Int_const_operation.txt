@@ -1,6 +1,0 @@
-if 0 != 2:
-	print("Not equal (0 != 2)");
-endif;
-if 0 != 0:
-	print("Not equal (0 != 0)");
-endif;

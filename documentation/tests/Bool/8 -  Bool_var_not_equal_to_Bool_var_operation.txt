@@ -1,9 +1,0 @@
-Bool b = T;
-Bool b2 = T;
-if b != b2:
-	print("True (b == b2)");
-endif;
-b2 = F;
-if b != b2:
-	print("True (b == b2)");
-endif;

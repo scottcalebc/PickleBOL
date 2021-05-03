@@ -1,9 +1,0 @@
-if 5 >= 0:
-	print("Greater than or equal (5 >= 0));
-endif;
-if 5 >= 51:
-	print("Greater than or equal (5 >= 51));
-endif;
-if 5 >= 5:
-	print("Greater than or equal (5 >= 5));
-endif;

@@ -1,4 +1,0 @@
-Int i = 5;
-Int j = 5;
-Int k = i + j;
-print("i + j =", k);

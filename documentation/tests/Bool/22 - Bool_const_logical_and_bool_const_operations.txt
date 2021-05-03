@@ -1,6 +1,0 @@
-if T and T:
-	print("True (T and T)");
-endif;
-if T and F:
-	print("True (T and F)");
-endif
