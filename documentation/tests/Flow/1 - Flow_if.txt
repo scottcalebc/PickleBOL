@@ -1,0 +1,10 @@
+if T:
+	print("True");
+else:
+	print("False");
+endif;
+if F:
+	print("True");
+else:
+	print("False");
+endif;
