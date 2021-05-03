@@ -358,7 +358,7 @@ checkIntParam(x, y, z);
 print("After function: x=", x, "y=", y, "z=", z);
 
 // 47 - Int_returning
-def Int checkIntReturn(x, y):
+def Int checkIntReturn(Int x, Int y):
 	return x + y;
 enddef;
 
@@ -405,7 +405,7 @@ select i:
 		print("default");
 endselect
 
-// 53 - Int_locgical_and
+// 53 - Int_logical_and
 Int i = 2;
 Int j = 4;
 if i == 2 and j == 4:
@@ -418,21 +418,20 @@ if i == 5 and j == 5:
 	print("True (i == 5 and j == 5)");
 endif;
 
-
-// 54 - Int_locgical_or
+// 54 - Int_logical_or
 Int i = 2;
 Int j = 4;
 if i == 2 or j == 4:
-	print("True (i == 2 and j == 4)");
+	print("True (i == 2 or j == 4)");
 endif;
 if i == 3 or j == 4:
-	print("True (i == 3 and j == 4)");
+	print("True (i == 3 or j == 4)");
 endif;
 if i == 1 or j == 1:
-	print("True (i == 1 and j == 1)");
+	print("True (i == 1 or j == 1)");
 endif;
 
-// 55 - Int_locgical_not
+// 55 - Int_logical_not
 Int i = 2;
 if not i == 2:
 	print("True (not i == 2)");
@@ -441,11 +440,9 @@ if not j == 4:
 	print("True (not j == 4)");
 endif;
 
-
 // 56 - Int_While
 Int i = 2;
 while i >= 0:
 	print(i);
 	i -= 1;
 endwhile;
-
