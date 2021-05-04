@@ -27,4 +27,4 @@ dateFcn("1998-06-21");
 Float arr[] = 2.34, 687.45;
 arrayFcn(arr);
 Int arr2[] = 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
-sliceFcn(arr[5~]);
+sliceFcn(arr[2~]);

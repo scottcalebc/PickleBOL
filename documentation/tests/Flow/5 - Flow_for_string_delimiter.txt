@@ -1,8 +1,8 @@
 String delim = " ";
 String s = "Hi Prof. Clark";
-for token in s by delim:
+for token from s by delim:
 	print(token);
 endfor;
-for token in s by "THISISNOTAGOODDELIMITER":
-	print(token):
+for token from s by "THISISNOTAGOODDELIMITER":
+	print(token);
 endfor;

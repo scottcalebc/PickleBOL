@@ -309,7 +309,7 @@ Float x = 10.0;
 Float y = 11.0;
 Float z = 12.0;
 print("Before function: x=", x, "y=", y, "z=", z);
-checkIntParam(x, y, z);
+checkFloatParam(x, y, z);
 print("After function: x=", x, "y=", y, "z=", z);
 
 // 59 - Float_returning
@@ -330,15 +330,23 @@ print("slice [1.0, 2.0, 3.0, 4.0, 5.0] 2 to 5", arr[2~5]);
 Float fVal1 = 10.0;
 Float fVal2 = 2.0;
 Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
-print("fVal1:10.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal1 IN arr);
-print("fVal2:2.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal2 IN arr);
+if fVal1 IN arr:
+	print("fVal1:10.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:");
+endif;
+if fVal2 IN arr:
+	print("fVal2:2.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:");
+endif;
 
 // 62 - Float_NOTIN
 Float fVal1 = 10.0;
 Float fVal2 = 2.0;
 Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
-print("fVal1:10.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal1 NOTIN arr);
-print("fVal2:2.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal2 NOTIN arr);
+if fVal1 NOTIN arr:
+	print("fVal1:10.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]:");
+endif;
+if fVal2 NOTIN arr:
+print("fVal2:2.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]:");
+endif;
 
 // 63 - Float_print
 print("print 4.0:", 4.0);

@@ -4,37 +4,39 @@ Note: Recompile with -Xlint:unchecked for details.
 Java Build Result: 0
 Testing File: 1 - var_declaration_missing_simicolon.txt
 Line 2 Cannot call print on unknown identifier: 'i', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Errors/1 - var_declaration_missing_simicolon.txt
-	at pickle.Parser.print(Parser.java:883)
-	at pickle.Expr.evaluatePostFix(Expr.java:960)
-	at pickle.Parser.expr(Parser.java:640)
+	at pickle.Parser.print(Parser.java:893)
+	at pickle.Expr.evaluatePostFix(Expr.java:967)
+	at pickle.Parser.expr(Parser.java:650)
 	at pickle.Parser.declareStmt(Parser.java:209)
 	at pickle.Parser.controlStmt(Parser.java:114)
 	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Parser.run(Parser.java:2394)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 2 - array_declaration_missing_bracket.txt
-2 3 4 
+Line 1 Invalid expression operation: '3', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Errors/2 - array_declaration_missing_bracket.txt
+	at pickle.Expr.postFixExpr(Expr.java:319)
+	at pickle.Parser.expr(Parser.java:640)
+	at pickle.Parser.declareArrayStmt(Parser.java:292)
+	at pickle.Parser.declareStmt(Parser.java:200)
+	at pickle.Parser.controlStmt(Parser.java:114)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2394)
+	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 3 - slicing_missing_bracket.txt
-Line 2 expected operand, found: '~', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Errors/3 - slicing_missing_bracket.txt
-	at pickle.Expr.postFixExpr(Expr.java:99)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+Str 
 
 
 Testing File: 4 - print_missing_paren.txt
 Line 1 Invalid function call missing closing ')': ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Errors/4 - print_missing_paren.txt
-	at pickle.Expr.postFixExpr(Expr.java:331)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.functionStmt(Parser.java:678)
+	at pickle.Expr.postFixExpr(Expr.java:338)
+	at pickle.Parser.expr(Parser.java:640)
+	at pickle.Parser.functionStmt(Parser.java:688)
 	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Parser.run(Parser.java:2394)
 	at pickle.Pickle.main(Pickle.java:30)
 
 

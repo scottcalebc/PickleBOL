@@ -300,11 +300,7 @@ For fVal in [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]: print fVal
 
 Testing File: 58 - Float_parameters.txt
 Before function: x= 10.0 y= 11.0 z= 12.0 
-Line 10 Invalid assignment: '(', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/58 - Float_parameters.txt
-	at pickle.Parser.assignmentStmt(Parser.java:514)
-	at pickle.Parser.getNext(Parser.java:65)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+After function: x= 1.0 y= 2.0 z= 12.0 
 
 
 Testing File: 59 - Float_returning.txt
@@ -312,35 +308,17 @@ Checking for returned float: 5.0
 
 
 Testing File: 60 - Float_slices.txt
-Line 2 expected operand, found: '~', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/60 - Float_slices.txt
-	at pickle.Expr.postFixExpr(Expr.java:99)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+slice [1.0, 2.0, 3.0, 4.0, 5.0] start to 2 1.0 2.0 
+slice [1.0, 2.0, 3.0, 4.0, 5.0] 2 to end 3.0 4.0 5.0 
+slice [1.0, 2.0, 3.0, 4.0, 5.0] 2 to 5 3.0 4.0 5.0 
 
 
 Testing File: 61 - Float_IN.txt
-Line 4 Cannot call print on unknown identifier: 'IN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/61 - Float_IN.txt
-	at pickle.Parser.print(Parser.java:883)
-	at pickle.Expr.evaluatePostFix(Expr.java:960)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+fVal2:2.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]: 
 
 
 Testing File: 62 - Float_NOTIN.txt
-Line 4 Cannot call print on unknown identifier: 'NOTIN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/62 - Float_NOTIN.txt
-	at pickle.Parser.print(Parser.java:883)
-	at pickle.Expr.evaluatePostFix(Expr.java:960)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+fVal1:10.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]: 
 
 
 Testing File: 63 - Float_print.txt

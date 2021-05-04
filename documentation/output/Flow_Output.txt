@@ -32,13 +32,6 @@ r
 i 
 n 
 g 
-Line 0 Expected ';', found: '', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Flow/3 - Flow_for_char_in_string.txt
-	at pickle.Parser.charStringFor(Parser.java:1792)
-	at pickle.Parser.forStmt(Parser.java:1637)
-	at pickle.Parser.controlStmt(Parser.java:128)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 4 - Flow_for_item_in_array.txt
@@ -47,13 +40,10 @@ Testing File: 4 - Flow_for_item_in_array.txt
 
 
 Testing File: 5 - Flow_for_string_delimiter.txt
-Line 3 Expected ':', found: 'by', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Flow/5 - Flow_for_string_delimiter.txt
-	at pickle.Parser.charStringFor(Parser.java:1735)
-	at pickle.Parser.forStmt(Parser.java:1637)
-	at pickle.Parser.controlStmt(Parser.java:128)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+Hi 
+Prof. 
+Clark 
+Hi Prof. Clark 
 
 
 Testing File: 6 - Flow_for_sv_to_ev.txt
@@ -69,13 +59,10 @@ Testing File: 6 - Flow_for_sv_to_ev.txt
 
 
 Testing File: 7 - Flow_select.txt
-Line 1 Expected a separator: '1', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Flow/7 - Flow_select.txt
-	at pickle.Parser.declareArrayStmt(Parser.java:346)
-	at pickle.Parser.declareStmt(Parser.java:200)
-	at pickle.Parser.controlStmt(Parser.java:114)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+5, 4, 3, 2, 1 
+default 
+-1 
+5, 4, 3, 2, 1 
 
 
 Testing File: 8 - Flow_break.txt

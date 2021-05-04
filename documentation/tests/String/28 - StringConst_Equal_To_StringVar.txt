@@ -1,6 +1,6 @@
 String strVal = "Maynard";
 if "Maynard" == strVal:
-    print("String comparison should be True, 'Maynard' == strVal :" strVal1 == "Maynard");
+    print("String comparison should be True, 'Maynard' == strVal :", strVal == "Maynard");
 else:
     print("ERROR: this should not print");
 endif;
