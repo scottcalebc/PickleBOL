@@ -121,25 +121,37 @@ public class SymbolTable implements Cloneable{
 		}));
 		this.symbolTable.put("LENGTH", new STFunction("LENGTH", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, string, new Builtin() {
 			@Override
-			public ResultValue execute(ArrayList<Result> param) {
+			public ResultValue execute(ArrayList<Result> param) throws PickleException {
+				if (!(param.get(0) instanceof ResultValue)) {
+					throw new PickleException();
+				}
 				return Utility.builtInLENGTH(param);
 			}
 		}));
 		this.symbolTable.put("SPACES", new STFunction("SPACES", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, string, new Builtin() {
 			@Override
-			public ResultValue execute(ArrayList<Result> param) {
+			public ResultValue execute(ArrayList<Result> param) throws PickleException {
+				if (!(param.get(0) instanceof ResultValue)) {
+					throw new PickleException();
+				}
 				return Utility.builtInSPACES(param);
 			}
 		}));
 		this.symbolTable.put("ELEM", new STFunction("ELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, array, new Builtin() {
 			@Override
-			public ResultValue execute(ArrayList<Result> param) {
+			public ResultValue execute(ArrayList<Result> param) throws PickleException {
+				if (!(param.get(0) instanceof ResultList)) {
+					throw new PickleException();
+				}
 				return Utility.builtInELEM(param);
 			}
 		}));
 		this.symbolTable.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1, array,new Builtin() {
 			@Override
-			public ResultValue execute(ArrayList<Result> param) {
+			public ResultValue execute(ArrayList<Result> param) throws PickleException {
+				if (!(param.get(0) instanceof ResultList)) {
+					throw new PickleException();
+				}
 				return Utility.builtInMAXELEM(param);
 			}
 		}));

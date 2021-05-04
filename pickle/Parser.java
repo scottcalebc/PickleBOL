@@ -332,19 +332,28 @@ public class Parser {
             if (scanner.currentToken.tokenStr.equals(",")) { //skip comma
                 continue;
             }
-            currRes = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
+            //currRes = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
+            Result tmp = expr();
+            if (!(tmp instanceof ResultValue)) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected primitive, found list");
+            }
 
-            if (scanner.currentToken.subClassif != arrType) {
-             if (scanner.currentToken.subClassif == SubClassif.INTEGER && arrType == SubClassif.FLOAT) {
+            currRes = (ResultValue) tmp;
+
+            if (currRes.dataType != arrType) {
+             if (currRes.dataType == SubClassif.INTEGER && arrType == SubClassif.FLOAT) {
                  currRes = Utility.castNumericToDouble(this, new Numeric(this, currRes, "", "Casting to Float"));
-             } else if (scanner.currentToken.subClassif == SubClassif.FLOAT && arrType == SubClassif.INTEGER) {
+             } else if (currRes.dataType == SubClassif.FLOAT && arrType == SubClassif.INTEGER) {
                  currRes = Utility.castNumericToInt(this, new Numeric(this, currRes, "", "Casting to Integer"));
              }
             }
 
             values.add(currRes);
-            if (!scanner.nextToken.tokenStr.equals(",")  && !scanner.nextToken.tokenStr.equals(";")) {
+            if (!scanner.currentToken.tokenStr.equals(",")  && !scanner.currentToken.tokenStr.equals(";")) {
                 throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Expected a separator");
+            }
+            if (scanner.currentToken.tokenStr.equals(";")) {
+                break;
             }
         }
 
