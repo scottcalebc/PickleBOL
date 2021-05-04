@@ -254,10 +254,10 @@ public class Expr {
                                         postfix.add(popped);
                                         popped = stack.pop();
                                     }
-                                    if (!popped.tokenStr.equals("["))
+                                    if (!popped.tokenStr.equals("[")) {
                                         sliceI--;
                                         postfix.add(popped);
-
+                                    }
 
                                 } else {
                                     throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Missing '['");
