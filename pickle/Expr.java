@@ -94,7 +94,7 @@ public class Expr {
                         //System.out.printf("Outing operator '%s'\n", popped.tokenStr);
                     }
 
-                    if (size == 0 &&
+                    if (size == 0 && !parser.scanner.currentToken.tokenStr.equals("~") &&
                             !(parser.scanner.currentToken.operatorPrecedence == OperatorPrecedence.UNARYMINUS || parser.scanner.currentToken.operatorPrecedence == OperatorPrecedence.NOT)) {
                         throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "expected operand, found");
                     }
@@ -226,6 +226,9 @@ public class Expr {
                                 }
 
                                 break;
+                            case "[":
+                                stack.push(parser.scanner.currentToken);
+                                break;
                             case "]":
                                 if (!stack.empty()) {
                                     Token popped = stack.pop();
@@ -249,11 +252,13 @@ public class Expr {
                                         postfix.add(popped);
                                         popped = stack.pop();
                                     }
+                                    if (!popped.tokenStr.equals("["))
+                                        sliceI--;
+                                        postfix.add(popped);
 
-                                    sliceI--;
-                                    postfix.add(popped);
 
-
+                                } else {
+                                    throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Missing '['");
                                 }
                                 break;
                             default:
