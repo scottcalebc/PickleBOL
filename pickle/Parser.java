@@ -2283,7 +2283,7 @@ public class Parser {
         ResultList list = new ResultList(this, new ArrayList<ResultValue>(), 0, scanner.nextToken.subClassif);
         ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>();
 
-        if (scanner.currentToken.primClassif == Classif.OPERAND && scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
+        if (scanner.currentToken.primClassif == Classif.OPERAND && scanner.currentToken.subClassif == SubClassif.IDENTIFIER && !scanner.currentToken.tokenStr.equals("{")) { //TODO '{' is OPERAND IDENTIFIER?
             entry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
             if (!this.activationRecordStack.isEmpty()) {
                 int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
