@@ -5,4 +5,4 @@ if b IN {F, T, F, F}:
 endif;
 if b IN arr:
 	print("b is IN arr");
-endif
+endif;

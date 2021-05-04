@@ -127,13 +127,7 @@ True (not F)
 
 
 Testing File: 30 - Bool_array_slicing.txt
-Line 2 Invalid expression operation: ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/30 - Bool_array_slicing.txt
-	at pickle.Expr.postFixExpr(Expr.java:233)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+F T 
 
 
 Testing File: 31 - Bool_for_item_array.txt
@@ -154,25 +148,12 @@ True
 
 
 Testing File: 34 - Bool_IN.txt
-Line 3 valueList not initialized: '{F', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/34 - Bool_IN.txt
-	at pickle.Parser.inNotIn(Parser.java:2295)
-	at pickle.Parser.evalCond(Parser.java:2355)
-	at pickle.Parser.ifStmt(Parser.java:1522)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+b is IN list 
+b is IN arr 
 
 
 Testing File: 35 - Bool_NOTIN.txt
-Line 3 valueList not initialized: '{F', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Bool/35 - Bool_NOTIN.txt
-	at pickle.Parser.inNotIn(Parser.java:2295)
-	at pickle.Parser.evalCond(Parser.java:2355)
-	at pickle.Parser.ifStmt(Parser.java:1522)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+b is NOTIN arr 
 
 
 Testing File: 36 - Bool_parameters.txt

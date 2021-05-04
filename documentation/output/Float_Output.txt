@@ -280,13 +280,12 @@ For fVal:0.0 to 10.0
 7.0 
 8.0 
 9.0 
-Uh Oh: Generic Pickle Error
-	at pickle.Parser.countingFor(Parser.java:2234)
-	at pickle.Parser.forStmt(Parser.java:1618)
-	at pickle.Parser.controlStmt(Parser.java:128)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+For fVal:0.0 to 10.0 by 2.0 
+0.0 
+2.0 
+4.0 
+6.0 
+8.0 
 
 
 Testing File: 57 - Float_for_item_in_array.txt
@@ -314,7 +313,7 @@ Checking for returned float: 5.0
 
 Testing File: 60 - Float_slices.txt
 Line 2 expected operand, found: '~', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/60 - Float_slices.txt
-	at pickle.Expr.postFixExpr(Expr.java:98)
+	at pickle.Expr.postFixExpr(Expr.java:99)
 	at pickle.Parser.expr(Parser.java:630)
 	at pickle.Parser.functionStmt(Parser.java:678)
 	at pickle.Parser.getNext(Parser.java:68)
@@ -325,7 +324,7 @@ Line 2 expected operand, found: '~', File: /mnt/s/College/2021 Spring/Compilers/
 Testing File: 61 - Float_IN.txt
 Line 4 Cannot call print on unknown identifier: 'IN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/61 - Float_IN.txt
 	at pickle.Parser.print(Parser.java:883)
-	at pickle.Expr.evaluatePostFix(Expr.java:954)
+	at pickle.Expr.evaluatePostFix(Expr.java:960)
 	at pickle.Parser.expr(Parser.java:640)
 	at pickle.Parser.functionStmt(Parser.java:678)
 	at pickle.Parser.getNext(Parser.java:68)
@@ -336,7 +335,7 @@ Line 4 Cannot call print on unknown identifier: 'IN', File: /mnt/s/College/2021 
 Testing File: 62 - Float_NOTIN.txt
 Line 4 Cannot call print on unknown identifier: 'NOTIN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/62 - Float_NOTIN.txt
 	at pickle.Parser.print(Parser.java:883)
-	at pickle.Expr.evaluatePostFix(Expr.java:954)
+	at pickle.Expr.evaluatePostFix(Expr.java:960)
 	at pickle.Parser.expr(Parser.java:640)
 	at pickle.Parser.functionStmt(Parser.java:678)
 	at pickle.Parser.getNext(Parser.java:68)

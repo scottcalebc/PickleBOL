@@ -1,5 +1,4 @@
-def Date dateReturnTest(Date a, Date b):
-	return dateDiff(a, b);
+def Date dateReturnTest(Date a, Int b):
+	return dateAdj(a, b);
 enddef;
-Date d = "2001-01-10";
-print(dateReturnTest("2003-01-10", d));
+print(dateReturnTest("2003-01-10", 2));

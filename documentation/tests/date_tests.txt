@@ -213,22 +213,17 @@ Date arr[] = "1999-01-01", "2000-01-01", "2001-01-01", "2002-01-01";
 
 print(arr[2]);
 
-// 21 Date_array_slicing
-Date arr[] = "1999-01-01", "2000-01-01", "2001-01-01", "2002-01-01";
-
-print(arr[2~]);
-
 // 22 - Date_logical_and
 Date d = "2020-01-02";
 Date d2 = "2021-03-03";
 
-if (d == "2020-01-02" and d2 == "2021-03-03":
+if d == "2020-01-02" and d2 == "2021-03-03":
 	print("True (d == \"2020-01-02\" and d2 == \"2021-03-03\")");
 endif;
-if (d == "2020-01-02" and d2 == "1990-03-03":
+if d == "2020-01-02" and d2 == "1990-03-03":
 	print("True (d == \"2020-01-02\" and d2 == \"1990-03-03\")");
 endif;
-if (d == "1990-01-02" and d2 == "1990-03-03":
+if d == "1990-01-02" and d2 == "1990-03-03":
 	print("True (d == \"1990-01-02\" and d2 == \"1990-03-03\")");
 endif;
 
@@ -236,13 +231,13 @@ endif;
 Date d = "2020-01-02";
 Date d2 = "2021-03-03";
 
-if (d == "2020-01-02" or d2 == "2021-03-03":
+if d == "2020-01-02" or d2 == "2021-03-03":
 	print("True (d == \"2020-01-02\" or d2 == \"2021-03-03\")");
 endif;
-if (d == "2020-01-02" or d2 == "1990-03-03":
+if d == "2020-01-02" or d2 == "1990-03-03":
 	print("True (d == \"2020-01-02\" or d2 == \"1990-03-03\")");
 endif;
-if (d == "1990-01-02" or d2 == "1990-03-03":
+if d == "1990-01-02" or d2 == "1990-03-03":
 	print("True (d == \"1990-01-02\" or d2 == \"1990-03-03\")");
 endif;
 
@@ -313,7 +308,7 @@ print(dateAge(d, d2));
 // 31 - Date_IN
 Date d = "2000-01-01";
 Date arr[] = "1999-01-01", "2000-01-01", "2001-01-01", "2002-01-01";
-if d IN {"1999-01-01", "2000-01-01", "2001-01-01", "2002-01-01""}
+if d IN {"1999-01-01", "2000-01-01", "2001-01-01", "2002-01-01"}:
 	print("d is IN list");
 endif;
 if d IN arr:
@@ -327,7 +322,7 @@ endif;
 // 31 - Date_NOTIN
 Date d = "2000-01-01";
 Date arr[] = "1999-01-01", "2000-01-01", "2001-01-01", "2002-01-01";
-if d NOTIN {"1999-01-01", "2000-01-01", "2001-01-01", "2002-01-01""}
+if d NOTIN {"1999-01-01", "2000-01-01", "2001-01-01", "2002-01-01"}:
 	print("d is NOTIN list");
 endif;
 if d NOTIN arr:
@@ -355,9 +350,8 @@ dateParameterTest(x, y, z);
 print("After function: x=", x, "y=", y, "z=", z);
 
 // 33 - Date_returning
-def Date dateReturnTest(Date a, Date b):
-	return dateDiff(a, b);
+def Date dateReturnTest(Date a, Int b):
+	return dateAdj(a, b);
 enddef;
 
-Date d = "2001-01-10";
-print(dateReturnTest("2003-01-10", d));
+print(dateReturnTest("2003-01-10", 2));

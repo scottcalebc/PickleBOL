@@ -8,6 +8,7 @@ endif;
 Int i = 2;
 while i < 6:
 	if (i == 3):
+		i = i + 1;
 		continue;
 	endif;
 	print(i);

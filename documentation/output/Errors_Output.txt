@@ -5,7 +5,7 @@ Java Build Result: 0
 Testing File: 1 - var_declaration_missing_simicolon.txt
 Line 2 Cannot call print on unknown identifier: 'i', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Errors/1 - var_declaration_missing_simicolon.txt
 	at pickle.Parser.print(Parser.java:883)
-	at pickle.Expr.evaluatePostFix(Expr.java:954)
+	at pickle.Expr.evaluatePostFix(Expr.java:960)
 	at pickle.Parser.expr(Parser.java:640)
 	at pickle.Parser.declareStmt(Parser.java:209)
 	at pickle.Parser.controlStmt(Parser.java:114)
@@ -20,7 +20,7 @@ Testing File: 2 - array_declaration_missing_bracket.txt
 
 Testing File: 3 - slicing_missing_bracket.txt
 Line 2 expected operand, found: '~', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Errors/3 - slicing_missing_bracket.txt
-	at pickle.Expr.postFixExpr(Expr.java:98)
+	at pickle.Expr.postFixExpr(Expr.java:99)
 	at pickle.Parser.expr(Parser.java:630)
 	at pickle.Parser.functionStmt(Parser.java:678)
 	at pickle.Parser.getNext(Parser.java:68)
@@ -30,7 +30,7 @@ Line 2 expected operand, found: '~', File: /mnt/s/College/2021 Spring/Compilers/
 
 Testing File: 4 - print_missing_paren.txt
 Line 1 Invalid function call missing closing ')': ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Errors/4 - print_missing_paren.txt
-	at pickle.Expr.postFixExpr(Expr.java:325)
+	at pickle.Expr.postFixExpr(Expr.java:331)
 	at pickle.Parser.expr(Parser.java:630)
 	at pickle.Parser.functionStmt(Parser.java:678)
 	at pickle.Parser.getNext(Parser.java:68)

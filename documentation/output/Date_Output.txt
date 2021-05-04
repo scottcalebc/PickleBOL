@@ -92,38 +92,13 @@ Testing File: 21 - Date_array_subscripting.txt
 2001-01-01 
 
 
-Testing File: 21 Date_array_slicing.txt
-Line 2 Invalid expression operation: ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Date/21 Date_array_slicing.txt
-	at pickle.Expr.postFixExpr(Expr.java:233)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
-
-
 Testing File: 22 - Date_logical_and.txt
-Line 3 Missing ')': '(', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Date/22 - Date_logical_and.txt
-	at pickle.Expr.postFixExpr(Expr.java:299)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.evalCond(Parser.java:2358)
-	at pickle.Parser.ifStmt(Parser.java:1522)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+True (d == "2020-01-02" and d2 == "2021-03-03") 
 
 
 Testing File: 23 - Date_logical_or.txt
-Line 3 Missing ')': '(', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Date/23 - Date_logical_or.txt
-	at pickle.Expr.postFixExpr(Expr.java:299)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.evalCond(Parser.java:2358)
-	at pickle.Parser.ifStmt(Parser.java:1522)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+True (d == "2020-01-02" or d2 == "2021-03-03") 
+True (d == "2020-01-02" or d2 == "1990-03-03") 
 
 
 Testing File: 24 - Date_logical_not.txt
@@ -161,25 +136,12 @@ Testing File: 30 - Date_date_age.txt
 
 
 Testing File: 31 - Date_IN.txt
-Line 3 valueList not initialized: '{', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Date/31 - Date_IN.txt
-	at pickle.Parser.inNotIn(Parser.java:2295)
-	at pickle.Parser.evalCond(Parser.java:2355)
-	at pickle.Parser.ifStmt(Parser.java:1522)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 31 - Date_NOTIN.txt
-Line 3 valueList not initialized: '{', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Date/31 - Date_NOTIN.txt
-	at pickle.Parser.inNotIn(Parser.java:2295)
-	at pickle.Parser.evalCond(Parser.java:2355)
-	at pickle.Parser.ifStmt(Parser.java:1522)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+d is NOTIN list 
+D is NOTIN arr 
+new D is NOTIN arr 
 
 
 Testing File: 32 - Date_parameter.txt
@@ -188,15 +150,7 @@ After function: x= 2000-01-01 y= 2021-01-01 z= 2000-01-01
 
 
 Testing File: 33 - Date_returning.txt
-Line 5 Invalid casting of Int.: ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Date/33 - Date_returning.txt
-	at pickle.Utility.coerce(Utility.java:139)
-	at pickle.Parser.callUserFunction(Parser.java:810)
-	at pickle.Expr.evaluatePostFix(Expr.java:1493)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+2003-01-12 
 
 
 tests done for: tests/Date

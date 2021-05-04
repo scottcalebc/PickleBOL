@@ -207,8 +207,7 @@ public class Utility {
                 // DATE can be coerced into a STRING
                 if (targetDataType != SubClassif.STRING)
                 {
-                    // TODO: change this to DateException
-                    throw new NumericConstantException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
+                    throw new DateException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                             "Invalid casting of Date.");
                 }
                 // check for invalid Date

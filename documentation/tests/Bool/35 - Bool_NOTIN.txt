@@ -5,4 +5,4 @@ if b NOTIN {F, T, F, F}:
 endif;
 if b NOTIN arr:
 	print("b is NOTIN arr");
-endif
+endif;

@@ -220,20 +220,13 @@ Testing File: 47 - Int_returning.txt
 
 
 Testing File: 48 - Int_slices.txt
-Line 2 Invalid expression operation: ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/48 - Int_slices.txt
-	at pickle.Expr.postFixExpr(Expr.java:233)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+3 4 5 6 
 
 
 Testing File: 49 - Int_IN.txt
-Line 3 valueList not initialized: '{1', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/49 - Int_IN.txt
-	at pickle.Parser.inNotIn(Parser.java:2295)
-	at pickle.Parser.evalCond(Parser.java:2355)
-	at pickle.Parser.ifStmt(Parser.java:1522)
+i is IN list 
+Line 6 Expected a ';' after 'endif' token: 'if', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/49 - Int_IN.txt
+	at pickle.Parser.ifStmt(Parser.java:1599)
 	at pickle.Parser.controlStmt(Parser.java:122)
 	at pickle.Parser.getNext(Parser.java:71)
 	at pickle.Parser.run(Parser.java:2382)
@@ -241,10 +234,9 @@ Line 3 valueList not initialized: '{1', File: /mnt/s/College/2021 Spring/Compile
 
 
 Testing File: 50 - Int_NOTIN.txt
-Line 3 valueList not initialized: '{1', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/50 - Int_NOTIN.txt
-	at pickle.Parser.inNotIn(Parser.java:2295)
-	at pickle.Parser.evalCond(Parser.java:2355)
-	at pickle.Parser.ifStmt(Parser.java:1522)
+j is NOTIN list 
+Line 6 Expected a ';' after 'endif' token: 'if', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/50 - Int_NOTIN.txt
+	at pickle.Parser.ifStmt(Parser.java:1599)
 	at pickle.Parser.controlStmt(Parser.java:122)
 	at pickle.Parser.getNext(Parser.java:71)
 	at pickle.Parser.run(Parser.java:2382)
@@ -276,7 +268,7 @@ True (i == 3 or j == 4)
 
 Testing File: 55 - Int_logical_not.txt
 Line 5 Identifier must be initialized: '==', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/55 - Int_logical_not.txt
-	at pickle.Expr.evaluatePostFix(Expr.java:1714)
+	at pickle.Expr.evaluatePostFix(Expr.java:1720)
 	at pickle.Parser.expr(Parser.java:640)
 	at pickle.Parser.evalCond(Parser.java:2358)
 	at pickle.Parser.ifStmt(Parser.java:1522)
