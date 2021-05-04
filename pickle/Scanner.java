@@ -6,9 +6,9 @@ import java.util.Arrays;
 
 public class Scanner {
 
-    private final static String delimiters = " \t:;()'\"=!<>+-*/[]#~,^\n";   // Terminate a token
+    private final static String delimiters = " \t:;()'\"=!<>+-*/[]#~,^\n{}";   // Terminate a token
     private final static String operators = "+-*/<>=!^#~";                   // All operators
-    private final static String separators = "(),:;[]";                     // All seperators
+    private final static String separators = "(),:;[]{}";                     // All seperators
 
     protected ArrayList<String> sourceLineM;                                // List of all source file lines
     protected char[]            textCharM;                                  // Char array of current source line

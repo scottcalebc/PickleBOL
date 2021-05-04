@@ -1596,7 +1596,7 @@ public class Parser {
 
         }
         if (!scanner.getNext().equals(";")) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token:");
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token");
         }
 
 
