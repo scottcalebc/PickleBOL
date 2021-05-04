@@ -126,17 +126,21 @@ public class Expr {
                                             break;
                                         }
 
-                                        if (size < 2
+
+                                        if (size < 0 && popped.operatorPrecedence == OperatorPrecedence.FUNC)
+                                            throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "Invalid expression");
+
+                                        else if (size < 2
                                                 && !((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                         || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                         || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
                                             throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
 
-                                        if (size < 1 &&
-                                                ((popped.operatorPrecedence == OperatorPrecedence.NOT
-                                                        || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
-                                                        || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
+                                        else if (size < 1 &&
+                                                (popped.operatorPrecedence == OperatorPrecedence.NOT
+                                                        || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS))
                                             throw new ScannerParserException(postfix.get(postfix.size()-1), parser.scanner.sourceFileNm, "expected operand, found");
+
 
                                         postfix.add(popped);
 
@@ -264,6 +268,8 @@ public class Expr {
                             postfix.add(popped);
 
                         }
+                        if (parser.scanner.currentToken.operatorPrecedence != OperatorPrecedence.FUNC)
+                            parser.scanner.currentToken.operatorPrecedence = OperatorPrecedence.FUNC;
 
                         stack.push(parser.scanner.currentToken);
                         Token parms = new Token();
