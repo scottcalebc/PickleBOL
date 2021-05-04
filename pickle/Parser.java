@@ -304,7 +304,7 @@ public class Parser {
                 resList.allocatedSize = 0;
                 if (this.activationRecordStack.isEmpty()) { //in global scope
                     if (!symbolTable.getSymbol(varStr).symbol.isEmpty()) {
-                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+                       // throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
                     }
 
                     symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
@@ -312,7 +312,7 @@ public class Parser {
                 }
                 else {
                     if (!this.activationRecordStack.peek().symbolTable.getSymbol(varStr).symbol.isEmpty()) {
-                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+                        //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
                     }
 
                     this.activationRecordStack.peek().symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
