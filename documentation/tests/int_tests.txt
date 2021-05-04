@@ -374,7 +374,7 @@ Int i = 5;
 Int arr[] = 1, 2, 3, 4, 5;
 if i IN {1, 2, 3, 4, 5}:
 	print("i is IN list");
-endif
+endif;
 if i IN arr:
 	print("i is IN arr");
 endif;
@@ -384,7 +384,7 @@ Int j = 10;
 Int arr[] = 1, 2, 3, 4, 5;
 if j NOTIN {1, 2, 3, 4, 5}:
 	print("j is NOTIN list");
-endif
+endif;
 if j NOTIN arr:
 	print("j is NOTIN arr");
 endif;
@@ -403,7 +403,7 @@ select i:
 		print("12, 14");
 	default:
 		print("default");
-endselect
+endselect;
 
 // 53 - Int_logical_and
 Int i = 2;
@@ -433,10 +433,11 @@ endif;
 
 // 55 - Int_logical_not
 Int i = 2;
+Int j = 4;
 if not i == 2:
 	print("True (not i == 2)");
 endif;
-if not j == 4:
+if not j == 5:
 	print("True (not j == 4)");
 endif;
 

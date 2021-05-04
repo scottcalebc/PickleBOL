@@ -453,7 +453,6 @@ public class Parser {
             }
 
         } else if (scanner.currentToken.tokenStr.equals("[")) {
-            scanner.getNext(); // advance to Expression
             Result indexT;
 
             ResultValue index = new ResultValue("", SubClassif.EMPTY);

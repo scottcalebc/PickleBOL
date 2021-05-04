@@ -1,3 +1,3 @@
-int iVal = 10;
+Int iVal = 10;
 String strVal = iVal;
 print("String from iVal:", strVal);

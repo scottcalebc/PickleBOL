@@ -13,13 +13,8 @@ T
 
 
 Testing File: 2 - function_LENGTH.txt
-Line 4 Value must be non array type: 'LENGTH', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/2 - function_LENGTH.txt
-	at pickle.Expr.evaluatePostFix(Expr.java:993)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+26 
+27 
 
 
 Testing File: 3 - function_SPACES.txt
@@ -32,25 +27,13 @@ T
 Testing File: 4 - function_ELEM.txt
 4 
 4 
-Line 6 Invalid function call missing closing ')': ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/4 - function_ELEM.txt
-	at pickle.Expr.postFixExpr(Expr.java:331)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+3 
 
 
 Testing File: 5 - function_MAXELEM.txt
 4 
 4 
-Line 6 Invalid function call missing closing ')': ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/5 - function_MAXELEM.txt
-	at pickle.Expr.postFixExpr(Expr.java:331)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+10 
 
 
 Testing File: 6 - function_dateDiff.txt
@@ -80,25 +63,8 @@ C before x= 30 y= 31 z= 32
 D before assign x= 30 y= 11 z= 12 
 D after assign x= 40 y= 41 z= 12 
 C after x= 40 y= 31 z= 32 
-Line 33 Functions must be followed by a '(' token: 'B after', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/11 - function_user_scoping.txt
-	at pickle.Expr.postFixExpr(Expr.java:283)
-	at pickle.Parser.expr(Parser.java:630)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.statements(Parser.java:1113)
-	at pickle.Parser.callUserFunction(Parser.java:790)
-	at pickle.Expr.evaluatePostFix(Expr.java:1499)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.functionStmt(Parser.java:696)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.statements(Parser.java:1113)
-	at pickle.Parser.callUserFunction(Parser.java:790)
-	at pickle.Expr.evaluatePostFix(Expr.java:1499)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.functionStmt(Parser.java:696)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+B after x= 40 y= 21 z= 32 
+A after x= 40 y= 41 z= 12 
 
 
 Testing File: 12 - function_user_return.txt
@@ -126,14 +92,7 @@ T
 STRING 
 1998-06-21 
 2.34 687.45 
-Line 30 Array slice invalid, index(es) out of bounds.: ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Functions/13 - function_user_parameters.txt
-	at pickle.Utility.getArraySlice(Utility.java:484)
-	at pickle.Expr.evaluatePostFix(Expr.java:467)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.functionStmt(Parser.java:696)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+ 
 
 
 Testing File: 14 - function_user_recursion.txt

@@ -3,4 +3,4 @@ Float arr2[unbound] = 3.3, 2.2, 1.1, 0.0;
 Float arr3[10] = 2.2, 3.4, 7.84;
 print(MAXELEM(arr));
 print(MAXELEM(arr2));
-print(MAXELEM(arr3);
+print(MAXELEM(arr3));

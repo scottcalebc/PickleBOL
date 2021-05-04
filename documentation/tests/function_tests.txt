@@ -18,13 +18,11 @@ print(arr);
 
 // 2 - function_LENGTH
 
-Int arr[12] = 5, 6, 7, 8, 9, 10;
-Int arr2[] = 1;
-Int arr3[unbound] = 3, 4, 5;
+String str = "lukeissogoodatwritingtests";
+String str2 = "lukeisalrightatwritingtests";
 
-print(LENGTH(arr));
-print(LENGTH(arr2));
-print(LENGTH(arr3));
+print(LENGTH(str));
+print(LENGTH(str2));
 
 // 3 - function_SPACES
 
@@ -45,7 +43,7 @@ Float arr3[10] = 2.2, 3.4, 7.84;
 
 print(ELEM(arr));
 print(ELEM(arr2));
-print(ELEM(arr3);
+print(ELEM(arr3));
 
 // 5 - function_MAXELEM
 Float arr[] = 1.2, 1.3, 1.4, 1.5;
@@ -54,7 +52,7 @@ Float arr3[10] = 2.2, 3.4, 7.84;
 
 print(MAXELEM(arr));
 print(MAXELEM(arr2));
-print(MAXELEM(arr3);
+print(MAXELEM(arr3));
 
 // 6 - function_dateDiff
 Date d = "1999-02-27";
@@ -129,7 +127,7 @@ def Void B():
 		z = 22;
 		print("B before", "x=", x, "y=", y, "z=", z); //B before x= 20 y= 21 z= 22
 		C();
-		print"B after", "x=", x, "y=", y, "z=", z); //B after x= 40 y= 21 z= 32
+		print("B after", "x=", x, "y=", y, "z=", z); //B after x= 40 y= 21 z= 32
 	enddef; //end of B
 	
 	x = 10;
@@ -234,7 +232,7 @@ dateFcn("1998-06-21");
 Float arr[] = 2.34, 687.45;
 arrayFcn(arr);
 Int arr2[] = 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
-sliceFcn(arr[5~]);
+sliceFcn(arr[2~]);
 
 // 14 - function_user_recursion
 def Int factorial(Int x):

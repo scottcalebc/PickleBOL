@@ -30,7 +30,7 @@ def Void B():
 		z = 22;
 		print("B before", "x=", x, "y=", y, "z=", z); //B before x= 20 y= 21 z= 22
 		C();
-		print"B after", "x=", x, "y=", y, "z=", z); //B after x= 40 y= 21 z= 32
+		print("B after", "x=", x, "y=", y, "z=", z); //B after x= 40 y= 21 z= 32
 	enddef; //end of B
 	
 	x = 10;
