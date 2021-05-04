@@ -1,0 +1,11 @@
+Int i = 12;
+select i:
+	when 0, 1, 2:
+		print("0, 1, 2");
+	when 6:
+		print("6");
+	when 12, 14:
+		print("12, 14");
+	default:
+		print("default");
+endselect;

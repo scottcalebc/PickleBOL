@@ -1,0 +1,114 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - function_print.txt
+5 
+3.14159 
+Howdy 
+T 
+2002-04-12 
+4 2.168 Hello 2.168 2012-12-13 
+1 2 3 4 5 6 7 8 9 0 
+
+
+Testing File: 2 - function_LENGTH.txt
+26 
+27 
+
+
+Testing File: 3 - function_SPACES.txt
+F 
+F 
+T 
+T 
+
+
+Testing File: 4 - function_ELEM.txt
+4 
+4 
+3 
+
+
+Testing File: 5 - function_MAXELEM.txt
+4 
+4 
+10 
+
+
+Testing File: 6 - function_dateDiff.txt
+8036 days 
+
+
+Testing File: 7 - function_dateAdj.txt
+1999-03-09 
+
+
+Testing File: 8 - function_dateAge.txt
+8036 years 
+
+
+Testing File: 9 - function_IN.txt
+Is in 
+
+
+Testing File: 10 - function_NOTIN.txt
+Is not in 
+
+
+Testing File: 11 - function_user_scoping.txt
+A before x= 10 y= 11 z= 12 
+B before x= 20 y= 21 z= 22 
+C before x= 30 y= 31 z= 32 
+D before assign x= 30 y= 11 z= 12 
+D after assign x= 40 y= 41 z= 12 
+C after x= 40 y= 31 z= 32 
+B after x= 40 y= 21 z= 32 
+A after x= 40 y= 41 z= 12 
+
+
+Testing File: 12 - function_user_return.txt
+I return nothing 
+I return an int 
+5 
+I return a flaot 
+5.64 
+I return a boolean 
+F 
+I return a string 
+string here 
+I return a date 
+2013-01-01 
+I return an array 
+1 2 3 4 5 
+I return a slice 
+3.45 4.56 
+
+
+Testing File: 13 - function_user_parameters.txt
+12 
+3.1415 
+T 
+STRING 
+1998-06-21 
+2.34 687.45 
+ 
+
+
+Testing File: 14 - function_user_recursion.txt
+10! = 3628800 
+
+
+Testing File: 15 - function_user_by_reference_param.txt
+Before x= 10 
+Inside x= 12 
+After x= 12 
+
+
+Testing File: 15 - function_user_by_value_param.txt
+Before x= 10 
+Inside x= 12 
+After x= 10 
+
+
+tests done for: tests/Functions

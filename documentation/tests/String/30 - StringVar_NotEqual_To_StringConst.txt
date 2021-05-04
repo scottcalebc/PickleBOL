@@ -1,0 +1,6 @@
+String strVal = "Silvestro";
+if strVal != "Clark":
+    print("String comparison should be True, strVal == 'Clark' :", strVal == "Clark");
+else:
+    print("ERROR: this should not print");
+endif;

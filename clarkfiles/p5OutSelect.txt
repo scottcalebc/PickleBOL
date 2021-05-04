@@ -1,0 +1,43 @@
+p5Select.txt 
+>>>select, loc is TX 
+	in NM TX or AZ, loc is TX 
+>>>select, loc is OR 
+	in CA or OR, loc is OR 
+>>>select, loc is NY 
+	default, loc is NY 
+>>>  while i < 5 
+	top of while, i= 1 
+	while first select when true i in 1, 2, i= 1 
+		loc is 'TX' 
+	while after first inner select 
+	bottom of while, i= 2 
+	top of while, i= 2 
+	while first select when true i in 1, 2, i= 2 
+		loc is 'TX' 
+	while after first inner select 
+	bottom of while, i= 3 
+	top of while, i= 3 
+	while first select when true i in 3, i= 3 
+		while 2nd inner select true 'TX', loc is TX 
+	while after second inner select 
+	bottom of while, i= 4 
+	top of while, i= 4 
+	while first select default, i = 4 
+	bottom of while, i= 5 
+	After first while 
+>>>  for state in stateM 
+	inside for, state is  FL 
+	after select within for 
+	inside for, state is  TX 
+	after select within for 
+	inside for, state is  NY 
+	 NY is cold 
+	after select within for 
+	inside for, state is  OK 
+	 OK - why does it exist 
+	after select within for 
+	inside for, state is  ND 
+	 ND is cold 
+	leaving for loop 
+after for warm= 2 cold= 2 
+done with select 

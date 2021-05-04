@@ -1,17 +1,19 @@
 package pickle;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class Parser {
 
-    protected Scanner        scanner;               // scanner pointer
-    protected SymbolTable    symbolTable;           // symbol table pointer
-    protected StorageManager storageManager;        // storage manager
 
-    protected boolean       bShowExpr;              // boolean flag for debug expressions
-    protected boolean       bShowAssign;            // boolean flag for debug assignments
+    protected Scanner                   scanner;                        // scanner pointer
+    protected SymbolTable               symbolTable;                    // symbol table pointer
+    protected StorageManager            storageManager;                 // storage manager
+    protected Stack<ActivationRecord>   activationRecordStack;          // activation record stack
 
+    protected boolean       bShowExpr;                                  // boolean flag for debug expressions
+    protected boolean       bShowAssign;                                // boolean flag for debug assignments
+    protected boolean       bPostFix;
 
     /**
      * Parser constructor takes scanner and symbol table
@@ -19,12 +21,13 @@ public class Parser {
      *
      * </p>
      * @param scanner           scanner object
-     * @param symbolTable       sybmol table object
+     * @param symbolTable       symbol table object
      */
     public Parser(Scanner scanner, SymbolTable symbolTable) {
         this.scanner = scanner;
         this.symbolTable = symbolTable;
         this.storageManager = new StorageManager();
+        this.activationRecordStack = new Stack<ActivationRecord>();
 
         this.bShowExpr = false;
         this.bShowAssign = false;
@@ -46,9 +49,13 @@ public class Parser {
      *
      * @throws PickleException      exception explaining issues
      */
-    public void getNext() throws PickleException {
+    public ResultValue getNext(iExecMode execMode) throws PickleException {
         // get Next Statment, meaning get all tokens for a stmt
         scanner.getNext();
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        res.execMode = execMode;
+
+        verifyOperand();
         
         switch (scanner.currentToken.primClassif) {
             case OPERAND:
@@ -61,15 +68,34 @@ public class Parser {
                 functionStmt();
                 break;
             case CONTROL:
-                controlStmt(true);
-                break;
+                return controlStmt(execMode);
             case OPERATOR:
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot evaluate starting on operator:");
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot evaluate starting on operator");
             default:
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown token to evaluate");
         }
 
+        return res;
+    }
 
+    public void verifyOperand() {
+        if (scanner.currentToken.primClassif == Classif.OPERAND) {
+            if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
+                STEntry entry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+
+                if (! this.activationRecordStack.isEmpty()) {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+
+                    if (scope != -1)
+                        entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
+                }
+
+                if (entry.primClassif != Classif.EMPTY && (entry instanceof STFunction)) {
+                    scanner.currentToken.primClassif = Classif.FUNCTION;
+                    scanner.currentToken.subClassif = ((STFunction) entry).definedBy;
+                }
+            }
+        }
     }
 
     /**
@@ -77,28 +103,67 @@ public class Parser {
      * <p></p>
      *
      * @return                  generic ResultValue
-     * @throws PickleException
+     * @throws                  PickleException
      */
-    private Result controlStmt(Boolean bExec) throws PickleException {
-        Result res = new ResultValue("", SubClassif.EMPTY);
+    private ResultValue controlStmt(iExecMode execMode) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        res.execMode = execMode;
 
         switch (scanner.currentToken.subClassif) {
             case DECLARE:
                 res = declareStmt();
+                res.execMode = execMode;
                 break;
             case FLOW:
                 String flowStr = scanner.currentToken.tokenStr;
 
                 switch (flowStr) {
                     case "if":
-                        res = ifStmt(bExec);
+                        res = ifStmt(execMode);
                         break;
                     case "while":
-                        res = whileStmt(bExec);
+                        res = whileStmt(execMode);
                         break;
                     case "for":
-                        res = forStmt(bExec);
+                        res = forStmt(execMode);
                         break;
+                    case "def":
+                        userFunction(execMode);
+                        break;
+                    case "break":
+                        res.execMode = iExecMode.BREAK_EXEC;
+                        if (!scanner.getNext().equals(";")) {
+                            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Break statement must be followed by ';' ");
+                        }
+                        break;
+                    case "continue":
+                        res.execMode = iExecMode.CONTINUE_EXEC;
+                        if (!scanner.getNext().equals(";")) {
+                            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Continue statement must be followed by ';' ");
+                        }
+                        break;
+                    case "return":
+                        if (execMode == iExecMode.EXECUTE) {
+                            scanner.getNext();
+                            if (!scanner.currentToken.tokenStr.equals(";")){
+                                Result returnVal = expr();
+                                this.activationRecordStack.peek().returnVal = returnVal;
+                            }
+
+                            if (!scanner.currentToken.tokenStr.equals(";")) {
+                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Return statement must end with ';'");
+                            }
+
+                            res.execMode = iExecMode.RETURN;
+                        } else {
+                            Utility.skipTo(scanner, ";");
+                        }
+                        break;
+                    case "select":
+                        res = selectStmt(execMode);
+                        break;
+                    default:
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Unknown Control token");
 
                 }
                 break;
@@ -110,13 +175,13 @@ public class Parser {
     }
 
     /**
-     * Executes Declare statments
+     * Executes Declare statements
      * <p></p>
      *
      * @return
      * @throws PickleException
      */
-    private Result declareStmt() throws PickleException {
+    private ResultValue declareStmt() throws PickleException {
         ResultValue res;
 
         String declareTypeStr = scanner.currentToken.tokenStr;
@@ -132,44 +197,81 @@ public class Parser {
 
         if (scanner.nextToken.tokenStr.equals("[")) {
             scanner.getNext();
-            return declareArrayStmt(varStr, declareTypeStr);
+            declareArrayStmt(varStr, declareTypeStr);
+            return new ResultValue(varStr, SubClassif.IDENTIFIER);
         }
 
         res = new ResultValue(varStr, SubClassif.EMPTY);
 
-        // if assignment occuring grab expression into result value
+        // if assignment occurring grab expression into result value
         if (scanner.getNext().equals("=")) {
             scanner.getNext();
             res = (ResultValue) expr();
+
+            if (declareTypeStr.equals("Date")) {
+                res = Date.validateDate(res.strValue);
+            }
         }
 
         // Statement does not end in a semicolon
         if (! scanner.currentToken.tokenStr.equals(";")) {
-            //todo: update pickle error
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expecting ';' at end of assignment:");
         }
 
-        STEntry varEntry = symbolTable.getSymbol(varStr);
+        if (this.activationRecordStack.isEmpty()) { //in global scope
+            STEntry varEntry = this.symbolTable.getSymbol(varStr);
 
+            if (varEntry.symbol.isEmpty()) {
+                // put symbol into table
+                this.symbolTable.putSymbol(varStr, new STIdentifier(
+                        varStr,
+                        Classif.OPERAND,
+                        getDataType(declareTypeStr),
+                        "primitive",
+                        "none",
+                        0
+                ));
+            }
+            else { //if var already exists
+                if (getDataType(declareTypeStr) != ((STIdentifier) varEntry).dclType) {
+                    ((STIdentifier) varEntry).dclType = getDataType(declareTypeStr);
+                }
 
+                this.storageManager.updateVariable(varEntry.symbol, new ResultValue("", SubClassif.EMPTY));
 
-        // put symbol into table
-        symbolTable.putSymbol(varStr, new STIdentifier(
-                varStr,
-                Classif.OPERAND,
-                getDataType(declareTypeStr),
-                "primitive",
-                "none",
-                99
-        ));
+                //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
+        }
+        else { //in a function's scope
+            STEntry varEntry = this.activationRecordStack.peek().symbolTable.getSymbol(varStr);
 
-        // if assignment being performed during declearation ensure to assign value before exiting
+            if (varEntry.symbol.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(varStr, new STIdentifier(
+                        varStr,
+                        Classif.OPERAND,
+                        getDataType(declareTypeStr),
+                        "primitive",
+                        "none",
+                        0
+                ));
+            }
+            else { //if var exits already
+                if (getDataType(declareTypeStr) != ((STIdentifier) varEntry).dclType) {
+                    ((STIdentifier) varEntry).dclType = getDataType(declareTypeStr);
+                }
+
+                this.storageManager.updateVariable(varEntry.symbol, new ResultValue("", SubClassif.EMPTY));
+
+                //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
+        }
+
+        // if assignment being performed during declaration ensure to assign value before exiting
         if (res.dataType != SubClassif.EMPTY) {
             assign(varStr, res);
         }
 
-
-        return res;
+        return new ResultValue(varStr, SubClassif.IDENTIFIER);
     }
 
     private Result declareArrayStmt(String varStr, String declareTypeStr) throws PickleException {
@@ -180,25 +282,47 @@ public class Parser {
 
         resList = new ResultList(this, new ArrayList<ResultValue>(), 0, arrType);
 
-        if (scanner.getNext().equals("]")) { //if square brackets contain no value
+        if (scanner.nextToken.tokenStr.equals("]")) { //if square brackets contain no value
+            scanner.getNext();
             if (!scanner.getNext().equals("=")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Excpeted assignment values for unbounded array");
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Expected assignment values for array");
             }
         }
         else {
-            res = (ResultValue) expr(); //get value in square brackets
+            if (scanner.nextToken.tokenStr.equals("unbound")) {
+                scanner.nextToken.tokenStr = "-1";
+                scanner.nextToken.primClassif = Classif.OPERAND;
+                scanner.nextToken.subClassif = SubClassif.INTEGER;
+                resList = new ResultList(this, new ArrayList<ResultValue>(), -1, arrType);
+            }
+                res = (ResultValue) expr(); //get value in square brackets
+            //res = (ResultValue) expr(); //get value in square brackets
             if (res.dataType != SubClassif.INTEGER) {
                 res = Utility.castNumericToInt(this, new Numeric(this, res, "+", "expr ret value"));
             }
-            resList.capacity = Integer.parseInt(res.strValue);
+            if (!res.strValue.equals("-1"))
+                resList.capacity = Integer.parseInt(res.strValue);
             ResultValue empty = new ResultValue("", SubClassif.EMPTY);
             for (int i = 0; i < resList.capacity; i++) {
                 resList.arrayList.add(empty);
             }
             if (scanner.currentToken.tokenStr.equals(";")) { //no assignment just declaration of bounded array
                 resList.allocatedSize = 0;
-                symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
-                storageManager.updateVariable(varStr, resList);
+                if (this.activationRecordStack.isEmpty()) { //in global scope
+                    if (!symbolTable.getSymbol(varStr).symbol.isEmpty()) {
+                       // throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+                    }
+                    symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
+                    storageManager.updateVariable(varStr, resList);
+                }
+                else {
+                    if (!this.activationRecordStack.peek().symbolTable.getSymbol(varStr).symbol.isEmpty()) {
+                        //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+                    }
+                    this.activationRecordStack.peek().symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
+                    this.activationRecordStack.peek().storageManager.updateVariable(varStr, resList);
+                }
+
                 return resList;
             }
         }
@@ -212,20 +336,28 @@ public class Parser {
             if (scanner.currentToken.tokenStr.equals(",")) { //skip comma
                 continue;
             }
-            currRes = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
+            //currRes = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
+            Result tmp = expr();
+            if (!(tmp instanceof ResultValue)) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected primitive, found list");
+            }
 
-            if (scanner.currentToken.subClassif != arrType) {
-             if (scanner.currentToken.subClassif == SubClassif.INTEGER && arrType == SubClassif.FLOAT) {
+            currRes = (ResultValue) tmp;
+
+            if (currRes.dataType != arrType) {
+             if (currRes.dataType == SubClassif.INTEGER && arrType == SubClassif.FLOAT) {
                  currRes = Utility.castNumericToDouble(this, new Numeric(this, currRes, "", "Casting to Float"));
-             } else if (scanner.currentToken.subClassif == SubClassif.FLOAT && arrType == SubClassif.INTEGER) {
+             } else if (currRes.dataType == SubClassif.FLOAT && arrType == SubClassif.INTEGER) {
                  currRes = Utility.castNumericToInt(this, new Numeric(this, currRes, "", "Casting to Integer"));
              }
             }
 
-
             values.add(currRes);
-            if (!scanner.nextToken.tokenStr.equals(",")  && !scanner.nextToken.tokenStr.equals(";")) {
-                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Expected a sperator");
+            if (!scanner.currentToken.tokenStr.equals(",")  && !scanner.currentToken.tokenStr.equals(";")) {
+                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Expected a separator");
+            }
+            if (scanner.currentToken.tokenStr.equals(";")) {
+                break;
             }
         }
 
@@ -235,8 +367,20 @@ public class Parser {
             resList.capacity = values.size();
         }
 
-        symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 99));
-        storageManager.updateVariable(varStr, resList);
+        if (this.activationRecordStack.isEmpty()) { //in global scope
+            if (!symbolTable.getSymbol(varStr).symbol.isEmpty()) {
+                //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
+            symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
+            storageManager.updateVariable(varStr, resList);
+        }
+        else {
+            if (!this.activationRecordStack.peek().symbolTable.getSymbol(varStr).symbol.isEmpty()) {
+                //throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Symbol \"" + varStr + "\" already declared");
+            }
+            this.activationRecordStack.peek().symbolTable.putSymbol(varStr, new STIdentifier(varStr, Classif.OPERAND, arrType, "array", "none", 0));
+            this.activationRecordStack.peek().storageManager.updateVariable(varStr, resList);
+        }
 
         return resList;
     }
@@ -257,50 +401,120 @@ public class Parser {
         }
 
         String varStr = scanner.currentToken.tokenStr;
-
+        Token varToken = scanner.currentToken;
+        String assignStr = scanner.getNext();
+        
         STEntry entry = symbolTable.getSymbol(scanner.currentToken.tokenStr);
 
-        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array")) { // if operator is an array, branch outta here real quick like the flash ⚡⚡
+
+        if (!this.activationRecordStack.isEmpty()) { //if scope is not global
+            int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(varStr);
+        }
+
+        if (entry.primClassif != Classif.EMPTY && ((STIdentifier) entry).structure.equals("array")){ // if operator is an array, branch outta here real quick like the flash ⚡⚡
             res =  assignArrayStmt(varStr);
         } else if (scanner.nextToken.primClassif == Classif.OPERATOR && scanner.getNext().equals("=")) {
 
             scanner.getNext();      //get next token
             res = expr();           //get expression value
 
-        } else if (scanner.getNext().equals("[")) {
 
+            Result oldType =  this.storageManager.getVariable(varStr);
 
-            scanner.getNext(); // advance to Expression
-            ResultValue index;
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+                if (scope != -1) {
+                    oldType = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(varStr);
+                }
+            }
+
+            if (!(oldType instanceof ResultValue)) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot perform assignment of array into primitive");
+            }
+            ResultValue old = (ResultValue) oldType;
+
+            if (!assignStr.equals("=") && old.dataType == SubClassif.EMPTY) {
+                throw new ScannerParserException(varToken, scanner.sourceFileNm, "Cannot use operator '" + assignStr + "' on uninitialized variable");
+            }
+
+            switch (assignStr) {
+                case "+=":
+                    res = Utility.add(this
+                            , new Numeric(this, old, "+", "add old value with new value")
+                            , new Numeric(this, (ResultValue) res, "+", "add old value with new value"));
+                    break;
+                case "-=":
+                    res = Utility.subtract(this
+                            , new Numeric(this, old, "-", "subtract old value with new value")
+                            , new Numeric(this, (ResultValue) res, "-", "subtract old value with new value"));
+                    break;
+            }
+
+        } else if (scanner.currentToken.tokenStr.equals("[")) {
+            Result indexT;
+
+            ResultValue index = new ResultValue("", SubClassif.EMPTY);
+            ResultValue lower = new ResultValue("", SubClassif.EMPTY);
+            ResultValue upper = new ResultValue("", SubClassif.EMPTY);
 
             try {
                 entry = symbolTable.getSymbol(varStr);
 
+                if (!this.activationRecordStack.isEmpty()) { //if scope is not global
+                    int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+                    if (scope != -1)
+                        entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(varStr);
+                }
+
                 if (entry.primClassif == Classif.EMPTY) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into uninitialized string");
-                } else  if (((STIdentifier)entry).dclType != SubClassif.STRING) {
+                } else  if (((STIdentifier)entry).dclType != SubClassif.STRING && ((STIdentifier)entry).dclType != SubClassif.DATE) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot index into non array or non string variables");
                 }
-
-                ResultValue str = (ResultValue)storageManager.getVariable(varStr);
-
-                index = (ResultValue) expr();
-
-                if (index.dataType != SubClassif.INTEGER) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Index must be an Integer");
+                ResultValue str;
+                if (this.activationRecordStack.isEmpty()) {
+                    str = (ResultValue) storageManager.getVariable(varStr);
+                }
+                else {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+                    if (scope != -1)
+                        str = (ResultValue) this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(varStr);
+                    else
+                        str = (ResultValue) storageManager.getVariable(varStr);
                 }
 
-                if (!scanner.currentToken.tokenStr.equals("=")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must be followed by '=' '");
+                indexT = expr();
+
+                if (indexT instanceof ResultValue) {
+                    index = (ResultValue) indexT;
+                    if (index.dataType != SubClassif.INTEGER) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Index must be an Integer");
+                    }
+
+                    if (!scanner.currentToken.tokenStr.equals("=")) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must be followed by '=' '");
+                    }
+                } else if (indexT instanceof ResultList) {
+                    lower = ((ResultList) indexT).getItem(this, 0);
+                    upper = ((ResultList) indexT).getItem(this, 1);
+
                 }
 
                 scanner.getNext(); // advance to next expression must be a string
-                res = (ResultValue)expr();
+                res = (ResultValue) expr();
 
 
+                if (indexT instanceof ResultValue) {
+                    res = Utility.assignAtIndex(this, str, (ResultValue) res, Integer.parseInt(index.strValue) );
+                } else if (indexT instanceof ResultList) {
+                    res = Utility.getStringSliceAssign(this, str, Integer.parseInt(lower.strValue), Integer.parseInt(upper.strValue), (ResultValue) res);
+                }
 
-                res = Utility.assignAtIndex(this, str, (ResultValue) res, Integer.parseInt(index.strValue) );
 
+            } catch (PickleException p) {
+                throw p;
             } catch (Exception e) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expression must be scalar value");
             }
@@ -321,28 +535,57 @@ public class Parser {
     }
 
     private ResultList assignArrayStmt(String varString) throws PickleException {
-        ResultList array = (ResultList) storageManager.getVariable(varString), res;
+        ResultList array, res;
         ResultValue val, assign;
+        Result slice;
 
-        if (scanner.getNext().equals("=")) { //total array assignment
-            scanner.getNext(); //skip to asignee dude guy expr 🤵
+        if (this.activationRecordStack.isEmpty()) {
+            array = (ResultList) storageManager.getVariable(varString);
+        }
+        else {
+            int scope = this.activationRecordStack.peek().findSymbolScope(varString);
+            if (scope != -1)
+                array = (ResultList) this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(varString);
+            else
+                array = (ResultList) storageManager.getVariable(varString);
+        }
+
+
+        if (scanner.currentToken.tokenStr.equals("=")) { //total array assignment
+            scanner.getNext(); //skip to assignee dude guy expr 🤵
 
             if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER && ((STIdentifier)symbolTable.getSymbol(scanner.currentToken.tokenStr)).structure.equals("array") && scanner.nextToken.tokenStr.equals(";")) { //just an array to array
-                res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(scanner.currentToken.tokenStr));
+                if (this.activationRecordStack.isEmpty()) {
+                    res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(scanner.currentToken.tokenStr));
+                }
+                else {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+                    if (scope != -1)
+                        res = Utility.assignArrayToArray(this, array, (ResultList) this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(scanner.currentToken.tokenStr));
+                    else
+                        res = Utility.assignArrayToArray(this, array, (ResultList) storageManager.getVariable(scanner.currentToken.tokenStr));
+                }
                 scanner.getNext();
             }
             else {
-                val = (ResultValue) expr();
-                if (val.dataType != array.dataType) {
-                    //TODO - fix exception
-                    throw new PickleException();
+                slice = expr();
+
+                if (slice instanceof ResultValue) {
+                    val = (ResultValue) slice;
+                    if (val.dataType != array.dataType) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot scalar assign incorrect data type");
+                    }
+                    res = Utility.assignScalarToArray(this, val, array.capacity);
+                } else if (slice instanceof ResultList) {
+                    res = Utility.assignArrayToArray(this, array, (ResultList) slice);
+                } else {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid assign expression for array");
                 }
-                res = Utility.assignScalarToArray(this, val, array.capacity);
+
             }
         }
         else if (scanner.currentToken.tokenStr.equals("[")) { //arr index assignment
-
-            scanner.getNext();
+            
             val = (ResultValue) expr(); //get index of array
 
             if (!scanner.currentToken.tokenStr.equals("=")) {
@@ -395,20 +638,18 @@ public class Parser {
 
         ArrayList<Token> out = Expr.postFixExpr(this);
 
-        /* System.out.printf("Postfix: ");
-        for(Token token : out) {
-            System.out.printf("%s ", token.tokenStr);
+        if (bPostFix) {
+            System.out.printf("Postfix: ");
+            for (Token token : out) {
+                System.out.printf("%s ", token.tokenStr);
+            }
+            System.out.println();
         }
-        System.out.println();*/
 
         Result ans = Expr.evaluatePostFix(this, out);
 
         // code to see postfix expression and evaluated answer
-
-
-
-
-        /*System.out.printf("Evalueted to answer: %s\n", ((ResultValue)ans).strValue);*/
+        // /*System.out.printf("Evaluated to answer: %s\n", ((ResultValue)ans).strValue);*/
 
         return ans;
 
@@ -416,7 +657,7 @@ public class Parser {
     }
 
     /**
-     * Executes function statements, mainly builtin
+     * Executes function statements
      * <p></p>
      *
      * @return
@@ -425,11 +666,25 @@ public class Parser {
     private ResultValue functionStmt() throws PickleException {
         Result res =  null;
 
+        STEntry entry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+            if (scope != -1)
+                entry =  this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
+        }
+
+        if (entry.primClassif == Classif.EMPTY || !(entry instanceof STFunction)) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Can not find function in any scope");
+        }
+
+        STFunction func = (STFunction) entry;
+
         // check for builtin function if not throw error for identifier
-        if (scanner.currentToken.subClassif == SubClassif.BUILTIN) {
+        if (func.definedBy == SubClassif.BUILTIN) {
             switch (scanner.currentToken.tokenStr) {
                 case "print":
-                    print();
+                    res = expr();
                     break;
                 case "LENGTH":
                 case "SPACES":
@@ -437,14 +692,225 @@ public class Parser {
                 case "MAXELEM":
                     res = expr();
                     break;
-
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "No function of name: ");
             }
         }
+        else { //user func
+            // get parameters into a parameter list, add parameters to function SymbolTable/StorageManager, execute function
 
+            //sets up functions activation record on the stack and its environment vector
+
+
+            Result p = expr();
+
+            if (!scanner.currentToken.tokenStr.equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function call must be followed by ';'");
+            }
+
+        }
 
         return (ResultValue) res;
+    }
+
+    public Result callUserFunction(STFunction function, ArrayList<Result>parameters) throws PickleException {
+        ActivationRecord newAcc = new ActivationRecord(function.record);
+        // verify parameter types
+
+        for(int i = 0; i < parameters.size(); i++) {
+            // coerce
+            STEntry entry;
+
+            SubClassif paramType = function.parameters.get(i);
+            Result argT = parameters.get(i);
+            Result value;
+
+            // passed identifier or some expression
+            if (argT instanceof ResultValue ) {
+                ResultValue argI = (ResultValue) argT;
+                if (argI.dataType == SubClassif.IDENTIFIER) {
+                    // get scoping
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(argI.strValue);
+                        if (scope != -1) {
+                            value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(argI.strValue);
+                        } else {
+                            value = this.storageManager.getVariable(argI.strValue);
+                        }
+                    } else {
+                        value = this.storageManager.getVariable(argI.strValue);
+                    }
+
+
+                    // assign paramaters into activation record storagemanager
+                    if ((value instanceof ResultValue) && !function.array.get(i)) {
+                        // coerce
+                        if (((ResultValue) value).dataType != paramType) {
+                            if (((ResultValue) value).dataType == SubClassif.EMPTY) {
+                                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
+                            }
+                            value = Utility.coerce(this, (ResultValue) value, paramType);
+                        }
+                        newAcc.storageManager.updateVariable(function.names.get(i), value);
+                    }
+                    if ((value instanceof ResultList) && function.array.get(i)) {
+                        // coerce
+                        if (((ResultList) value).dataType != paramType) {
+                            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid parameter type should be " + paramType.name());
+                        }
+
+                        ResultList newList = new ResultList(this, (ArrayList<ResultValue>) ((ResultList) value).arrayList.clone(), ((ResultList) value).capacity, ((ResultList) value).dataType);
+
+                        newAcc.storageManager.updateVariable(function.names.get(i), newList);
+                    }
+
+
+                } else {
+                    if (argI.dataType != paramType) {
+                        argI = Utility.coerce(this, argI, paramType);
+                    }
+
+                    if (argI.dataType == SubClassif.EMPTY) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Was not expecting empty value");
+                    }
+
+                    newAcc.storageManager.updateVariable(function.names.get(i), argI);
+                }
+            } else {
+                // passed a Result list implying an array type that needs to be set
+                if (!function.array.get(i)) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Was not expecting array for parameter " + function.names.get(i));
+                }
+
+                newAcc.storageManager.updateVariable(function.names.get(i), argT);
+
+            }
+
+        }
+
+        //run user function
+        int savedSourceLineNr = scanner.currentToken.iSourceLineNr;
+        int savedColPos = scanner.currentToken.iColPos;
+
+        this.activationRecordStack.push(newAcc);
+
+        scanner.setPosition(function.lineNum, function.colPos);
+
+        ResultValue returnStatus = statements(iExecMode.EXECUTE);
+        Result returnValue = new ResultValue("", SubClassif.EMPTY);
+
+        // end user function
+        scanner.setPosition(savedSourceLineNr, savedColPos);
+        scanner.getNext();
+
+        // grab values of parameters and assign into whichever scope they need
+        newAcc = this.activationRecordStack.pop();
+
+        if (returnStatus.execMode == iExecMode.RETURN) {
+            if (function.returnType == SubClassif.VOID && newAcc.returnVal != null) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot return");
+            } else if (newAcc.returnVal != null) {
+
+                if (newAcc.returnVal instanceof ResultValue) {
+                    if (function.returnArray) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an array to be returned");
+                    }
+                    if (((ResultValue) newAcc.returnVal).dataType != function.returnType) {
+                        returnValue = Utility.coerce(this, (ResultValue) newAcc.returnVal, function.returnType);
+                    } else {
+                        returnValue = newAcc.returnVal;
+                    }
+                } else {
+                    if (!function.returnArray) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Can not return array as primitive type " + function.returnType);
+                    }
+
+                    if ( ((ResultList)newAcc.returnVal).dataType != function.returnType) {
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Can not return array of different type " + function.returnType);
+                    }
+
+                    returnValue = newAcc.returnVal;
+                }
+            } else if (function.returnType != SubClassif.VOID && newAcc != null ) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function return type: " + function.returnType.name());
+            }
+        }
+        else if (returnStatus.execMode != iExecMode.RETURN && function.returnType != SubClassif.VOID) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Return Statement not found");
+        }
+
+
+
+        for (int i =0 ; i < function.numArgs; i++) {
+            Result argT = parameters.get(i);
+
+            if (argT instanceof ResultValue) {
+                ResultValue arg = (ResultValue) argT;
+
+                if (arg.dataType == SubClassif.IDENTIFIER && function.passing.get(i).equals("Reference")) {
+                    Result newValue = newAcc.storageManager.getVariable(function.names.get(i));
+
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(arg.strValue);
+                        Result value;
+
+                        if (scope != -1) {
+                            this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(arg.strValue, newValue);
+                        } else {
+                            this.storageManager.updateVariable(arg.strValue, newValue);
+                        }
+
+                    } else {
+                        this.storageManager.updateVariable(arg.strValue, newValue);
+                    }
+
+                }
+            }
+        }
+
+
+        return returnValue;
+    }
+
+
+    public void print(ArrayList<Result> parameters) throws PickleException {
+        StringBuilder sb = new StringBuilder();
+
+        for (Result val : parameters) {
+            if (val instanceof ResultValue) {
+                if (((ResultValue) val).dataType == SubClassif.IDENTIFIER) {
+                    STEntry entry = this.symbolTable.getSymbol(((ResultValue) val).strValue);
+
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(((ResultValue) val).strValue);
+                        if (scope != -1)
+                            entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(((ResultValue) val).strValue);
+                    }
+
+                    if (entry.primClassif == Classif.EMPTY) {
+                        scanner.currentToken.tokenStr = ((ResultValue) val).strValue;
+                        throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot call print on unknown identifier");
+                    }
+
+                    val = this.storageManager.getVariable(entry.symbol);
+
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                        if (scope != -1)
+                            val = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+                    }
+
+                }
+            }
+
+
+
+
+            sb.append(val.printResult());
+            sb.append(" ");
+        }
+
+        System.out.println(sb.toString());
     }
 
     /**
@@ -468,7 +934,7 @@ public class Parser {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Reached ';' before closing function ')':");
             }
 
-            // if reached seperator skip token
+            // if reached separator skip token
             if (scanner.currentToken.tokenStr.equals(",")) {
                 scanner.getNext();
                 continue;
@@ -503,8 +969,9 @@ public class Parser {
             if (res.dataType != SubClassif.STRING) {
                 throw new ScannerParserException(exprToken, scanner.sourceFileNm, "Cannot call builtin LENGTH on non-string expressions");
             }
-
-            res = Utility.builtInLENGTH(this, res);
+            ArrayList<Result> param = new ArrayList<Result>();
+            param.add(res);
+            res = Utility.builtInLENGTH(param);
         } catch (PickleException p) {
             throw p;
         } catch (Exception e) {
@@ -531,12 +998,18 @@ public class Parser {
         // grab identifier from table to perform coercion if necessary
         STEntry entry = this.symbolTable.getSymbol(varStr);
 
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(varStr);
+        }
+
         if (entry.primClassif == Classif.EMPTY) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign value to undeclared variable");
         }
 
-
-        STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);
+        //STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);  caleb you good??? stop calling *MY* symbol table twice for same string, could have just (see below lmao) 😒
+        STIdentifier symbolEntry = (STIdentifier) entry;
 
         if (res instanceof ResultValue) {
             // conversion from specified types to declared type
@@ -546,10 +1019,23 @@ public class Parser {
             if (symbolEntry.dclType == SubClassif.INTEGER) {
                 res = Utility.castNumericToInt(this, new Numeric(this, (ResultValue) res, "", "cast to declared type"));
             }
+
+            if (symbolEntry.dclType != ((ResultValue) res).dataType)
+                res = Utility.coerce(this, (ResultValue) res, symbolEntry.dclType);
         }
 
         // store value
-        this.storageManager.updateVariable(varStr, res);
+        if (this.activationRecordStack.isEmpty()) {
+            this.storageManager.updateVariable(varStr, res);
+        }
+        else {
+            int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
+            if (scope != -1)
+                this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(varStr, res);
+            else
+                this.storageManager.updateVariable(varStr, res);
+        }
+
 
         if (bShowAssign)
             System.out.printf("... Assign result into '%s' is '%s'\n", varStr, ((ResultValue) res).strValue);
@@ -566,7 +1052,7 @@ public class Parser {
      */
     private boolean debugStmt() throws PickleException{
 
-        // check if debug type of statment
+        // check if debug type of statement
         if (scanner.currentToken.tokenStr.equals("debug")) {
 
             String type = scanner.getNext();
@@ -600,6 +1086,9 @@ public class Parser {
                 case "Stmt":
                     scanner.bShowStmt = onOff;
                     break;
+                case "Postfix":
+                    bPostFix = onOff;
+                    break;
                 default:
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid debugType:");
             }
@@ -622,29 +1111,334 @@ public class Parser {
      * <p>
      *
      * </p>
-     * @param bExec             Execute Flag
+     * @param execMode             Execute Flag
      * @return
      * @throws PickleException
      */
-    private ResultValue statements(boolean bExec) throws PickleException {
+    private ResultValue statements(iExecMode execMode) throws PickleException {
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        res.execMode = execMode;
         //exec statements
-        if (bExec) {
-            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
-                getNext();
+        if (res.execMode == iExecMode.EXECUTE) {
+            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END && res.execMode == iExecMode.EXECUTE) {
+                res = getNext(execMode);
             }
+
+            if (res.execMode != execMode) {
+                execMode = res.execMode;
+                res = statements(iExecMode.IGNORE_EXEC);
+                res.execMode = execMode;
+                return res;
+            }
+
+            res.terminatingString = scanner.getNext();
         }
-        else { // skip over statments and set flag to false for if and while clauses
-            while (hasNext() && scanner.nextToken.subClassif != SubClassif.END) {
-                scanner.getNext();
+        else {
+
+            while (hasNext() && scanner.currentToken.subClassif != SubClassif.END) {
+
+                if (scanner.currentToken.primClassif == Classif.SEPARATOR)
+                    scanner.getNext();
+
+                if (scanner.currentToken.subClassif == SubClassif.END)
+                    break;
 
                 if (scanner.currentToken.primClassif == Classif.CONTROL && scanner.currentToken.subClassif == SubClassif.FLOW) {
-                    controlStmt(false);
+                    controlStmt(execMode);
+                } else {
+                    Utility.skipTo(scanner, ";");
                 }
             }
+
+            res.terminatingString = scanner.currentToken.tokenStr;
         }
         
-        res.terminatingString = scanner.getNext();
+
+        return res;
+    }
+
+    private void userFunction(iExecMode execMode) throws PickleException {
+        //current token is def, so next token will be return type
+        int currLineNum = scanner.iSourceLineNr;
+        int colPos = scanner.iColPos;
+        int numArgs = 0;
+        boolean returnArray = false;
+
+        scanner.getNext(); //skip the 'def' token, current token now should be the return value
+        SubClassif returnValue = getDataType(scanner.currentToken.tokenStr);
+
+        if (scanner.nextToken.tokenStr.equals("[")) {
+            scanner.getNext();
+            if (!scanner.getNext().equals("]")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid Return type");
+            }
+            returnArray = true;
+        }
+
+        String functionName = scanner.getNext(); //advance token to function name and set string accordingly
+
+        if (!scanner.getNext().equals("(")) { //if the next token is not the start of the parameter list, well thats no good bubby 🤷‍
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "missing '('");
+        }
+
+        ArrayList<SubClassif> types = new ArrayList<SubClassif>();
+        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<Boolean> array = new ArrayList<Boolean>();
+        ArrayList<String> passing = new ArrayList<String>();
+        //get all the parameters
+
+        // starts at (
+        while (!scanner.getNext().equals(":")) {
+
+            if (scanner.currentToken.tokenStr.equals(")")) {
+                continue;
+            }
+
+            array.add(false);
+            numArgs++;
+            types.add(paramHelper(names, array, passing));
+        }
+
+        if (execMode == iExecMode.EXECUTE) {
+            STFunction newUserFcn = new STFunction(functionName, Classif.FUNCTION, returnValue, returnArray, SubClassif.USER, numArgs, currLineNum, colPos, types, names, array, passing);
+
+            //set up functions activation record
+            if (!this.activationRecordStack.isEmpty()) {
+                newUserFcn.setupActivationRecord(this.activationRecordStack.peek());
+            } else {
+                newUserFcn.record = new ActivationRecord(newUserFcn.symbol);
+            }
+
+            newUserFcn.setupSymbolTable();
+
+            if (this.activationRecordStack.isEmpty()) {
+                this.symbolTable.putSymbol(functionName, newUserFcn);
+            } else {
+                this.activationRecordStack.peek().symbolTable.putSymbol(functionName, newUserFcn);
+
+            }
+
+            //parse out the function body
+
+            newUserFcn.lineNum = scanner.iSourceLineNr;
+            newUserFcn.colPos = 0;
+            ResultValue res = statements(iExecMode.IGNORE_EXEC); // dont execute the statements on function definition
+
+            if (!res.terminatingString.equals("enddef")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing enddef");
+            }
+
+            if (!scanner.getNext().equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';'");
+            }
+        } else {
+            ResultValue rest = statements(execMode);
+
+            if (!rest.terminatingString.equals("enddef")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Function missing enddef statement");
+            }
+
+            if (!scanner.getNext().equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "'enddef' msut be followed by ';'");
+            }
+        }
+
+    }
+
+    private SubClassif paramHelper(ArrayList<String> names, ArrayList<Boolean> array, ArrayList<String> passing) throws PickleException {
+        SubClassif paramType = SubClassif.EMPTY;
+        //the parameter is either a primitive or an array with a pair of square brackets
+        // current token should be an identifier
+
+        //Could be 'Ref', 'Value' or and Identifier
+        if (scanner.currentToken.tokenStr.equals("Value") || scanner.currentToken.tokenStr.equals("Ref")) {
+            if (scanner.currentToken.tokenStr.equals("Value")) {
+                //do something
+                passing.add("Value");
+            }
+            else {
+                passing.add("Reference");
+            }
+            scanner.getNext(); //if it was 'Value' or 'Ref' then skip
+        }
+        else {
+            passing.add("Reference");
+        }
+
+        //if there is no type for the parameter
+        if (scanner.currentToken.primClassif != Classif.CONTROL || scanner.currentToken.subClassif != SubClassif.DECLARE) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected Identifier, found: " + scanner.currentToken.tokenStr);
+        }
+        paramType = getDataType(scanner.currentToken.tokenStr);
+
+        scanner.getNext(); //advance to next token, should be a variable name
+
+        //if there is no identifier name for the var
+        if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected variable name, found: " + scanner.currentToken.tokenStr);
+        }
+
+        names.add(scanner.currentToken.tokenStr);
+
+        //if the variable is an array
+        if (scanner.nextToken.tokenStr.equals("[")) {
+
+            int i = array.size() -1;
+            array.set(i, true);
+
+            scanner.getNext(); // move token to '['
+            if (!scanner.getNext().equals("]")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected ']', found: " + scanner.currentToken.tokenStr);
+            }
+            //else if (scanner.nextToken.tokenStr.equals((","))) {
+            else if (scanner.getNext().equals((",")) || scanner.currentToken.tokenStr.equals(")")) {
+                return paramType;
+            }
+            else {
+                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "expected separator, found: " + scanner.nextToken.tokenStr);
+            }
+
+        }
+        //else if (scanner.nextToken.equals(",")) {
+        else if (scanner.getNext().equals((",")) || scanner.currentToken.tokenStr.equals(")")) {
+            return paramType;
+        }
+        else {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected separator, found: " + scanner.currentToken.tokenStr);
+        }
+    }
+
+    /**
+     * Executes select statements
+     * <p></p>
+     *
+     * @param execMode
+     * @return  ResultValue
+     */
+    private ResultValue selectStmt(iExecMode execMode) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        ResultValue returnMode = new ResultValue("", SubClassif.EMPTY);
+        returnMode.execMode = execMode;
+
+        scanner.getNext(); // skip to the control variable
+
+        Result var = expr(); //get the value of the control variable
+
+        if (!(var instanceof ResultValue)) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Control variable for select statement cannot be a list");
+        }
+
+        ResultValue controlVar = (ResultValue) var;
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "select statement missing ':' ");
+        }
+
+        scanner.getNext(); //skip to first when
+
+        //loop through all the selects until a default or endselect is hit
+        while (scanner.currentToken.tokenStr.equals("when")) {
+            res = whenStmt(execMode, controlVar);
+            if (res.execMode != iExecMode.IGNORE_EXEC) {
+                execMode = iExecMode.IGNORE_EXEC;
+                returnMode.execMode = res.execMode;
+            }
+        }
+
+        if (!scanner.currentToken.tokenStr.equals("default") && !scanner.currentToken.tokenStr.equals("endselect")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected endselect or default statement");
+        }
+
+        if (scanner.currentToken.tokenStr.equals("default")) {
+            res = defaultStmt(execMode);
+            if (res.execMode != execMode) {
+                returnMode.execMode = res.execMode;
+            }
+            if (!res.terminatingString.equals("endselect")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected endselect statement");
+            }
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing ';'");
+        }
+
+        res.execMode = returnMode.execMode;
+        return res;
+    }
+
+    /**
+     * Executes when statements
+     * <p></p>
+     *
+     * @param execMode
+     * @return ResultValue
+     */
+    private ResultValue whenStmt(iExecMode execMode, ResultValue controlVar) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+
+        scanner.getNext(); //skip to the value to compare
+
+        while (!scanner.currentToken.tokenStr.equals(":")) {
+            Result cond = expr();
+            if (!(cond instanceof ResultValue)) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "when statements must not include a list");
+            }
+
+            ResultValue compare = (ResultValue) cond;
+
+            if (compare.dataType != controlVar.dataType) {
+                compare = Utility.coerce(this, compare, controlVar.dataType);
+            }
+
+            if (compare.dataType == SubClassif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Error coercing data types");
+            }
+
+            if (Utility.equal(this, compare, controlVar).strValue.equals("T")) {
+                if (!scanner.currentToken.tokenStr.equals(":"))
+                    Utility.skipTo(scanner,":");
+                res = statements(execMode);
+                res.dataType = SubClassif.VOID;
+                break;
+            }
+
+            if (scanner.currentToken.tokenStr.equals(",")) {
+                scanner.getNext();
+            }
+            else if (!scanner.currentToken.tokenStr.equals(":")){
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "err");
+            }
+
+        }
+
+        if (res.dataType == SubClassif.EMPTY) {
+            res = statements(iExecMode.IGNORE_EXEC);
+        }
+
+        if (!res.terminatingString.equals("default") && !res.terminatingString.equals("when") && !res.terminatingString.equals("endselect")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "expected select statement end flow, found");
+        }
+
+        return res;
+    }
+
+    /**
+     * Executes default statements
+     * <p></p>
+     *
+     * @param execMode
+     * @return ResultValue
+     */
+    private ResultValue defaultStmt(iExecMode execMode) throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+
+        if (!scanner.getNext().equals(":")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ':', found");
+        }
+
+        res = statements(execMode);
+
         return res;
     }
 
@@ -652,40 +1446,59 @@ public class Parser {
      * Parses and executes while statement based on execute flag
      * <p></p>
      *
-     * @param bExec             Execute flag
+     * @param execMode             Execute flag
      * @return
      * @throws PickleException
      */
-    private ResultValue whileStmt(Boolean bExec) throws PickleException {
+    private ResultValue whileStmt(iExecMode execMode) throws PickleException {
 
         //set while position
         Token entryPosition = scanner.currentToken;
-        ResultValue result;
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        result.execMode = execMode;
 
         //execute while statement
-        if (bExec) {
+        if (execMode == iExecMode.EXECUTE) {
             //while contition is true execute stmts
-             while (evalCond().strValue.equals("T")) {
-                 result = statements(true);
+             while (evalCond().strValue.equals("T") &&
+                     (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC) ) {
+                 result = statements(execMode);
+
+                 /*if (result.execMode == iExecMode.BREAK_EXEC) {
+                     break;
+                 } else if (result.execMode == iExecMode.CONTINUE_EXEC && !result.terminatingString.equals("endwhile")) {
+                     result = statements(iExecMode.IGNORE_EXEC);
+                 }*/
+
+
                  if(!result.terminatingString.equals("endwhile")) {
                      throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
                  }
+
+
+
                  //set position back to while
                  scanner.setPosition(entryPosition.iSourceLineNr, entryPosition.iColPos);
                  scanner.getNext();
              }
              //after while loop's condition is false, get back to the endwhile token
-             result = statements(false);
-             if(!result.terminatingString.equals("endwhile")) {
-                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
-             }
-             if (!scanner.getNext().equals(";")) {
-                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';':");
-             }
+
+            // get rest of while loop body
+            // consume break or continue execute and return execute mode passed
+            result = statements(iExecMode.IGNORE_EXEC);
+            result.execMode = execMode;
+
+            if (!result.terminatingString.equals("endwhile")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile :");
+            }
+            if (!scanner.getNext().equals(";")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';':");
+            }
+
         }
         else { //dont execute while
             Utility.skipTo(scanner, ":");
-            result = statements(false);
+            result = statements(iExecMode.IGNORE_EXEC);
             if(!result.terminatingString.equals("endwhile")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endwhile:");
             }
@@ -693,69 +1506,83 @@ public class Parser {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Statement must end in ';':");
             }
         }
+
+        //reset exec mode in event break or continue was returned on last iteration of while loop to consume break/continue
+        result.execMode = execMode;
+
+
         return result;
     }
 
     /**
      * Parses and executes
-     * @param bExec
+     * @param execMode
      * @return
      * @throws PickleException
      */
-    private ResultValue ifStmt(Boolean bExec) throws PickleException {
+    private ResultValue ifStmt(iExecMode execMode) throws PickleException {
 
         ResultValue resCond;
         ResultValue resTemp;
+
+        ResultValue returnExec = new ResultValue("", SubClassif.EMPTY);
+        returnExec.execMode = execMode;
         
-        if (bExec) {
+        if (execMode == iExecMode.EXECUTE) {
 
             resCond = evalCond();
             
             if (resCond.strValue.equals("T")) {
                 // execute if block statements and skip else block if present
 
-                resTemp = statements(true);
+                resTemp = statements(execMode);
+
+                if (resTemp.execMode != iExecMode.EXECUTE) {
+                    returnExec.execMode = resTemp.execMode;
+
+                    if (!resTemp.terminatingString.equals("else") && !resTemp.terminatingString.equals("endif"))
+                        resTemp = statements(resTemp.execMode);
+
+                }
                 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
                         throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
                     }
 
-                    resTemp = statements(false);
+                    resTemp = statements(iExecMode.IGNORE_EXEC);
                     
                 }
 
                 // ensure if statement ends with endif token
-                if (!resTemp.terminatingString.equals("endif")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
-                }
-                if (!scanner.getNext().equals(";")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token:");
-                }
 
 
             } else {
 
                 // skip if block and execute else statements
 
-                resTemp = statements(false);
+                resTemp = statements(iExecMode.IGNORE_EXEC);
 
                 if (resTemp.terminatingString.equals("else")) {
                     if (!scanner.getNext().equals(":")) {
                         throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
                     }
 
-                    resTemp = statements(true);
+                    resTemp = statements(execMode);
+
+                    if (resTemp.execMode != execMode) {
+                        returnExec.execMode = resTemp.execMode;
+
+                        resTemp = statements(resTemp.execMode);
+
+                    }
                 }
 
                 // ensure if statement ends with endif token
-                if (!resTemp.terminatingString.equals("endif")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
-                }
-                
-                if (!scanner.getNext().equals(";")) {
-                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token:");
-                }
+
+            }
+            if (!resTemp.terminatingString.equals("endif")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an 'endif' after ':' ");
             }
 
         } else {
@@ -763,13 +1590,13 @@ public class Parser {
 
             Utility.skipTo(scanner, ":");
 
-            resTemp = statements(false);
+            resTemp = statements(execMode);
 
             if (resTemp.terminatingString.equals("else")) {
                 if (!scanner.getNext().equals(":")) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an ':' after an 'else' token:");
                 }
-                resTemp = statements(false);
+                resTemp = statements(execMode);
 
 
             }
@@ -778,62 +1605,70 @@ public class Parser {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected an 'endif' after 'if' token:");
             }
 
-            if (!scanner.getNext().equals(";")) {
-                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token:");
-            }
+        }
+        if (!scanner.getNext().equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected a ';' after 'endif' token");
         }
 
 
-        return resTemp;
+        return returnExec;
 
     }
 
-    private ResultValue forStmt(Boolean bExec) throws PickleException {
+    private ResultValue forStmt(iExecMode execMode) throws PickleException {
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
 
-        if (bExec) {
+        if (execMode == iExecMode.EXECUTE) {
             scanner.getNext();
             if (scanner.currentToken.primClassif != Classif.OPERAND && scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
-                // TODO: 4/13/2021 fix exception
-                throw new PickleException();
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected operand, found");
             }
             String controlVar = scanner.currentToken.tokenStr;
             scanner.getNext();
             if (scanner.currentToken.tokenStr.equals("=")) {
-                result = countingFor(controlVar);
+                result = countingFor(controlVar, execMode);
             }
             else if (scanner.currentToken.tokenStr.equals("in")) {
                 //branch to either charStringFor() or itemArrayFor() depending on if controlVar is a char
-                // TODO: 4/15/2021 check identifier to be String or Array
-
-
                 try {
-                    STIdentifier entry = (STIdentifier) this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
-
-                    if (entry.primClassif == Classif.EMPTY) {
-                        throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be declared first");
+                    STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                    if (!this.activationRecordStack.isEmpty()) {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(scanner.nextToken.tokenStr);
+                        if (scope != -1)
+                            entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.nextToken.tokenStr);
                     }
 
-                    if (entry.dclType == SubClassif.STRING && !entry.structure.equals("array")) {
-                        charStringFor(controlVar);
+                    if (scanner.nextToken.subClassif == SubClassif.IDENTIFIER) {
+                        //STIdentifier entry = (STIdentifier) this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
+                        //STEntry entry = this.symbolTable.getSymbol(scanner.nextToken.tokenStr);
+
+                        if (entry.primClassif != Classif.EMPTY) {
+                            STIdentifier id = (STIdentifier) entry;
+                            if ((id.dclType == SubClassif.STRING || id.dclType == SubClassif.DATE) && !id.structure.equals("array")) {
+                                result = charStringFor(controlVar, execMode);
+                            } else if (id.structure.equals("array")) {
+                                result = itemArrayFor(controlVar, execMode);
+                            } else {
+                                throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be of type String, Int, Float to use for loop");
+                            }
+                        } else {
+                            throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Cannot find value for Identifier");
+                        }
+                    }else if (scanner.nextToken.subClassif == SubClassif.STRING || scanner.nextToken.subClassif == SubClassif.DATE) {
+                        result = charStringFor(controlVar, execMode);
+                    } else {
+                        throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Cannot run for loop on constant value " + scanner.nextToken.subClassif.name());
                     }
-                    else if (entry.structure.equals("array")) {
-                        itemArrayFor(controlVar);
-                    } else  {
-                        // TODO: 4/15/2021 cannot run for loop on any other types
-                        throw new ScannerParserException(scanner.nextToken, scanner.sourceFileNm, "Identifier must be of type String, Int, Float to use for loop");
-                    }
+
                 } catch (PickleException p) {
                     throw p;
                 } catch (Exception e) {
                     throw e;
                 }
 
-
-                
             }
             else if (scanner.currentToken.tokenStr.equals("from")) {
-                result = stringDelimiterFor(controlVar);
+                result = stringDelimiterFor(controlVar, execMode);
             }
             else {
                 //TODO: fix exception - for loop type not recognized error or smth man idk
@@ -841,7 +1676,7 @@ public class Parser {
             }
         } else {
             Utility.skipTo(scanner, ":");
-            result = statements(false);
+            result = statements(execMode);
 
             if (!result.terminatingString.equals("endfor")) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Missing endfor");
@@ -855,22 +1690,39 @@ public class Parser {
         return result;
     }
 
-    private ResultValue charStringFor(String controlVar) throws PickleException {
+    private ResultValue charStringFor(String controlVar, iExecMode execMode) throws PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
+
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        result.execMode = execMode;
 
-        if (entry.primClassif == Classif.EMPTY) {
-            symbolTable.putSymbol(controlVar,
-                    new STIdentifier(controlVar,
-                            Classif.OPERAND,
-                            SubClassif.STRING,
-                            "none",
-                            "local",
-                            0));
-
-
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(controlVar);
         }
 
+        if (entry.primClassif == Classif.EMPTY) {
+            if (!this.activationRecordStack.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(
+                        controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING,
+                                "none",
+                                "local",
+                                0)
+                );
+            } else {
+                symbolTable.putSymbol(controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING,
+                                "none",
+                                "local",
+                                0));
+            }
+        }
 
         scanner.getNext();
 
@@ -880,20 +1732,18 @@ public class Parser {
         if (end instanceof ResultValue) {
             limit = (ResultValue) end;
         } else {
-            // TODO: 4/15/2021 cannot iterator over array in this loop
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use for char loop over array");
         }
 
-        if (limit.dataType != SubClassif.STRING) {
+        /*if (limit.dataType != SubClassif.STRING) {
             //TODO fix exception - limit type needs to be of a string
             throw new PickleException();
-        }
+        }*/
 
         ResultValue startValue = Utility.valueAtIndex(this, limit, 0); //set up iterating char value
 
         if (!scanner.currentToken.tokenStr.equals(":")) {
-            // TODO: fix exception - error for statement not ending in ':'
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ':', found");
         }
 
         //save off current position to loop
@@ -910,13 +1760,13 @@ public class Parser {
         Numeric nOp1, nOp2;
         nOp2 = new Numeric(this, incrementBy, "+", "Incrementing by value");
 
-        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
+        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T") &&
+                (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
             // evaluate loop statements
-            result = statements(true);
+            result = statements(execMode);
 
             if (!result.terminatingString.equals("endfor")) {
-                //TODO: fix exception - should be a for loop's terminating thingy
-                throw new PickleException();
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected 'endfor', found");
             }
 
             nOp1 = new Numeric(this, currPos, "+", "Incrementing char pos");
@@ -926,72 +1776,91 @@ public class Parser {
 
             if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
                 startValue = Utility.valueAtIndex(this, limit, Integer.parseInt(currPos.strValue)); //increment char value
-                storageManager.updateVariable(controlVar, startValue);
+                if (this.activationRecordStack.isEmpty()) {
+                    storageManager.updateVariable(controlVar, startValue);
+                }
+                else {
+                    int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+                    if (scope != -1)
+                        this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+                    else
+                        storageManager.updateVariable(controlVar, startValue);
+                }
             }
 
             scanner.setPosition(iSavedLineNr, iSavedColPos);
             scanner.getNext();
         }
 
-        result = statements(false);
+        result = statements(iExecMode.IGNORE_EXEC);
+        result.execMode = execMode;
 
         if (!result.terminatingString.equals("endfor")) {
-            //TODO: fix exception - end should be here
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected 'endfor', found");
         }
 
         if (!scanner.getNext().equals(";")) {
-            //TODO: fix exception - ; should be here
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ';', found");
         }
 
         return result;
     }
 
-    private ResultValue itemArrayFor(String controlVar) throws  PickleException {
-        STEntry entry = symbolTable.getSymbol(controlVar);
+    private ResultValue itemArrayFor(String controlVar, iExecMode execMode) throws  PickleException {
+        STEntry entry = this.symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        result.execMode = execMode;
+        ResultValue startValue; //set up iterating char value
+        ResultList limit;
 
-
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(controlVar);
+        }
 
         scanner.getNext();
 
-
         Result end = expr();
-        ResultList limit;
+
         if (end instanceof ResultList) {
             limit = (ResultList) end;
         } else {
             throw new PickleException();
         }
 
-
         if (entry.primClassif == Classif.EMPTY) {
-            symbolTable.putSymbol(controlVar,
-                    new STIdentifier(controlVar,
-                            Classif.OPERAND,
-                            limit.dataType, //TODO - ish
-                            "none",
-                            "local",
-                            0));
+            if (!this.activationRecordStack.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(
+                            controlVar,
+                            new STIdentifier(controlVar,
+                                    Classif.OPERAND,
+                                    limit.dataType,
+                                    "none",
+                                    "local",
+                                    0)
+                    );
+            } else {
+                symbolTable.putSymbol(controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                limit.dataType,
+                                "none",
+                                "local",
+                                0));
+            }
+        } else {
 
-
-        } else { //TODO - might need to fix this if too
-            //TODO fix exception - limit type needs to be the same as the array elements
-
-            STIdentifier id = (STIdentifier) symbolTable.getSymbol(controlVar);
+            //STIdentifier id = (STIdentifier) symbolTable.getSymbol(controlVar);
+            STIdentifier id = (STIdentifier) entry;
 
             if (limit.dataType != id.dclType) {
                 throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use variable of non " + limit.dataType.name() + " type");
             }
-
         }
 
-        ResultValue startValue = limit.getItem(this, 0); //set up iterating char value
-
         if (!scanner.currentToken.tokenStr.equals(":")) {
-            // TODO: fix exception - error for statement not ending in ':'
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ':', found");
         }
 
         //save off current position to loop
@@ -1019,15 +1888,24 @@ public class Parser {
             startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
         }
 
-        storageManager.updateVariable(controlVar, startValue);
+        if (this.activationRecordStack.isEmpty()) {
+            storageManager.updateVariable(controlVar, startValue);
+        }
+        else {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+            else
+                storageManager.updateVariable(controlVar, startValue);
+        }
 
-        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T")) {
+        while(Utility.lessThan(this, currPos, maxPos).strValue.equals("T") &&
+                (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
             // evaluate loop statements
-            result = statements(true);
+            result = statements(execMode);
 
             if (!result.terminatingString.equals("endfor")) {
-                //TODO: fix exception - should be a for loop's terminating thingy
-                throw new PickleException();
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected 'endfor', found");
             }
 
 
@@ -1049,73 +1927,229 @@ public class Parser {
                     startValue =  limit.getItem(this, Integer.parseInt(currPos.strValue));
                 }
 
-                if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue))
-                    storageManager.updateVariable(controlVar, startValue);
+                if (Integer.parseInt(currPos.strValue) < Integer.parseInt(maxPos.strValue)) {
+                    if (this.activationRecordStack.isEmpty()) {
+                        storageManager.updateVariable(controlVar, startValue);
+                    }
+                    else {
+                        int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+                        if (scope != -1)
+                            this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+                        else
+                            storageManager.updateVariable(controlVar, startValue);
+                    }
+                }
             }
 
             scanner.setPosition(iSavedLineNr, iSavedColPos);
             scanner.getNext();
         }
 
-        result = statements(false);
+        result = statements(iExecMode.IGNORE_EXEC);
+        result.execMode = execMode;
 
         if (!result.terminatingString.equals("endfor")) {
-            //TODO: fix exception - end should be here
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected 'endfor', found");
+        }
+
+        if (!scanner.getNext().equals(";")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ':', found");
+        }
+
+        return result;
+    }
+
+    private ResultValue stringDelimiterFor(String controlVar, iExecMode execMode) throws  PickleException {
+        STEntry entry = symbolTable.getSymbol(controlVar);
+
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(controlVar);
+        }
+
+
+        ResultValue result = new ResultValue("", SubClassif.EMPTY);
+        result.execMode = execMode;
+
+        if (entry.primClassif == Classif.EMPTY) {
+            if (!this.activationRecordStack.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(
+                        controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING,
+                                "none",
+                                "local",
+                                0)
+                );
+            } else {
+                symbolTable.putSymbol(controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.STRING,
+                                "none",
+                                "local",
+                                0));
+            }
+        }
+
+        scanner.getNext(); //skips the 'from' token
+
+        Result string = expr();
+
+        //string to tokenize err checking
+        if (!(string instanceof ResultValue)) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Variable to tokenize must be a String");
+        }
+        if (((ResultValue) string).dataType != SubClassif.STRING) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Variable to tokenize must be a String");
+        }
+
+        if (!scanner.currentToken.tokenStr.equals("by")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected \"by\", found " + scanner.currentToken.tokenStr);
+        }
+
+        scanner.getNext(); //skips the 'by' token
+
+        Result delimiter = expr();
+
+        if (delimiter instanceof ResultValue) {
+            if (((ResultValue) delimiter).dataType != SubClassif.STRING) {
+                delimiter = Utility.coerce(this,(ResultValue) delimiter, SubClassif.STRING);
+            }
+
+            if (((ResultValue) delimiter).dataType == SubClassif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot use empty string for delimiter");
+            }
+        } else {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid delimiter");
+        }
+
+
+
+        if (!scanner.currentToken.tokenStr.equals(":")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected \":\" found " + scanner.currentToken.tokenStr);
+        }
+
+        int iSavedLineNr = scanner.currentToken.iSourceLineNr;
+        int iSavedColPos = scanner.currentToken.iColPos;
+
+        String s = ((ResultValue) string).strValue;
+        String d = ((ResultValue) delimiter).strValue;
+
+        String[] tokens = s.split(d);
+
+        ResultValue limit = new ResultValue(Integer.toString(tokens.length), SubClassif.INTEGER);
+        ResultValue itr = new ResultValue("0", SubClassif.INTEGER);
+
+        ResultValue update = new ResultValue(tokens[0], SubClassif.STRING);
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+
+            if (scope != -1)
+                this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, update);
+            else
+                this.storageManager.updateVariable(controlVar, update);
+        } else {
+            this.storageManager.updateVariable(controlVar, update);
+        }
+
+        Numeric nOp1;
+        Numeric nOp2 = new Numeric(this, new ResultValue("1", SubClassif.INTEGER), "+", "Incrementer for the for loop");
+
+        while (Utility.lessThan(this, itr, limit).strValue.equals("T") &&
+                (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
+
+            update =  new ResultValue(tokens[Integer.parseInt(itr.strValue)], SubClassif.STRING);
+
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+
+                if (scope != -1)
+                    this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, update);
+                else
+                    this.storageManager.updateVariable(controlVar, update);
+            } else {
+                this.storageManager.updateVariable(controlVar, update);
+            }
+
+            result = statements(execMode);
+
+            if (!result.terminatingString.equals("endfor")) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected 'endfor', found");
+            }
+
+            nOp1 = new Numeric(this, itr, "+", "Incrementing itr");
+            itr = Utility.add(this, nOp1, nOp2);
+
+            scanner.setPosition(iSavedLineNr, iSavedColPos);
+            scanner.getNext();
+        }
+
+        result = statements(iExecMode.IGNORE_EXEC);
+        result.execMode = execMode;
+
+        if (!result.terminatingString.equals("endfor")) {
             throw new PickleException();
         }
 
         if (!scanner.getNext().equals(";")) {
-            //TODO: fix exception - ; should be here
             throw new PickleException();
         }
 
         return result;
     }
 
-
-
-    private ResultValue stringDelimiterFor(String controlVar) throws  PickleException {
+    private ResultValue countingFor(String controlVar, iExecMode execMode) throws PickleException {
         STEntry entry = symbolTable.getSymbol(controlVar);
         ResultValue result = new ResultValue("", SubClassif.EMPTY);
-        //TODO function body
-        return result;
-    }
-
-    private ResultValue countingFor(String controlVar) throws PickleException {
-        STEntry entry = symbolTable.getSymbol(controlVar);
-        ResultValue result;
+        result.execMode = execMode;
         ResultValue startValue;
         ResultValue limit;
         ResultValue incrementBy = new ResultValue("1", SubClassif.INTEGER);
 
-
-        if (entry.primClassif == Classif.EMPTY) {
-            symbolTable.putSymbol(controlVar,
-                    new STIdentifier(controlVar,
-                            Classif.OPERAND,
-                            SubClassif.INTEGER,
-                            "none",
-                            "local",
-                            0));
-
-
+        if (!this.activationRecordStack.isEmpty()) {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(controlVar);
         }
 
+        if (entry.primClassif == Classif.EMPTY) {
+            if (!this.activationRecordStack.isEmpty()) {
+                this.activationRecordStack.peek().symbolTable.putSymbol(
+                        controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.INTEGER,
+                                "none",
+                                "local",
+                                0)
+                );
+            } else {
+                symbolTable.putSymbol(controlVar,
+                        new STIdentifier(controlVar,
+                                Classif.OPERAND,
+                                SubClassif.INTEGER,
+                                "none",
+                                "local",
+                                0));
+            }
+        }
 
         scanner.getNext();
         
         if (scanner.currentToken.primClassif != Classif.OPERAND &&
                 (scanner.currentToken.subClassif != SubClassif.FLOAT || scanner.currentToken.subClassif != SubClassif.INTEGER)) {
-            // TODO: 4/13/2021 parser error since assigning non-numeric
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Error attempted to assign non-numeric");
         }
 
         try {
             startValue = (ResultValue) expr();
 
             if (!scanner.currentToken.tokenStr.equals("to")) {
-                // TODO: 4/13/2021 parser error incorrect for setup
-                throw new PickleException();
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected 'to', found");
             }
 
             scanner.getNext();
@@ -1141,19 +2175,27 @@ public class Parser {
         ResultValue zero =  new ResultValue("0", SubClassif.INTEGER);
 
         if (Utility.lessThan(this, incrementBy, zero).strValue.equals("T")) {
-            // TODO: 4/13/2021 throw less than zero error
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Increment must be positive integer");
         }
 
 
         if (!scanner.currentToken.tokenStr.equals(":")) {
-            // TODO: 4/13/2021 parse error for statement not ending in ':'
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ':', found");
         }
         int iSavedLineNr = scanner.currentToken.iSourceLineNr;
         int iSavedColPos = scanner.currentToken.iColPos;
 
-        storageManager.updateVariable(controlVar, startValue);
+        if (this.activationRecordStack.isEmpty()) {
+            storageManager.updateVariable(controlVar, startValue);
+        }
+        else {
+            int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+            if (scope != -1)
+                this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+            else
+                storageManager.updateVariable(controlVar, startValue);
+        }
+
 
         Numeric nOp1;
         Numeric nOp2;
@@ -1161,50 +2203,177 @@ public class Parser {
         nOp2 = new Numeric(this, incrementBy, "+", "Incrementing by value");
 
 
-
-
-
-        while (Utility.lessThan(this, startValue, limit).strValue.equals("T")) {
+        while (Utility.lessThan(this, startValue, limit).strValue.equals("T") &&
+                (result.execMode == iExecMode.EXECUTE || result.execMode == iExecMode.CONTINUE_EXEC)) {
             // evaluate statments
-            result = statements(true);
+            result = statements(execMode);
 
             if (!result.terminatingString.equals("endfor")) {
-                // TODO: 4/13/2021 throw parser error for loop didn't end in endfor
-                throw new PickleException();
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected 'endfor', found");
             }
 
             nOp1 = new Numeric(this, startValue, "+", "Incrementing startValue");
 
 
             startValue = Utility.add(this, nOp1, nOp2);
-            storageManager.updateVariable(controlVar, startValue);
+
+            if (this.activationRecordStack.isEmpty()) {
+                storageManager.updateVariable(controlVar, startValue);
+            }
+            else {
+                int scope = this.activationRecordStack.peek().findSymbolScope(controlVar);
+                if (scope != -1)
+                    this.activationRecordStack.peek().environmentVector.get(scope).storageManager.updateVariable(controlVar, startValue);
+                else
+                    storageManager.updateVariable(controlVar, startValue);
+            }
 
             scanner.setPosition(iSavedLineNr, iSavedColPos);
             scanner.getNext();
         }
 
-        result= statements(false);
+        // get rest of for loop body
+        // consume whether break or continue hit and pass execMode out to caller
+        result = statements(iExecMode.IGNORE_EXEC);
+        result.execMode = execMode;
 
         if (!result.terminatingString.equals("endfor")) {
-            // TODO: 4/13/2021 throw error
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected 'endfor', found");
         }
 
         if (!scanner.getNext().equals(";")) {
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ';', found");
         }
 
         return result;
 
     }
 
+    private ResultValue inNotIn() throws PickleException {
+        ResultValue res = new ResultValue("", SubClassif.EMPTY);
+        if (scanner.currentToken.primClassif != Classif.OPERAND && scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected Identifier found " + scanner.currentToken.tokenStr);
+        }
+        STEntry entry;
+        Result value;
+
+        if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
+            String identifier = scanner.currentToken.tokenStr;
+
+            entry = this.symbolTable.getSymbol(identifier);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(identifier);
+                if (scope != -1)
+                    entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(identifier);
+            }
+
+            if (entry.primClassif == Classif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Identifier not found");
+            }
+
+            if (!(entry instanceof STIdentifier)) {
+                throw new PickleException();
+            }
+
+            value = this.storageManager.getVariable(identifier);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(identifier);
+                if (scope != -1)
+                    value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(identifier);
+            }
+
+            if (!(value instanceof ResultValue)) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected primitive, found");
+            }
+        } else {
+            value = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
+        }
+
+        String inORout = scanner.getNext(); // set string for later utility usage
+
+        if (!inORout.equals("IN") && !inORout.equals("NOTIN")) {
+            throw new PickleException();
+        }
+
+        scanner.getNext();
+
+        ResultList list = new ResultList(this, new ArrayList<ResultValue>(), 0, scanner.nextToken.subClassif);
+        ArrayList<ResultValue> arrayList = new ArrayList<ResultValue>();
+
+        if (scanner.currentToken.primClassif == Classif.OPERAND && scanner.currentToken.subClassif == SubClassif.IDENTIFIER && !scanner.currentToken.tokenStr.equals("{")) { //TODO '{' is OPERAND IDENTIFIER?
+            entry = this.symbolTable.getSymbol(scanner.currentToken.tokenStr);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(scanner.currentToken.tokenStr);
+                if (scope != -1)
+                    entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(scanner.currentToken.tokenStr);
+            }
+
+            if (entry.primClassif == Classif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "valueList not initialized");
+            }
+
+            Result l = this.storageManager.getVariable(entry.symbol);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(entry.symbol);
+                if (scope != -1)
+                    l = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(entry.symbol);
+            }
+
+            if (l instanceof ResultValue) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "value must be a list");
+            }
+            else if (l instanceof ResultList) {
+                list = (ResultList) l;
+            }
+            else {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "value must be a list");
+            }
+
+        }
+        else if (!scanner.currentToken.tokenStr.equals("{")) {
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected start of list (\"{\") found");
+        }
+        else {
+            //now we hit that list bby
+            //loop through 'em
+            while (!scanner.currentToken.tokenStr.equals("}")) {
+                scanner.getNext();
+
+                if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != list.dataType) {
+                    throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "List element data type conflict");
+                }
+
+                arrayList.add(new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif));
+
+                scanner.getNext();
+            }
+
+            list.arrayList = arrayList;
+            list.allocatedSize = arrayList.size();
+            list.capacity = arrayList.size();
+        }
+        if (inORout.equals("IN")) {
+            res = Utility.builtInIN(this, (ResultValue) value, list);
+        }
+        else {
+            res = Utility.builtInNOTIN(this, (ResultValue) value, list);
+        }
+
+        scanner.getNext(); //skip to the ':' token
+
+        return res;
+    }
+
     private ResultValue evalCond() throws PickleException {
-
-
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
         scanner.getNext();
         try {
-            res = (ResultValue) expr();
+            if (scanner.nextToken.tokenStr.equals("IN") || scanner.nextToken.tokenStr.equals("NOTIN")) {
+                res = inNotIn();
+            }
+            else {
+                res = (ResultValue) expr();
+            }
         } catch (PickleException p) {
             throw p;
         } catch (Exception e) {
@@ -1227,12 +2396,12 @@ public class Parser {
      */
     public void run() throws PickleException {
         while (hasNext()) {
-            getNext();
+            getNext(iExecMode.EXECUTE);
         }
     }
 
     /**
-     * Helper function to get declared type for identifer
+     * Helper function to get declared type for identifier
      * <p></p>
      *
      * @param declareString
@@ -1251,8 +2420,10 @@ public class Parser {
                 return SubClassif.STRING;
             case "Date":
                 return SubClassif.DATE;
+            case "Void":
+                return SubClassif.VOID;
             default:
-                throw new PickleException();
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid Declaration type");
         }
     }
 }

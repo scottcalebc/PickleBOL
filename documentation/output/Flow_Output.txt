@@ -1,0 +1,95 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - Flow_if.txt
+True 
+False 
+
+
+Testing File: 2 - Flow_while.txt
+0 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+
+
+Testing File: 3 - Flow_for_char_in_string.txt
+I 
+  
+a 
+m 
+  
+S 
+t 
+r 
+i 
+n 
+g 
+
+
+Testing File: 4 - Flow_for_item_in_array.txt
+23.454 
+0.213 
+
+
+Testing File: 5 - Flow_for_string_delimiter.txt
+Hi 
+Prof. 
+Clark 
+Hi Prof. Clark 
+
+
+Testing File: 6 - Flow_for_sv_to_ev.txt
+0 
+1 
+2 
+3 
+4 
+---- 
+0 
+2 
+4 
+
+
+Testing File: 7 - Flow_select.txt
+5, 4, 3, 2, 1 
+default 
+-1 
+5, 4, 3, 2, 1 
+
+
+Testing File: 8 - Flow_break.txt
+before break 
+2 
+0 
+1 
+2 
+0 
+1 
+2 
+3 
+
+
+Testing File: 9 - Flow_continue.txt
+before continue 
+2 
+4 
+5 
+0 
+1 
+2 
+4 
+0 
+1 
+2 
+3 
+
+
+tests done for: tests/Flow

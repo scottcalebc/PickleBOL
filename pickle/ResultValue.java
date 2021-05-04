@@ -10,6 +10,7 @@ public class ResultValue implements Result {
     public SubClassif dataType;
     public String strValue;
     public String terminatingString;
+    public iExecMode execMode;
 
     public ResultValue(String strValue, SubClassif dataType)
     {

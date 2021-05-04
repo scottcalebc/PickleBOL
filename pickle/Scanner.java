@@ -6,9 +6,9 @@ import java.util.Arrays;
 
 public class Scanner {
 
-    private final static String delimiters = " \t:;()'\"=!<>+-*/[]#,^\n";   // Terminate a token
-    private final static String operators = "+-*/<>=!^#";                   // All operators
-    private final static String separators = "(),:;[]";                     // All seperators
+    private final static String delimiters = " \t:;()'\"=!<>+-*/[]#~,^\n{}";   // Terminate a token
+    private final static String operators = "+-*/<>=!^#~";                   // All operators
+    private final static String separators = "(),:;[]{}";                     // All seperators
 
     protected ArrayList<String> sourceLineM;                                // List of all source file lines
     protected char[]            textCharM;                                  // Char array of current source line
@@ -371,7 +371,9 @@ public class Scanner {
      */
     public String classifyPrimary(String tokenStr) throws ScannerParserException
     {
-        STEntry entry = symbolTable.getSymbol(tokenStr);
+        STEntry entry = this.symbolTable.getSymbol(tokenStr);
+
+
         if (separators.contains(tokenStr))
         {
             nextToken.primClassif = Classif.SEPARATOR;
@@ -390,7 +392,7 @@ public class Scanner {
 
         else if ( operators.contains(tokenStr) )
         {
-            if (iColPos < textCharM.length && operators.indexOf(textCharM[iColPos]) > 0) {
+            if (!tokenStr.equals("~") && !tokenStr.equals("#") && iColPos < textCharM.length && operators.indexOf(textCharM[iColPos]) > 0) {
                 tokenStr += textCharM[iColPos++];
             }
 
@@ -490,6 +492,9 @@ public class Scanner {
 
     public void classifyOperator(String tokenStr) {
         switch (tokenStr) {
+            case "~":
+                nextToken.operatorPrecedence = OperatorPrecedence.SLICE;
+                break;
             case "-":
                 if (currentToken.primClassif != Classif.OPERAND && !currentToken.tokenStr.equals(")") && !currentToken.tokenStr.equals("]")) {
                     nextToken.operatorPrecedence = OperatorPrecedence.UNARYMINUS;
@@ -522,8 +527,8 @@ public class Scanner {
             case ">=":
             case "==":
             case "!=":
-            case "in":
-            case "notin":
+            case "IN":
+            case "NOTIN":
                 nextToken.operatorPrecedence = OperatorPrecedence.BOOLEANOPS;
 
                 break;

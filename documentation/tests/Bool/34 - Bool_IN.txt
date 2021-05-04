@@ -1,0 +1,8 @@
+Bool b = T;
+Bool arr[] = T, F, T, F;
+if b IN {F, T, F, F}:
+	print("b is IN list");
+endif;
+if b IN arr:
+	print("b is IN arr");
+endif;

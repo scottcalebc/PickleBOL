@@ -1,0 +1,156 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - Date_declaration.txt
+1999-12-01 
+
+
+Testing File: 2 - Date_assignment.txt
+2021-03-05 
+
+
+Testing File: 3 - Date_var_equal_to_Date_const_operation.txt
+True (d == "1995-05-05") 
+
+
+Testing File: 4 - Date_var_equal_to_Date_var_operation.txt
+True (d == d) 
+
+
+Testing File: 5 - Date_const_not_equal_to_Date_const_operation.txt
+True ("1999-12-12" != "1995-05-05") 
+
+
+Testing File: 6 - Date_var_not_equal_to_Date_const_operation.txt
+True (d != "1992-05-03") 
+
+
+Testing File: 7 - Date_var_not_equal_to_Date_var_operation.txt
+True (d != c) 
+
+
+Testing File: 8 - Date_const_not_equal_to_Date_const_operation.txt
+True ("1999-12-12" != "1995-05-05") 
+
+
+Testing File: 9 - Date_var_less_than_Date_const_operation.txt
+True (d < "2002-02-02") 
+
+
+Testing File: 10 - Date_var_less_than_Date_var_operation.txt
+True (d < c) 
+
+
+Testing File: 11 - Date_const_less_than_Date_const_operation.txt
+True ("1999-12-12" < "2000-01-01") 
+
+
+Testing File: 12 - Date_var_greater_than_Date_const_operation.txt
+True (d > "1992-05-03") 
+
+
+Testing File: 13 - Date_var_greater_than_Date_var_operation.txt
+True (c > d) 
+
+
+Testing File: 14 - Date_const_greater_than_Date_const_operation.txt
+True ("1999-12-12" > "1995-05-05") 
+
+
+Testing File: 15 - Date_var_less_than_or_equal_Date_const_operation.txt
+True (d <= "1995-05-05") 
+True (d <= "2002-02-02") 
+
+
+Testing File: 16 - Date_var_less_than_or_equal_Date_var_operation.txt
+True (d <= c) 
+True (d <= d) 
+
+
+Testing File: 17 - Date_const_less_than_or_equal_Date_const_operation.txt
+True ("1999-12-12" <= "2000-01-01") 
+True ("1999-12-12" <= "1999-12-12") 
+
+
+Testing File: 18 - Date_var_greater_than_or_equal_Date_const_operation.txt
+True (d >= "1995-05-05") 
+True (d >= "1992-05-03") 
+
+
+Testing File: 19 - Date_var_greater_than_or_equal_Date_var_operation.txt
+True (c >= d) 
+True (d >= d) 
+
+
+Testing File: 20 - Date_const_greater_than_or_equal_Date_const_operation.txt
+True ("1999-12-12" >= "1995-05-05") 
+True ("1999-12-12" >= "1999-12-12") 
+
+
+Testing File: 21 - Date_array_subscripting.txt
+2001-01-01 
+
+
+Testing File: 22 - Date_logical_and.txt
+True (d == "2020-01-02" and d2 == "2021-03-03") 
+
+
+Testing File: 23 - Date_logical_or.txt
+True (d == "2020-01-02" or d2 == "2021-03-03") 
+True (d == "2020-01-02" or d2 == "1990-03-03") 
+
+
+Testing File: 24 - Date_logical_not.txt
+True (not d != "2012-12-12") 
+
+
+Testing File: 25 - Date_select.txt
+"2006-04-12" 
+
+
+Testing File: 26 - Date_for_item_array.txt
+1999-01-01 
+2000-01-01 
+2001-01-01 
+2002-01-01 
+
+
+Testing File: 27 - Date_while.txt
+3 
+2 
+1 
+0 
+
+
+Testing File: 28 - Date_date_diif.txt
+-8352 
+
+
+Testing File: 29 - Date_date_adj.txt
+2000-01-07 
+
+
+Testing File: 30 - Date_date_age.txt
+-23 
+
+
+Testing File: 31 - Date_IN.txt
+
+
+Testing File: 31 - Date_NOTIN.txt
+d is NOTIN list 
+D is NOTIN arr 
+new D is NOTIN arr 
+
+
+Testing File: 32 - Date_parameter.txt
+Before function: x= 2021-01-01 y= 2021-01-01 z= 2021-01-01 
+After function: x= 2000-01-01 y= 2021-01-01 z= 2000-01-01 
+
+
+Testing File: 33 - Date_returning.txt
+2003-01-12 
+
+
+tests done for: tests/Date

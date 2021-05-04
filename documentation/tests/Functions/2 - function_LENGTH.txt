@@ -1,0 +1,4 @@
+String str = "lukeissogoodatwritingtests";
+String str2 = "lukeisalrightatwritingtests";
+print(LENGTH(str));
+print(LENGTH(str2));

@@ -1,0 +1,3 @@
+String str1 = "King";
+print("Burger " # str1);  // Burger King
+print("School " # "Bus"); // School Bus

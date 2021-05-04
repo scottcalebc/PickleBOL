@@ -1,0 +1,196 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - String_Declaration.txt
+
+
+Testing File: 2 - String_Initialization_from_String_Constant_Double_Quotes.txt
+String from 'test string': test string 
+
+
+Testing File: 3 - String_Initialization_from_String_Constant_Single_Quotes.txt
+String from 'test string': test string 
+
+
+Testing File: 4 - String_Initialization_from_Numeric_Constant_Int.txt
+String from 1: 1 
+
+
+Testing File: 5 - String_Initialization_from_Numeric_Constant_Int_Var.txt
+String from iVal: 10 
+
+
+Testing File: 6 - String_Initialization_from_Numeric_Constant_Float.txt
+String from 4.4: 4.4 
+
+
+Testing File: 7 - String_Initialization_from_Numeric_Constant_Float_Var.txt
+String from fVal: 4.0 
+
+
+Testing File: 8 - String_Initialization_from_Date_Var.txt
+String from dataVal: 1993-01-01 
+
+
+Testing File: 9 - String_Initialization_from_Bool_Var.txt
+String from bVal: T 
+
+
+Testing File: 10 - String_Initialization_from_StringConst_StringConst_Concat.txt
+String from 'some' # 'body': Somebody 
+
+
+Testing File: 11 - String_Initialization_from_StringConst_StringVar_Concat.txt
+String from 'some' # strVal1:'information' : Someinformation 
+
+
+Testing File: 12 - String_Initialization_from_StringVar_StringVar_Concat.txt
+String from strVal2:'this' # strVal1:'information' : thisinformation 
+
+
+Testing File: 13 - String_Initialization_from_StringConst_IntConst_Concat.txt
+String from 'some' # 1 : Some1 
+
+
+Testing File: 14 - String_Initialization_from_StringConst_IntVar_Concat.txt
+String from 'some' # iVal:120 : Some120 
+
+
+Testing File: 15 - String_Initialization_from_StringVar_IntConst_Concat.txt
+String from strVal1 # 1235 : information1235 
+
+
+Testing File: 16 - String_Initialization_from_StringVar_IntVar_Concat.txt
+String from 'some' # strVal1:'information' : information728 
+
+
+Testing File: 17 - String_Initialization_from_String_Slice_Lower_Bound_Only.txt
+String from slice, should be 'bell': bell 
+
+
+Testing File: 18 - String_Initialization_from_String_Slice_Upper_Bound_Only.txt
+String from slice, should be 'taco': taco 
+
+
+Testing File: 19 - String_Initialization_from_String_Slice_Lower_Upper_Bound.txt
+String from slice, should be 'I don't feel well':  I don't fee 
+
+
+Testing File: 20 - String_Slice_Assignment_from_Lower_Bound_Only.txt
+Line 2 Expression must be scalar value: '=', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/20 - String_Slice_Assignment_from_Lower_Bound_Only.txt
+	at pickle.Parser.assignmentStmt(Parser.java:517)
+	at pickle.Parser.getNext(Parser.java:65)
+	at pickle.Parser.run(Parser.java:2393)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 21 - String_Slice_Assignment__from_Upper_Bound_Only.txt
+String into slice, should be 'schoolbell': schoolbell 
+
+
+Testing File: 22 - String_Slice_Assignment_from_Lower_Upper_Bound.txt
+String into slice, should be 'The seats on the bus': The seats on the bus 
+
+
+Testing File: 23 - String_Array_Initialization_from_String_Constant.txt
+String array from strings: string 1 string 2 string 3 string 4 
+
+
+Testing File: 24 - String_Array_Initialization_from_Numeric_Constant_Int.txt
+String array from ints: 1 2 3 4 
+
+
+Testing File: 25 - String_Array_Initialization_from_Numeric_Constant_Float.txt
+String array from floats: 1.0 2.1 3.2 4.3 
+
+
+Testing File: 26 - StringVar_Equal_To_StringVar.txt
+String comparison should be True, 'some' == 'some' : T 
+
+
+Testing File: 27 - StringVar_Equal_To_StringConst.txt
+String comparison should be True, strVal == 'Clark' : T 
+
+
+Testing File: 28 - StringConst_Equal_To_StringVar.txt
+String comparison should be True, 'Maynard' == strVal : T 
+
+
+Testing File: 29 - StringConst_Equal_To_StringConst.txt
+String comparison should be True, 'Clark' == 'Clark' : T 
+
+
+Testing File: 30 - StringVar_NotEqual_To_StringConst.txt
+String comparison should be True, strVal == 'Clark' : F 
+
+
+Testing File: 31 - StringConst_NotEqual_To_StringVar.txt
+String comparison should be True, 'Maynard' == strVal : T 
+
+
+Testing File: 32 - StringConst_NotEqual_To_StringConst.txt
+String comparison should be True, 'Clark' == 'Clark' : T 
+
+
+Testing File: 33 - String_Constant_IN_String_Array.txt
+Line 2 Expected Identifier found Clark: 'Clark', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/33 - String_Constant_IN_String_Array.txt
+	at pickle.Parser.inNotIn(Parser.java:2255)
+	at pickle.Parser.evalCond(Parser.java:2366)
+	at pickle.Parser.ifStmt(Parser.java:1533)
+	at pickle.Parser.controlStmt(Parser.java:122)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2393)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 34 - String_Var_IN_String_Array.txt
+String in array, strName in strVal 
+
+
+Testing File: 35 - String_Constant_IN_String_List.txt
+Line 1 Expected Identifier found Clark: 'Clark', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/35 - String_Constant_IN_String_List.txt
+	at pickle.Parser.inNotIn(Parser.java:2255)
+	at pickle.Parser.evalCond(Parser.java:2366)
+	at pickle.Parser.ifStmt(Parser.java:1533)
+	at pickle.Parser.controlStmt(Parser.java:122)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2393)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 36 - String_Var_IN_String_List.txt
+String in array, strName in strVal 
+
+
+Testing File: 37 - String_Constant_NOTIN_String_Array.txt
+Line 2 Expected Identifier found Ortiz: 'Ortiz', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/37 - String_Constant_NOTIN_String_Array.txt
+	at pickle.Parser.inNotIn(Parser.java:2255)
+	at pickle.Parser.evalCond(Parser.java:2366)
+	at pickle.Parser.ifStmt(Parser.java:1533)
+	at pickle.Parser.controlStmt(Parser.java:122)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2393)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 38 - String_Var_NOTIN_String_Array.txt
+String in array, strName in strVal 
+
+
+Testing File: 39 - String_Constant_NOTIN_String_List.txt
+Line 1 Expected Identifier found Ortiz: 'Ortiz', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/39 - String_Constant_NOTIN_String_List.txt
+	at pickle.Parser.inNotIn(Parser.java:2255)
+	at pickle.Parser.evalCond(Parser.java:2366)
+	at pickle.Parser.ifStmt(Parser.java:1533)
+	at pickle.Parser.controlStmt(Parser.java:122)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2393)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 40 - String_Var_NOTIN_String_List.txt
+String in array, strName in strVal 
+
+
+tests done for: tests/String

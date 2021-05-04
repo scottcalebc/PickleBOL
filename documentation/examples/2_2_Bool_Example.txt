@@ -1,0 +1,3 @@
+Bool bFlag;
+bFlag = T;
+print(bFlag); // T

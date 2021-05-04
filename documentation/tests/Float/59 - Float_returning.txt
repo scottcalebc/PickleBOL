@@ -1,0 +1,5 @@
+def Float checkFloatReturn(Float x, Float y):
+    return x + y;
+enddef;
+Float fVal = checkFloatReturn(2.0, 3.0);
+print("Checking for returned float:", fVal);

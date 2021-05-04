@@ -1,0 +1,2 @@
+String strVal = 4.4;
+print("String from 4.4:", strVal);

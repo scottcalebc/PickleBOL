@@ -1,0 +1,7 @@
+Bool b = T;
+if b == T:
+	print("True (b == T)");
+endif;
+if b == F:
+	print("True (b == F)");
+endif;

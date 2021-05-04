@@ -1,0 +1,11 @@
+def Void testBoolParameters(Bool a, Value Bool b, Ref Bool c):
+	a = T;
+	b = T;
+	c = T;
+enddef;
+Bool x = F;
+Bool y = F;
+Bool z = F;
+print("Before function: x=", x, "y=", y, "z=", z);
+testBoolParameters(x, y, z);
+print("After function: x=", x, "y=", y, "z=", z);

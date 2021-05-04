@@ -1,0 +1,9 @@
+Int i = 0;
+Int j = 0;
+Int k = 1;
+if i == j:
+	print("Equal (i == j)");
+endif;
+if i == k:
+	print("Equal (i == k)");
+endif;

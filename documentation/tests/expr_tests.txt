@@ -1,0 +1,32 @@
+// 1 - Expression_simple
+print(5 + 2 / 2);
+
+// 2 - Expression_simple_with_fuction
+def Int add2(Int x):
+	return x + 2;
+enddef;
+
+print(5 + add2(2) / 2);
+
+// 3 - Expression_complex
+print((5 * 4 / 2)^2 * 2 - -5);
+
+// 4 - Expression_complex_with_function
+def Int divide2(Int x):
+	return x / 2;
+enddef;
+
+print(divide2((5 * 4 / 2)^2) * 2 - -5);
+
+// 5 - Expression_nested_function_calls
+def Int multiply2(Int x):
+	return x * 2;
+enddef;
+
+print(2 * multiply2(multiply2(2)));
+
+// 6 - Expression_simple_boolean
+print((T or F) and T);
+
+// 7 - Expression_complex_boolean
+print(not (F and F or T and F) or F != F and T);

@@ -1,0 +1,2 @@
+Date d = "1999-02-27";
+print(dateAdj(d, 10));

@@ -1,0 +1,4 @@
+Int i;
+i = 5;
+Int j = 2;
+print(i, j);

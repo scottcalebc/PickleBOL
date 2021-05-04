@@ -1,0 +1,2 @@
+Int arr[3 = 2, 3, 4;
+print(arr);

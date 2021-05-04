@@ -14,11 +14,15 @@ public class ResultList implements Result
     ArrayList<ResultValue> arrayList;   // List of ResultValues
     int capacity;                       // capacity of Array
     int allocatedSize;                  // currently used size of Array
+    boolean unbounded;                  // flag for unbounded Array, T = unbounded
 
     /**
      * Constructs an Array of ResultValues as a ResultList object.
      *
      * <p> Will verify that all ResultValues are Homogeneous.
+     *
+     * <p> If size is -1 array is treated as unbounded.
+     *     Unbounded arrays capacity and allocated size will always match.
      *
      * @param parser    Parser object
      * @param arrayList ArrayList of ResultValues to store as ResultList
@@ -31,7 +35,8 @@ public class ResultList implements Result
         // Verify that all items in the given list share the same data type
         checkHomogeneous(parser, arrayList, dataType);
         // Store the provided items into this ResultList object.
-        this.capacity = size;
+        unbounded = size == -1;
+        this.capacity = unbounded ? arrayList.size() : size;
         this.allocatedSize = arrayList.size();
         this.dataType = dataType;
         this.arrayList = arrayList;
@@ -41,12 +46,17 @@ public class ResultList implements Result
 
     @Override
     public String toString() {
+        String arrayListString = "";
+        for(int i = 0; i < capacity; i++) {
+            arrayListString += "\n\t\t" + arrayList.get(i).toString();
+        }
+
         return "ResultList{" +
-                "dataType=" + dataType +
-                ", arrayList=" + arrayList +
-                ", capacity=" + capacity +
-                ", allocatedSize=" + allocatedSize +
-                '}';
+                "\n\tdataType=" + dataType +
+                ", \n\tarrayList=" + arrayListString +
+                ", \n\tcapacity=" + capacity +
+                ", \n\tallocatedSize=" + allocatedSize +
+                "\n}";
     }
 
     /**
@@ -68,8 +78,9 @@ public class ResultList implements Result
         // throw error if index is out of bounds.
         if (normalizedIndex > this.capacity-1)
         {
+            parser.scanner.currentToken.tokenStr = String.valueOf(index);
             throw new ResultListException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
-                                     "Array index Out of Bounds.");
+                                     "Array index Out of Bounds");
         }
         return arrayList.get(normalizedIndex);
     }
@@ -92,15 +103,25 @@ public class ResultList implements Result
         if (index < 0) normalizedIndex = normalizeIndex(parser, index);
         else normalizedIndex = index;
         // throw error if index is out of bounds.
-        if (normalizedIndex > this.capacity-1)
+        if (normalizedIndex > capacity-1 && !unbounded)
         {
             throw new ResultListException(parser.scanner.currentToken, parser.scanner.sourceFileNm,
                     "Array index Out of Bounds.");
         }
         // Assign the ResultValue to the given index
-        this.arrayList.set(normalizedIndex, value);
+        // unbounded arrays can have values set beyond the allocated size, increasing the capacity as needed.
+        if (normalizedIndex > capacity-1 && unbounded)
+        {
+            // update capacity of array, is new index + 1
+            capacity = normalizedIndex + 1;
+            // add new empty values to fill any newly created empty spaces
+            fillEmptyValues(parser);
+            // set the value at the index given
+        }
+        arrayList.set(normalizedIndex, value);
+
         // Verify the ResultList
-        checkHomogeneous(parser, this.arrayList, this.dataType);
+        checkHomogeneous(parser, arrayList, dataType);
         // Update the ResultLists allocated size
         updateAllocatedSize(parser);
         // Return this ResultList with the newly assigned Value
@@ -165,7 +186,8 @@ public class ResultList implements Result
      */
     private void fillEmptyValues(Parser parser) throws ResultListException
     {
-        if (allocatedSize == capacity) return;
+        // do nothing if array is full, unless it is unbounded
+        if (allocatedSize == capacity && !unbounded) return;
         ResultValue emptyValue = new ResultValue("", SubClassif.EMPTY);
         while(arrayList.size() != capacity)
         {

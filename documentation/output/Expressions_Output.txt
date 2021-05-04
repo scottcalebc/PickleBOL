@@ -1,0 +1,33 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - Expression_simple.txt
+6 
+
+
+Testing File: 2 - Expression_simple_with_fuction.txt
+4 
+
+
+Testing File: 3 - Expression_complex.txt
+205 
+
+
+Testing File: 4 - Expression_complex_with_function.txt
+105 
+
+
+Testing File: 5 - Expression_nested_function_calls.txt
+16 
+
+
+Testing File: 6 - Expression_simple_boolean.txt
+T 
+
+
+Testing File: 7 - Expression_complex_boolean.txt
+T 
+
+
+tests done for: tests/Expressions

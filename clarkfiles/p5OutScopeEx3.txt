@@ -1,0 +1,3 @@
+p5ScopeEx3.txt 
+funcA: 110 210 400 
+funcB: 115 215 305 

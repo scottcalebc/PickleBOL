@@ -1,0 +1,11 @@
+p5FuncUser.txt 
+before minMax 
+inside minMax, fMax= 65.0 fMin= 35.0 
+outside Max= 65.0 Min= 35.0 
+inside max2 1 2 
+i1= 1 i2= 2 max2(i1,i2)= 2 
+inside max2 5 3 
+str1= hello LENGTH(str1)= 5 ELEM(fArrM)= 3 max2= 5 
+weird first 5 7 
+weird second 15 17 
+after weird 15 7 
