@@ -401,7 +401,9 @@ public class Parser {
         }
 
         String varStr = scanner.currentToken.tokenStr;
-
+        Token varToken = scanner.currentToken;
+        String assignStr = scanner.getNext();
+        
         STEntry entry = symbolTable.getSymbol(scanner.currentToken.tokenStr);
 
 
