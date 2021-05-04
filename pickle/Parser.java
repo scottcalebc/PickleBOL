@@ -585,8 +585,7 @@ public class Parser {
             }
         }
         else if (scanner.currentToken.tokenStr.equals("[")) { //arr index assignment
-
-            scanner.getNext();
+            
             val = (ResultValue) expr(); //get index of array
 
             if (!scanner.currentToken.tokenStr.equals("=")) {
