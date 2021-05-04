@@ -2252,36 +2252,42 @@ public class Parser {
 
     private ResultValue inNotIn() throws PickleException {
         ResultValue res = new ResultValue("", SubClassif.EMPTY);
-        if (scanner.currentToken.primClassif != Classif.OPERAND || scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
+        if (scanner.currentToken.primClassif != Classif.OPERAND && scanner.currentToken.subClassif != SubClassif.IDENTIFIER) {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected Identifier found " + scanner.currentToken.tokenStr);
         }
+        STEntry entry;
+        Result value;
 
-        String identifier = scanner.currentToken.tokenStr;
+        if (scanner.currentToken.subClassif == SubClassif.IDENTIFIER) {
+            String identifier = scanner.currentToken.tokenStr;
 
-        STEntry entry = this.symbolTable.getSymbol(identifier);
-        if (!this.activationRecordStack.isEmpty()) {
-            int scope = this.activationRecordStack.peek().findSymbolScope(identifier);
-            if (scope != -1)
-                entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(identifier);
-        }
+            entry = this.symbolTable.getSymbol(identifier);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(identifier);
+                if (scope != -1)
+                    entry = this.activationRecordStack.peek().environmentVector.get(scope).symbolTable.getSymbol(identifier);
+            }
 
-        if (entry.primClassif == Classif.EMPTY) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Identifier not found");
-        }
+            if (entry.primClassif == Classif.EMPTY) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Identifier not found");
+            }
 
-        if (!(entry instanceof STIdentifier)) {
-            throw new PickleException();
-        }
+            if (!(entry instanceof STIdentifier)) {
+                throw new PickleException();
+            }
 
-        Result value = this.storageManager.getVariable(identifier);
-        if (!this.activationRecordStack.isEmpty()) {
-            int scope = this.activationRecordStack.peek().findSymbolScope(identifier);
-            if (scope != -1)
-                value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(identifier);
-        }
+            value = this.storageManager.getVariable(identifier);
+            if (!this.activationRecordStack.isEmpty()) {
+                int scope = this.activationRecordStack.peek().findSymbolScope(identifier);
+                if (scope != -1)
+                    value = this.activationRecordStack.peek().environmentVector.get(scope).storageManager.getVariable(identifier);
+            }
 
-        if (!(value instanceof ResultValue)) {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected primitive, found");
+            if (!(value instanceof ResultValue)) {
+                throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected primitive, found");
+            }
+        } else {
+            value = new ResultValue(scanner.currentToken.tokenStr, scanner.currentToken.subClassif);
         }
 
         String inORout = scanner.getNext(); // set string for later utility usage
