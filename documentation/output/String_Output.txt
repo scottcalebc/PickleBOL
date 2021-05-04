@@ -78,27 +78,19 @@ String from slice, should be 'I don't feel well':  I don't fee
 
 
 Testing File: 20 - String_Slice_Assignment_from_Lower_Bound_Only.txt
-String into slice, should be 'tacohut': tacohut 
+Line 2 Expression must be scalar value: '=', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/20 - String_Slice_Assignment_from_Lower_Bound_Only.txt
+	at pickle.Parser.assignmentStmt(Parser.java:517)
+	at pickle.Parser.getNext(Parser.java:65)
+	at pickle.Parser.run(Parser.java:2393)
+	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 21 - String_Slice_Assignment__from_Upper_Bound_Only.txt
-Line 2 Missing '[': ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/21 - String_Slice_Assignment__from_Upper_Bound_Only.txt
-	at pickle.Expr.postFixExpr(Expr.java:263)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.assignmentStmt(Parser.java:487)
-	at pickle.Parser.getNext(Parser.java:65)
-	at pickle.Parser.run(Parser.java:2394)
-	at pickle.Pickle.main(Pickle.java:30)
+String into slice, should be 'schoolbell': schoolbell 
 
 
 Testing File: 22 - String_Slice_Assignment_from_Lower_Upper_Bound.txt
-Line 2 Missing '[': ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/22 - String_Slice_Assignment_from_Lower_Upper_Bound.txt
-	at pickle.Expr.postFixExpr(Expr.java:263)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.assignmentStmt(Parser.java:487)
-	at pickle.Parser.getNext(Parser.java:65)
-	at pickle.Parser.run(Parser.java:2394)
-	at pickle.Pickle.main(Pickle.java:30)
+String into slice, should be 'The seats on the bus': The seats on the bus 
 
 
 Testing File: 23 - String_Array_Initialization_from_String_Constant.txt
@@ -143,12 +135,12 @@ String comparison should be True, 'Clark' == 'Clark' : T
 
 Testing File: 33 - String_Constant_IN_String_Array.txt
 Line 2 Expected Identifier found Clark: 'Clark', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/33 - String_Constant_IN_String_Array.txt
-	at pickle.Parser.inNotIn(Parser.java:2256)
-	at pickle.Parser.evalCond(Parser.java:2367)
-	at pickle.Parser.ifStmt(Parser.java:1534)
+	at pickle.Parser.inNotIn(Parser.java:2255)
+	at pickle.Parser.evalCond(Parser.java:2366)
+	at pickle.Parser.ifStmt(Parser.java:1533)
 	at pickle.Parser.controlStmt(Parser.java:122)
 	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2394)
+	at pickle.Parser.run(Parser.java:2393)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
@@ -158,12 +150,12 @@ String in array, strName in strVal
 
 Testing File: 35 - String_Constant_IN_String_List.txt
 Line 1 Expected Identifier found Clark: 'Clark', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/35 - String_Constant_IN_String_List.txt
-	at pickle.Parser.inNotIn(Parser.java:2256)
-	at pickle.Parser.evalCond(Parser.java:2367)
-	at pickle.Parser.ifStmt(Parser.java:1534)
+	at pickle.Parser.inNotIn(Parser.java:2255)
+	at pickle.Parser.evalCond(Parser.java:2366)
+	at pickle.Parser.ifStmt(Parser.java:1533)
 	at pickle.Parser.controlStmt(Parser.java:122)
 	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2394)
+	at pickle.Parser.run(Parser.java:2393)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
@@ -173,12 +165,12 @@ String in array, strName in strVal
 
 Testing File: 37 - String_Constant_NOTIN_String_Array.txt
 Line 2 Expected Identifier found Ortiz: 'Ortiz', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/37 - String_Constant_NOTIN_String_Array.txt
-	at pickle.Parser.inNotIn(Parser.java:2256)
-	at pickle.Parser.evalCond(Parser.java:2367)
-	at pickle.Parser.ifStmt(Parser.java:1534)
+	at pickle.Parser.inNotIn(Parser.java:2255)
+	at pickle.Parser.evalCond(Parser.java:2366)
+	at pickle.Parser.ifStmt(Parser.java:1533)
 	at pickle.Parser.controlStmt(Parser.java:122)
 	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2394)
+	at pickle.Parser.run(Parser.java:2393)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
@@ -188,12 +180,12 @@ String in array, strName in strVal
 
 Testing File: 39 - String_Constant_NOTIN_String_List.txt
 Line 1 Expected Identifier found Ortiz: 'Ortiz', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/39 - String_Constant_NOTIN_String_List.txt
-	at pickle.Parser.inNotIn(Parser.java:2256)
-	at pickle.Parser.evalCond(Parser.java:2367)
-	at pickle.Parser.ifStmt(Parser.java:1534)
+	at pickle.Parser.inNotIn(Parser.java:2255)
+	at pickle.Parser.evalCond(Parser.java:2366)
+	at pickle.Parser.ifStmt(Parser.java:1533)
 	at pickle.Parser.controlStmt(Parser.java:122)
 	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2394)
+	at pickle.Parser.run(Parser.java:2393)
 	at pickle.Pickle.main(Pickle.java:30)
 
 
