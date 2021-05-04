@@ -1,0 +1,7 @@
+String strVal[] = "Clark", "Silvestro", "Slavin", "Fernandez";
+String strName = "Ortiz";
+if strName NOTIN strVal:
+    print("String in array, strName in strVal");
+else:
+    print("ERROR: this should not print");
+endif;

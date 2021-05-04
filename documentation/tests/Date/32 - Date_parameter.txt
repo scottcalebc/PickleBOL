@@ -1,0 +1,12 @@
+def Void dateParameterTest(Date a, Value Date b, Ref Date c):
+	a = "2000-01-01";
+	b = "2000-01-01";
+	c = "2000-01-01";
+	return;
+enddef;
+Date x = "2021-01-01";
+Date y = "2021-01-01";
+Date z = "2021-01-01";
+print("Before function: x=", x, "y=", y, "z=", z);
+dateParameterTest(x, y, z);
+print("After function: x=", x, "y=", y, "z=", z);

@@ -1,0 +1,3 @@
+Float fVal1 = 4.0;
+print("fVal1:4.0 <= 4.0:", fVal1 <= 4.0);
+print("fVal1:4.0 <= 3.0:", fVal1 <= 3.0);

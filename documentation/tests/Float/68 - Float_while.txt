@@ -1,0 +1,6 @@
+Float fVal = 2.0;
+print("While fVal:2.0 >= 0.0, print fVal, fVal-=1.0");
+while fVal >= 0.0:
+	print(fVal);
+	fVal -= 1.0;
+endwhile;

@@ -1,0 +1,3 @@
+String strVal = "The wheels on the bus";
+strVal[4~10] = "seats";
+print("String into slice, should be 'The seats on the bus':, strVal);

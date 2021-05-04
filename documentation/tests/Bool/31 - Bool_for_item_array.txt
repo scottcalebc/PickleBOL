@@ -1,0 +1,4 @@
+Bool arr[] = T, F, T, F, T;
+for b in arr:
+	print(b);
+endfor;

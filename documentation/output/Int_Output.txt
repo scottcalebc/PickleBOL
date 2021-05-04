@@ -1,0 +1,295 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - Int_declaration.txt
+2 
+
+
+Testing File: 2 - Int_assignment.txt
+5 2 
+
+
+Testing File: 3 - Int_const_equal_to_Int_const_operation.txt
+Equal (2 == 2) 
+
+
+Testing File: 4 - Int_var_equal_to_Int_const_operation.txt
+Is equal (i == 0) 
+
+
+Testing File: 5 - Int_var_equal_to_Int_var_operation.txt
+Equal (i == j) 
+
+
+Testing File: 6 - Int_var_not_equal_to_Int_const_operation.txt
+Not Equal (i != 0) 
+
+
+Testing File: 7 - Int_var_not_equal_to_Int_var_operation.txt
+Not Equal (i != j) 
+
+
+Testing File: 8 - Int_const_not_equal_to_Int_const_operation.txt
+Not equal (0 != 2) 
+
+
+Testing File: 9 - Int_var_less_than_Int_const_operation.txt
+Less than (i < 10) 
+
+
+Testing File: 10 - Int_var_less_than_Int_var_operation.txt
+Less than (i < j) 
+
+
+Testing File: 11 - Int_const_less_than_Int_const_opertaion.txt
+Less than (0 < 1000) 
+
+
+Testing File: 12 - Int_var_greater_than_Int_const_operation.txt
+Greater than (i > 2) 
+
+
+Testing File: 13 - Int_var_greater_than_Int_var_operation.txt
+Greater than (i > j) 
+
+
+Testing File: 14 - Int_const_greater_than_Int_const_operation.txt
+Greater than (3 > 1) 
+
+
+Testing File: 15 - Int_var_less_than_or_equal_Int_const_operation.txt
+Less than or equal to (i <= 15) 
+Less than or equal to (i <= 11) 
+
+
+Testing File: 16 - Int_var_less_than_or_equal_Int_var_operation.txt
+Less than or equal to (i <= j) 
+Less than or equal to (i <= i) 
+
+
+Testing File: 17 - Int_const_less_than_or_equal_Int_const_operation.txt
+Less than or equal to (i <= 15) 
+Less than or equal to (i <= 11) 
+
+
+Testing File: 18 - Int_var_greater_than_or_equal_Int_const_operation.txt
+Greater than or equal (i >= 3) 
+Greater than or equal (i >= 14) 
+
+
+Testing File: 19 - Int_var_greater_than_or_equal_Int_var_operation.txt
+Greater than or equal (i >= j) 
+Greater than or equal (i >= i) 
+
+
+Testing File: 20 - Int_const_greater_than_or_equal_Int_const_operation.txt
+Greater than or equal (5 >= 0) 
+Greater than or equal (5 >= 5) 
+
+
+Testing File: 21 - Int_const_binary_plus_Int_const_operation.txt
+5 + 5 = 10 
+
+
+Testing File: 22 - Int_var_binary_plus_Int_const_operation.txt
+i + 5 = 10 
+
+
+Testing File: 23 - Int_var_binary_plus_Int_var_operation.txt
+i + j = 10 
+
+
+Testing File: 24 - Int_const_binary_minus_Int_const_operation.txt
+12 - 6= 6 
+
+
+Testing File: 25 - Int_var_binary_minus_int_const_operation.txt
+i - 6= 6 
+
+
+Testing File: 26 - Int_var_binary_minus_int_var_operation.txt
+i - j = 6 
+
+
+Testing File: 27 - Int_const_unary_minus_operation.txt
+i = -4:  -4 
+
+
+Testing File: 28 - Int_var_unary_minus_operation.txt
+j = -i:  -6 
+
+
+Testing File: 29 - Int_const_multiplication_Int_const_operation.txt
+5 * 10 = 50 
+
+
+Testing File: 30 - Int_var_multiplication_Int_const_operation.txt
+i * 20 = 100 
+
+
+Testing File: 31 - Int_var_multiplication_Int_var_operation.txt
+i * j = 500 
+
+
+Testing File: 32 - Int_const_division_Int_const_operation.txt
+10 / 2 = 5 
+
+
+Testing File: 33 - Int_var_division_Int_const_operation.txt
+i / 2 = 10 
+
+
+Testing File: 34 - Int_var_division_Int_var_operation.txt
+i / j = 2 
+
+
+Testing File: 35 - Int_const_exponentiation_Int_const_operation.txt
+2^5 = 32 
+
+
+Testing File: 36 - Int_var_exponentiation_Int_const_operation.txt
+i^2 = 9 
+2^i = 8 
+
+
+Testing File: 37 - Int_var_exponentiation_Int_var_operation.txt
+i^j = 8 
+
+
+Testing File: 38 - Int_const_addition_assignment_operation.txt
+i += 5:  10 
+
+
+Testing File: 39 - Int_var_addition_assignment_operation.txt
+i += j : 10 
+
+
+Testing File: 40 - Int_const_subtraction_assignment_operation.txt
+i -= 5:  10 
+
+
+Testing File: 41 - Int_var_subtraction_assignment_operation.txt
+i -= j : 10 
+
+
+Testing File: 42 - Int_coerce_Float.txt
+4 
+
+
+Testing File: 43 - Int_coerce_String.txt
+4 
+4 
+
+
+Testing File: 44 - Int_for_cv_to_endVal.txt
+0 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+----- 
+0 
+2 
+4 
+6 
+8 
+
+
+Testing File: 45 - Int_for_item_in_arr.txt
+1 
+2 
+3 
+4 
+5 
+6 
+
+
+Testing File: 46 - Int_parameters.txt
+Before function: x= 10 y= 11 z= 12 
+After function: x= 1 y= 2 z= 12 
+
+
+Testing File: 47 - Int_returning.txt
+5 
+
+
+Testing File: 48 - Int_slices.txt
+Line 2 Invalid expression operation: ']', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/48 - Int_slices.txt
+	at pickle.Expr.postFixExpr(Expr.java:233)
+	at pickle.Parser.expr(Parser.java:630)
+	at pickle.Parser.functionStmt(Parser.java:678)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 49 - Int_IN.txt
+Line 3 valueList not initialized: '{1', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/49 - Int_IN.txt
+	at pickle.Parser.inNotIn(Parser.java:2295)
+	at pickle.Parser.evalCond(Parser.java:2355)
+	at pickle.Parser.ifStmt(Parser.java:1522)
+	at pickle.Parser.controlStmt(Parser.java:122)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 50 - Int_NOTIN.txt
+Line 3 valueList not initialized: '{1', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/50 - Int_NOTIN.txt
+	at pickle.Parser.inNotIn(Parser.java:2295)
+	at pickle.Parser.evalCond(Parser.java:2355)
+	at pickle.Parser.ifStmt(Parser.java:1522)
+	at pickle.Parser.controlStmt(Parser.java:122)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 51 - Int_print.txt
+5 
+
+
+Testing File: 52 - Int_select.txt
+12, 14 
+Line 0 Missing ';': '', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/52 - Int_select.txt
+	at pickle.Parser.selectStmt(Parser.java:1352)
+	at pickle.Parser.controlStmt(Parser.java:163)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 53 - Int_logical_and.txt
+True (i == 2 and j == 4) 
+
+
+Testing File: 54 - Int_logical_or.txt
+True (i == 2 or j == 4) 
+True (i == 3 or j == 4) 
+
+
+Testing File: 55 - Int_logical_not.txt
+Line 5 Identifier must be initialized: '==', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/55 - Int_logical_not.txt
+	at pickle.Expr.evaluatePostFix(Expr.java:1714)
+	at pickle.Parser.expr(Parser.java:640)
+	at pickle.Parser.evalCond(Parser.java:2358)
+	at pickle.Parser.ifStmt(Parser.java:1522)
+	at pickle.Parser.controlStmt(Parser.java:122)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 56 - Int_While.txt
+2 
+1 
+0 
+
+
+tests done for: tests/Int
