@@ -2231,7 +2231,7 @@ public class Parser {
         }
 
         if (!scanner.getNext().equals(";")) {
-            throw new PickleException();
+            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Expected ';', found");
         }
 
         return result;

@@ -1297,6 +1297,7 @@ public class Utility {
      */
 
     public static ResultValue greaterThan(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
+
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
