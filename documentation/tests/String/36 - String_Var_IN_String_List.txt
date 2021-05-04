@@ -1,5 +1,5 @@
 String strName = "Slavin";
-if strName IN "Clark", "Silvestro", "Slavin", "Fernandez":
+if strName IN {"Clark", "Silvestro", "Slavin", "Fernandez"}:
     print("String in array, strName in strVal");
 else:
     print("ERROR: this should not print");

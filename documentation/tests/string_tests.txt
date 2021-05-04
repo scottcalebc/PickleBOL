@@ -14,7 +14,7 @@ String strVal = 1;
 print("String from 1:", strVal);
 
 // 5 - String_Initialization_from_Numeric_Constant_Int_Var
-int iVal = 10;
+Int iVal = 10;
 String strVal = iVal;
 print("String from iVal:", strVal);
 
@@ -95,12 +95,12 @@ print("String into slice, should be 'tacohut':", strVal);
 // 21 - String_Slice_Assignment__from_Upper_Bound_Only
 String strVal = "tacobell";
 strVal[~4] = "school";
-print("String into slice, should be 'schoolbell':, strVal);
+print("String into slice, should be 'schoolbell':", strVal);
 
 // 22 - String_Slice_Assignment_from_Lower_Upper_Bound
 String strVal = "The wheels on the bus";
 strVal[4~10] = "seats";
-print("String into slice, should be 'The seats on the bus':, strVal);
+print("String into slice, should be 'The seats on the bus':", strVal);
 
 // 23 - String_Array_Initialization_from_String_Constant
 String strValM[] = "string 1", "string 2", "string 3", "string 4";
@@ -183,7 +183,7 @@ endif;
 String strVal[] = "Clark", "Silvestro", "Slavin", "Fernandez";
 
 if "Clark" IN strVal:
-    print("String in array, "Clark" in strVal");
+    print("String in array, \"Clark\" in strVal");
 else:
     print("ERROR: this should not print");
 endif;
@@ -199,8 +199,8 @@ else:
 endif;
 
 // 35 - String_Constant_IN_String_List
-if "Clark" IN "Clark", "Silvestro", "Slavin", "Fernandez":
-    print("String in array, "Clark" in strVal");
+if "Clark" IN {"Clark", "Silvestro", "Slavin", "Fernandez"}:
+    print("String in array, \"Clark\" in strVal");
 else:
     print("ERROR: this should not print");
 endif;
@@ -208,7 +208,7 @@ endif;
 // 36 - String_Var_IN_String_List
 String strName = "Slavin";
 
-if strName IN "Clark", "Silvestro", "Slavin", "Fernandez":
+if strName IN {"Clark", "Silvestro", "Slavin", "Fernandez"}:
     print("String in array, strName in strVal");
 else:
     print("ERROR: this should not print");
@@ -218,7 +218,7 @@ endif;
 String strVal[] = "Clark", "Silvestro", "Slavin", "Fernandez";
 
 if "Ortiz" NOTIN strVal:
-    print("String in array, "Clark" in strVal");
+    print("String in array, \"Clark\" in strVal");
 else:
     print("ERROR: this should not print");
 endif;
@@ -234,8 +234,8 @@ else:
 endif;
 
 // 39 - String_Constant_NOTIN_String_List
-if "Ortiz" NOTIN "Clark", "Silvestro", "Slavin", "Fernandez":
-    print("String in array, "Clark" in strVal");
+if "Ortiz" NOTIN {"Clark", "Silvestro", "Slavin", "Fernandez"}:
+    print("String in array, \"Clark\" in strVal");
 else:
     print("ERROR: this should not print");
 endif;
@@ -243,7 +243,7 @@ endif;
 // 40 - String_Var_NOTIN_String_List
 String strName = "Ortiz";
 
-if strName NOTIN "Clark", "Silvestro", "Slavin", "Fernandez":
+if strName NOTIN {"Clark", "Silvestro", "Slavin", "Fernandez"}:
     print("String in array, strName in strVal");
 else:
     print("ERROR: this should not print");

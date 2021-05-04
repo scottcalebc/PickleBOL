@@ -60,17 +60,9 @@ Testing File: 6 - Flow_for_sv_to_ev.txt
 
 Testing File: 7 - Flow_select.txt
 5, 4, 3, 2, 1 
-Line 13 expected endselect statement: 'endfor', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Flow/7 - Flow_select.txt
-	at pickle.Parser.selectStmt(Parser.java:1359)
-	at pickle.Parser.controlStmt(Parser.java:163)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.statements(Parser.java:1125)
-	at pickle.Parser.itemArrayFor(Parser.java:1906)
-	at pickle.Parser.forStmt(Parser.java:1651)
-	at pickle.Parser.controlStmt(Parser.java:128)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2394)
-	at pickle.Pickle.main(Pickle.java:30)
+default 
+-1 
+5, 4, 3, 2, 1 
 
 
 Testing File: 8 - Flow_break.txt

@@ -18,11 +18,7 @@ String from 1: 1
 
 
 Testing File: 5 - String_Initialization_from_Numeric_Constant_Int_Var.txt
-Line 1 Invalid assignment: 'iVal', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/5 - String_Initialization_from_Numeric_Constant_Int_Var.txt
-	at pickle.Parser.assignmentStmt(Parser.java:524)
-	at pickle.Parser.getNext(Parser.java:65)
-	at pickle.Parser.run(Parser.java:2394)
-	at pickle.Pickle.main(Pickle.java:30)
+String from iVal: 10 
 
 
 Testing File: 6 - String_Initialization_from_Numeric_Constant_Float.txt
@@ -172,14 +168,7 @@ Line 1 Expected Identifier found Clark: 'Clark', File: /mnt/s/College/2021 Sprin
 
 
 Testing File: 36 - String_Var_IN_String_List.txt
-Line 2 Expected start of list ("{") found: 'Clark', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/36 - String_Var_IN_String_List.txt
-	at pickle.Parser.inNotIn(Parser.java:2329)
-	at pickle.Parser.evalCond(Parser.java:2367)
-	at pickle.Parser.ifStmt(Parser.java:1534)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2394)
-	at pickle.Pickle.main(Pickle.java:30)
+String in array, strName in strVal 
 
 
 Testing File: 37 - String_Constant_NOTIN_String_Array.txt
@@ -209,14 +198,7 @@ Line 1 Expected Identifier found Ortiz: 'Ortiz', File: /mnt/s/College/2021 Sprin
 
 
 Testing File: 40 - String_Var_NOTIN_String_List.txt
-Line 2 Expected start of list ("{") found: 'Clark', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/String/40 - String_Var_NOTIN_String_List.txt
-	at pickle.Parser.inNotIn(Parser.java:2329)
-	at pickle.Parser.evalCond(Parser.java:2367)
-	at pickle.Parser.ifStmt(Parser.java:1534)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2394)
-	at pickle.Pickle.main(Pickle.java:30)
+String in array, strName in strVal 
 
 
 tests done for: tests/String

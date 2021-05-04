@@ -8,6 +8,6 @@ for i in arr:
 		when 5, 4, 3, 2, 1:
 			print("5, 4, 3, 2, 1");
 		default:
-			print("default"):
+			print("default");
 	endselect;
 endfor;
