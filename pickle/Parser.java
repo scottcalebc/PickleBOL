@@ -1000,7 +1000,6 @@ public class Parser {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Cannot assign value to undeclared variable");
         }
 
-
         //STIdentifier symbolEntry = (STIdentifier) this.symbolTable.getSymbol(varStr);  caleb you good??? stop calling *MY* symbol table twice for same string, could have just (see below lmao) 😒
         STIdentifier symbolEntry = (STIdentifier) entry;
 
@@ -1012,6 +1011,9 @@ public class Parser {
             if (symbolEntry.dclType == SubClassif.INTEGER) {
                 res = Utility.castNumericToInt(this, new Numeric(this, (ResultValue) res, "", "cast to declared type"));
             }
+
+            if (symbolEntry.dclType != ((ResultValue) res).dataType)
+                res = Utility.coerce(this, (ResultValue) res, symbolEntry.dclType);
         }
 
         // store value
