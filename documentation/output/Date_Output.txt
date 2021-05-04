@@ -11,9 +11,11 @@ Testing File: 2 - Date_assignment.txt
 
 
 Testing File: 3 - Date_var_equal_to_Date_const_operation.txt
+True (d == "1995-05-05") 
 
 
 Testing File: 4 - Date_var_equal_to_Date_var_operation.txt
+True (d == d) 
 
 
 Testing File: 5 - Date_const_not_equal_to_Date_const_operation.txt
@@ -21,9 +23,11 @@ True ("1999-12-12" != "1995-05-05")
 
 
 Testing File: 6 - Date_var_not_equal_to_Date_const_operation.txt
+True (d != "1992-05-03") 
 
 
 Testing File: 7 - Date_var_not_equal_to_Date_var_operation.txt
+True (d != c) 
 
 
 Testing File: 8 - Date_const_not_equal_to_Date_const_operation.txt
@@ -31,9 +35,11 @@ True ("1999-12-12" != "1995-05-05")
 
 
 Testing File: 9 - Date_var_less_than_Date_const_operation.txt
+True (d < "2002-02-02") 
 
 
 Testing File: 10 - Date_var_less_than_Date_var_operation.txt
+True (d < c) 
 
 
 Testing File: 11 - Date_const_less_than_Date_const_operation.txt
@@ -41,9 +47,11 @@ True ("1999-12-12" < "2000-01-01")
 
 
 Testing File: 12 - Date_var_greater_than_Date_const_operation.txt
+True (d > "1992-05-03") 
 
 
 Testing File: 13 - Date_var_greater_than_Date_var_operation.txt
+True (c > d) 
 
 
 Testing File: 14 - Date_const_greater_than_Date_const_operation.txt
@@ -51,9 +59,13 @@ True ("1999-12-12" > "1995-05-05")
 
 
 Testing File: 15 - Date_var_less_than_or_equal_Date_const_operation.txt
+True (d <= "1995-05-05") 
+True (d <= "2002-02-02") 
 
 
 Testing File: 16 - Date_var_less_than_or_equal_Date_var_operation.txt
+True (d <= c) 
+True (d <= d) 
 
 
 Testing File: 17 - Date_const_less_than_or_equal_Date_const_operation.txt
@@ -62,9 +74,13 @@ True ("1999-12-12" <= "1999-12-12")
 
 
 Testing File: 18 - Date_var_greater_than_or_equal_Date_const_operation.txt
+True (d >= "1995-05-05") 
+True (d >= "1992-05-03") 
 
 
 Testing File: 19 - Date_var_greater_than_or_equal_Date_var_operation.txt
+True (c >= d) 
+True (d >= d) 
 
 
 Testing File: 20 - Date_const_greater_than_or_equal_Date_const_operation.txt
@@ -111,21 +127,11 @@ Line 3 Missing ')': '(', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/do
 
 
 Testing File: 24 - Date_logical_not.txt
-Line 2 Invalid bool representation: ':', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Date/24 - Date_logical_not.txt
-	at pickle.Bool.parseString(Bool.java:59)
-	at pickle.Bool.<init>(Bool.java:31)
-	at pickle.Expr.evaluatePostFix(Expr.java:1570)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.evalCond(Parser.java:2358)
-	at pickle.Parser.ifStmt(Parser.java:1522)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+True (not d != "2012-12-12") 
 
 
 Testing File: 25 - Date_select.txt
-default 
+"2006-04-12" 
 
 
 Testing File: 26 - Date_for_item_array.txt
@@ -136,6 +142,10 @@ Testing File: 26 - Date_for_item_array.txt
 
 
 Testing File: 27 - Date_while.txt
+3 
+2 
+1 
+0 
 
 
 Testing File: 28 - Date_date_diif.txt

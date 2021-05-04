@@ -12,60 +12,79 @@ F
 
 Testing File: 3 - Bool_const_equal_to_Bool_const_operation.txt
 Postfix: T T == 
-... T == T is 
+... T == T is T
+Postfix: PARMS True (T == T) print 
+True (T == T) 
 Postfix: T F == 
-... T == F is 
+... T == F is F
 
 
 Testing File: 4 - Bool_var_equal_to_Bool_const_operation.txt
+True (b == T) 
 
 
 Testing File: 5 Bool_var_equal_to_Bool_var_operation.txt
+True (b == b2) 
 
 
 Testing File: 6 - Bool_const_not_equal_to_Bool_const_operation.txt
+True (T != F) 
 
 
 Testing File: 7 - Bool_var_not_equal_to_Bool_const_operation.txt
+True (b != F) 
 
 
 Testing File: 8 - Bool_var_not_equal_to_Bool_var_operation.txt
+True (b == b2) 
 
 
 Testing File: 9 - Bool_var_less_than_Bool_const_operation.txt
+True (F < b) 
 
 
 Testing File: 10 - Bool_var_less_than_Bool_var_operation.txt
+True (b2 < b) 
 
 
 Testing File: 11 - Bool_const_less_than_Bool_const_operation.txt
+True (F < b) 
 
 
 Testing File: 12 - Bool_var_greater_than_Bool_const_operation.txt
+True (b > F) 
 
 
 Testing File: 13 - Bool_var_greater_than_Bool_var_operation.txt
+True (b > b2) 
 
 
 Testing File: 14 - Bool_const_greater_than_Bool_const_operation.txt
+True (b > F) 
 
 
 Testing File: 15 - Bool_var_less_than_or_equal_Bool_const_operation.txt
+True (F <= b) 
 
 
 Testing File: 16 - Bool_var_less_than_or_equal_Bool_var_operation.txt
+True (b2 <= b) 
 
 
 Testing File: 17 - Bool_const_less_than_or_equal_Bool_const_operation.txt
+True (F <= b) 
 
 
 Testing File: 18 - Bool_var_greater_than_or_equal_Bool_const_operation.txt
+True (b >= F) 
 
 
 Testing File: 19 - Bool_var_greater_than_or_equal_Bool_var_operation.txt
+True (b >= b2) 
 
 
 Testing File: 20 - Bool_const_greater_than_or_equal_Bool_const_operation.txt
+True (b >= F) 
 
 
 Testing File: 21 - Bool_array_subscripting.txt
@@ -131,6 +150,7 @@ Testing File: 32 - Bool_while_loop.txt
 
 
 Testing File: 33 - Bool_select.txt
+True 
 
 
 Testing File: 34 - Bool_IN.txt

@@ -1063,6 +1063,12 @@ public class Utility {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
+        // If datatype of either operand is NOT string, int, or boolean, coerce to string.
+        if (resVal1.dataType != SubClassif.STRING && resVal1.dataType != SubClassif.INTEGER && resVal1.dataType != SubClassif.FLOAT)
+            resVal1 = coerce(parser, resVal1, SubClassif.STRING);
+        if (resVal2.dataType != SubClassif.STRING && resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+            resVal2 = coerce(parser, resVal2, SubClassif.STRING);
+
         // Test is based on data type of left operand
         // left operand is STRING
         if (resVal1.dataType == SubClassif.STRING) {
@@ -1135,6 +1141,12 @@ public class Utility {
     public static ResultValue notEqual(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
+
+        // If datatype of either operand is NOT string, int, or boolean, coerce to string.
+        if (resVal1.dataType != SubClassif.STRING && resVal1.dataType != SubClassif.INTEGER && resVal1.dataType != SubClassif.FLOAT)
+            resVal1 = coerce(parser, resVal1, SubClassif.STRING);
+        if (resVal2.dataType != SubClassif.STRING && resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+            resVal2 = coerce(parser, resVal2, SubClassif.STRING);
 
         // Test is based on data type of left operand
         // left operand is STRING
@@ -1209,6 +1221,12 @@ public class Utility {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
+        // If datatype of either operand is NOT string, int, or boolean, coerce to string.
+        if (resVal1.dataType != SubClassif.STRING && resVal1.dataType != SubClassif.INTEGER && resVal1.dataType != SubClassif.FLOAT)
+            resVal1 = coerce(parser, resVal1, SubClassif.STRING);
+        if (resVal2.dataType != SubClassif.STRING && resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+            resVal2 = coerce(parser, resVal2, SubClassif.STRING);
+
         // Test is based on data type of left operand
         // left operand is STRING
         if (resVal1.dataType == SubClassif.STRING) {
@@ -1281,6 +1299,12 @@ public class Utility {
     public static ResultValue greaterThan(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
+
+        // If datatype of either operand is NOT string, int, or boolean, coerce to string.
+        if (resVal1.dataType != SubClassif.STRING && resVal1.dataType != SubClassif.INTEGER && resVal1.dataType != SubClassif.FLOAT)
+            resVal1 = coerce(parser, resVal1, SubClassif.STRING);
+        if (resVal2.dataType != SubClassif.STRING && resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+            resVal2 = coerce(parser, resVal2, SubClassif.STRING);
 
         // Test is based on data type of left operand
         // left operand is STRING
@@ -1355,6 +1379,12 @@ public class Utility {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
 
+        // If datatype of either operand is NOT string, int, or boolean, coerce to string.
+        if (resVal1.dataType != SubClassif.STRING && resVal1.dataType != SubClassif.INTEGER && resVal1.dataType != SubClassif.FLOAT)
+            resVal1 = coerce(parser, resVal1, SubClassif.STRING);
+        if (resVal2.dataType != SubClassif.STRING && resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+            resVal2 = coerce(parser, resVal2, SubClassif.STRING);
+
         // Test is based on data type of left operand
         // left operand is STRING
         if (resVal1.dataType == SubClassif.STRING) {
@@ -1426,6 +1456,12 @@ public class Utility {
     public static ResultValue greaterThanOrEqualTo(Parser parser, ResultValue resVal1, ResultValue resVal2) throws PickleException {
         // ResultValue will be of type boolean
         ResultValue res =  new ResultValue("", SubClassif.BOOLEAN);
+
+        // If datatype of either operand is NOT string, int, or boolean, coerce to string.
+        if (resVal1.dataType != SubClassif.STRING && resVal1.dataType != SubClassif.INTEGER && resVal1.dataType != SubClassif.FLOAT)
+            resVal1 = coerce(parser, resVal1, SubClassif.STRING);
+        if (resVal2.dataType != SubClassif.STRING && resVal2.dataType != SubClassif.INTEGER && resVal2.dataType != SubClassif.FLOAT)
+            resVal2 = coerce(parser, resVal2, SubClassif.STRING);
 
         // Test is based on data type of left operand
         // left operand is STRING
