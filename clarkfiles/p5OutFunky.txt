@@ -1,0 +1,3 @@
+p5Funky.txt 
+funky iP1= 20 iP2= 222 
+after x= 20 y= 11 

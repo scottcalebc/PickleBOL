@@ -1,0 +1,36 @@
+p5ExprX.txt 
+This file contains many errors within expressions. 
+as you capture each error comment it out. 
+OK1 32 
+OK2 33 
+OK3 -1 
+OK4 2 SPACES(-2)= F 
+OK5 99.0 
+OK6 36 
+OK7 38 
+OK8 3 5.0 
+Bracket OK1 6 
+Bracket OK2 9 
+Bracket OK3 8 
+Bracket OK4 8 
+Paren OK1 15 
+Coerce OK1 60 
+Coerce OK2 60 
+Coerce OK3 60.0 
+Postfix: i2 10 * s1 s2 # > 
+Postfix: PARMS Coerce OK4 - true print 
+Coerce OK4 - true 
+Postfix: i2 10 * sA > 
+Line 77 Invalid non-numeric data: 'A', File: p5ExprX.txt
+	at pickle.Numeric.parseString(Numeric.java:84)
+	at pickle.Numeric.<init>(Numeric.java:35)
+	at pickle.Utility.coerce(Utility.java:183)
+	at pickle.Utility.greaterThan(Utility.java:1324)
+	at pickle.Expr.evaluatePostFix(Expr.java:1771)
+	at pickle.Parser.expr(Parser.java:651)
+	at pickle.Parser.evalCond(Parser.java:2371)
+	at pickle.Parser.ifStmt(Parser.java:1535)
+	at pickle.Parser.controlStmt(Parser.java:122)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2395)
+	at pickle.Pickle.main(Pickle.java:30)
