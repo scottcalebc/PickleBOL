@@ -1,0 +1,9 @@
+p5ScopeEx4.txt 
+A before x= 10 y= 11 z= 12 
+B before x= 20 y= 21 z= 22 
+C before x= 30 y= 31 z= 32 
+D before assign x= 30 y= 11 z= 12 
+D after assign x= 40 y= 41 z= 12 
+C after x= 40 y= 31 z= 32 
+B after x= 40 y= 21 z= 32 
+A after x= 40 y= 41 z= 12 
