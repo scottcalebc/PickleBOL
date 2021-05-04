@@ -1,5 +1,5 @@
 if "Silvestro" != "Clark":
-    print("String comparison should be True, 'Clark' == 'Clark' :" "Clark" == "Clark");
+    print("String comparison should be True, 'Clark' == 'Clark' :", "Clark" == "Clark");
 else:
     print("ERROR: this should not print");
 endif;

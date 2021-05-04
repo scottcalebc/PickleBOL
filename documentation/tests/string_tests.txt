@@ -48,7 +48,7 @@ print("String from 'some' # strVal1:'information' :" strVal);
 
 // 12 - String_Initialization_from_StringVar_StringVar_Concat
 String strVal1 = "information";
-String strVal2 = "this"
+String strVal2 = "this";
 String strVal = strVal2 # strVal1;
 print("String from strVal2:'this' # strVal1:'information' :" strVal);
 
@@ -57,7 +57,7 @@ String strVal = "Some" # 1;
 print("String from 'some' # 1 :" strVal);
 
 // 14 - String_Initialization_from_StringConst_IntVar_Concat
-Int iVal = 120
+Int iVal = 120;
 String strVal = "Some" # iVal;
 print("String from 'some' # iVal:120 :" strVal);
 
@@ -79,12 +79,12 @@ print("String from slice, should be 'bell':", strVal2);
 
 // 18 - String_Initialization_from_String_Slice_Upper_Bound_Only
 String strVal1 = "tacobell";
-String strVal2 = strVal[~4];
+String strVal2 = strVal1[~4];
 print("String from slice, should be 'taco':", strVal2);
 
 // 19 - String_Initialization_from_String_Slice_Lower_Upper_Bound
 String strVal1 = "Maybe I don't feel well";
-String strVal2 = strVal[5~17];
+String strVal2 = strVal1[5~17];
 print("String from slice, should be 'I don't feel well':", strVal2);
 
 // 20 - String_Slice_Assignment_from_Lower_Bound_Only
@@ -129,7 +129,7 @@ endif;
 String strVal = "Clark";
 
 if strVal == "Clark":
-    print("String comparison should be True, strVal == 'Clark' :" strVal1 == "Clark");
+    print("String comparison should be True, strVal == 'Clark' :", strVal == "Clark");
 else:
     print("ERROR: this should not print");
 endif;
@@ -138,7 +138,7 @@ endif;
 String strVal = "Maynard";
 
 if "Maynard" == strVal:
-    print("String comparison should be True, 'Maynard' == strVal :" strVal1 == "Maynard");
+    print("String comparison should be True, 'Maynard' == strVal :", strVal == "Maynard");
 else:
     print("ERROR: this should not print");
 endif;
@@ -147,7 +147,7 @@ endif;
 
 // 29 - StringConst_Equal_To_StringConst
 if "Silvestro" != "Clark":
-    print("String comparison should be True, 'Clark' == 'Clark' :" "Clark" == "Clark");
+    print("String comparison should be True, 'Clark' == 'Clark' :", "Clark" == "Clark");
 else:
     print("ERROR: this should not print");
 endif;
@@ -156,7 +156,7 @@ endif;
 String strVal = "Silvestro";
 
 if strVal != "Clark":
-    print("String comparison should be True, strVal == 'Clark' :" strVal1 == "Clark");
+    print("String comparison should be True, strVal == 'Clark' :", strVal == "Clark");
 else:
     print("ERROR: this should not print");
 endif;
@@ -165,7 +165,7 @@ endif;
 String strVal = "Maynard";
 
 if "Perl" != strVal:
-    print("String comparison should be True, 'Maynard' == strVal :" strVal1 == "Maynard");
+    print("String comparison should be True, 'Maynard' == strVal :", strVal == "Maynard");
 else:
     print("ERROR: this should not print");
 endif;
@@ -173,7 +173,7 @@ endif;
 
 // 32 - StringConst_NotEqual_To_StringConst
 if "Clark" != "Ortiz":
-    print("String comparison should be True, 'Clark' == 'Clark' :" "Clark" == "Clark");
+    print("String comparison should be True, 'Clark' == 'Clark' :", "Clark" == "Clark");
 else:
     print("ERROR: this should not print");
 endif;

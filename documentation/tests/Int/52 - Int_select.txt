@@ -8,4 +8,4 @@ select i:
 		print("12, 14");
 	default:
 		print("default");
-endselect
+endselect;

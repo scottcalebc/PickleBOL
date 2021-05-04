@@ -225,22 +225,12 @@ Testing File: 48 - Int_slices.txt
 
 Testing File: 49 - Int_IN.txt
 i is IN list 
-Line 6 Expected a ';' after 'endif' token: 'if', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/49 - Int_IN.txt
-	at pickle.Parser.ifStmt(Parser.java:1599)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+i is IN arr 
 
 
 Testing File: 50 - Int_NOTIN.txt
 j is NOTIN list 
-Line 6 Expected a ';' after 'endif' token: 'if', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/50 - Int_NOTIN.txt
-	at pickle.Parser.ifStmt(Parser.java:1599)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+j is NOTIN arr 
 
 
 Testing File: 51 - Int_print.txt
@@ -249,12 +239,6 @@ Testing File: 51 - Int_print.txt
 
 Testing File: 52 - Int_select.txt
 12, 14 
-Line 0 Missing ';': '', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/52 - Int_select.txt
-	at pickle.Parser.selectStmt(Parser.java:1352)
-	at pickle.Parser.controlStmt(Parser.java:163)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
 
 
 Testing File: 53 - Int_logical_and.txt
@@ -267,15 +251,7 @@ True (i == 3 or j == 4)
 
 
 Testing File: 55 - Int_logical_not.txt
-Line 5 Identifier must be initialized: '==', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Int/55 - Int_logical_not.txt
-	at pickle.Expr.evaluatePostFix(Expr.java:1720)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.evalCond(Parser.java:2358)
-	at pickle.Parser.ifStmt(Parser.java:1522)
-	at pickle.Parser.controlStmt(Parser.java:122)
-	at pickle.Parser.getNext(Parser.java:71)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+True (not j == 4) 
 
 
 Testing File: 56 - Int_While.txt

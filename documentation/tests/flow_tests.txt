@@ -24,7 +24,7 @@ String s = "I am String";
 
 for c in s:
 	print(c);
-endfor
+endfor;
 
 // 4 - Flow_for_item_in_array
 Float arr[] = 23.454, 0.213;
@@ -37,12 +37,12 @@ endfor;
 String delim = " ";
 String s = "Hi Prof. Clark";
 
-for token in s by delim:
+for token from s by delim:
 	print(token);
 endfor;
 
-for token in s by "THISISNOTAGOODDELIMITER":
-	print(token):
+for token from s by "THISISNOTAGOODDELIMITER":
+	print(token);
 endfor;
 
 // 6 - Flow_for_sv_to_ev
@@ -67,7 +67,7 @@ for i in arr:
 		when 5, 4, 3, 2, 1:
 			print("5, 4, 3, 2, 1");
 		default:
-			print("default"):
+			print("default");
 	endselect;
 endfor;
 
