@@ -68,6 +68,7 @@ public class Expr {
 
                     if (!stack.empty() && stack.peek().tokenStr.equals("~")) {
                         postfix.add(stack.pop());
+                        size--;
                     }
 
                     while (!stack.empty()) {
@@ -230,13 +231,13 @@ public class Expr {
                                     Token popped = stack.pop();
 
                                     while(!stack.empty() && !popped.tokenStr.endsWith("[")) {
-                                        if (size < 2
+                                        if (!popped.tokenStr.equals("~") && size < 2
                                                 && !((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                 || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                 || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
                                             throw new ScannerParserException(parser.scanner.currentToken, parser.scanner.sourceFileNm, "Invalid expression operation");
 
-                                        if (size < 1 &&
+                                        if (!popped.tokenStr.equals("~") &&size < 1 &&
                                                 ((popped.operatorPrecedence == OperatorPrecedence.NOT
                                                         || popped.operatorPrecedence == OperatorPrecedence.UNARYMINUS
                                                         || popped.operatorPrecedence == OperatorPrecedence.FUNC)))
@@ -264,9 +265,8 @@ public class Expr {
                 case FUNCTION:
                         if (!stack.empty() && stack.peek().tokenStr.equals("~")){
                             Token popped = stack.pop();
-
                             postfix.add(popped);
-
+                            size--;
                         }
                         if (parser.scanner.currentToken.operatorPrecedence != OperatorPrecedence.FUNC)
                             parser.scanner.currentToken.operatorPrecedence = OperatorPrecedence.FUNC;
