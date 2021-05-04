@@ -227,6 +227,8 @@ public class Expr {
 
                                 break;
                             case "[":
+                                if (parser.scanner.currentToken.operatorPrecedence != OperatorPrecedence.SLICE)
+                                    parser.scanner.currentToken.operatorPrecedence = OperatorPrecedence.SLICE;
                                 stack.push(parser.scanner.currentToken);
                                 break;
                             case "]":
