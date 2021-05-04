@@ -8,7 +8,7 @@ public class Expr {
     public static ArrayList<Token> postFixExpr(Parser parser) throws PickleException {
         ArrayList<Token> postfix = new ArrayList<Token>();
         Stack<Token> stack = new Stack<Token>();
-
+      
         int funcBool = 0;
         int sliceI = 0;
         int expr = 0;

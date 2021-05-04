@@ -401,10 +401,9 @@ public class Parser {
         }
 
         String varStr = scanner.currentToken.tokenStr;
-        Token varToken = scanner.currentToken;
-        String assignStr = scanner.getNext();
 
-        STEntry entry = symbolTable.getSymbol(varStr);
+        STEntry entry = symbolTable.getSymbol(scanner.currentToken.tokenStr);
+
 
         if (!this.activationRecordStack.isEmpty()) { //if scope is not global
             int scope = this.activationRecordStack.peek().findSymbolScope(varStr);
@@ -414,12 +413,11 @@ public class Parser {
 
         if (entry.primClassif != Classif.EMPTY && ((STIdentifier) entry).structure.equals("array")){ // if operator is an array, branch outta here real quick like the flash ⚡⚡
             res =  assignArrayStmt(varStr);
-        } else if (scanner.currentToken.primClassif == Classif.OPERATOR &&
-                ( scanner.currentToken.tokenStr.equals("=") || scanner.currentToken.tokenStr.equals("+=")
-                        || scanner.currentToken.tokenStr.equals("-=") ) ) {
+        } else if (scanner.nextToken.primClassif == Classif.OPERATOR && scanner.getNext().equals("=")) {
 
             scanner.getNext();      //get next token
             res = expr();           //get expression value
+
 
             Result oldType =  this.storageManager.getVariable(varStr);
 
@@ -530,7 +528,6 @@ public class Parser {
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
         }
 
-
         res = assign(varStr, res);  //save value to symbol
         return res;
     }
@@ -550,6 +547,7 @@ public class Parser {
             else
                 array = (ResultList) storageManager.getVariable(varString);
         }
+
 
         if (scanner.currentToken.tokenStr.equals("=")) { //total array assignment
             scanner.getNext(); //skip to assignee dude guy expr 🤵
@@ -614,11 +612,10 @@ public class Parser {
             res = array;
         }
         else {
-            throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Invalid operator for array assignment");
+            throw new PickleException();
         }
 
         if (!scanner.currentToken.tokenStr.equals(";")) {
-
             throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm, "Assignment statement must end in ';'");
         }
 
