@@ -27,15 +27,7 @@ T
 
 
 Testing File: 7 - Expression_complex_boolean.txt
-Line 1 Invalid bool representation: ';', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Expressions/7 - Expression_complex_boolean.txt
-	at pickle.Bool.parseString(Bool.java:59)
-	at pickle.Bool.<init>(Bool.java:31)
-	at pickle.Expr.evaluatePostFix(Expr.java:1782)
-	at pickle.Parser.expr(Parser.java:640)
-	at pickle.Parser.functionStmt(Parser.java:678)
-	at pickle.Parser.getNext(Parser.java:68)
-	at pickle.Parser.run(Parser.java:2382)
-	at pickle.Pickle.main(Pickle.java:30)
+T 
 
 
 tests done for: tests/Expressions
