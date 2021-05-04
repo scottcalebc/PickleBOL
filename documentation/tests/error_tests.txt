@@ -1,0 +1,14 @@
+// 1 - var_declaration_missing_simicolon
+Int i = 2
+print(i);
+
+// 2 - array_declaration_missing_bracket
+Int arr[3 = 2, 3, 4;
+print(arr);
+
+// 3 - slicing_missing_bracket
+String str = "String";
+print(str[~3]);
+
+// 4 - print_missing_paren
+print("This should not work";

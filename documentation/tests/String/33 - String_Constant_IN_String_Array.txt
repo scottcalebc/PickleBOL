@@ -1,0 +1,6 @@
+String strVal[] = "Clark", "Silvestro", "Slavin", "Fernandez";
+if "Clark" IN strVal:
+    print("String in array, "Clark" in strVal");
+else:
+    print("ERROR: this should not print");
+endif;

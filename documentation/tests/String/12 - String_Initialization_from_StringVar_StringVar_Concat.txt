@@ -1,0 +1,4 @@
+String strVal1 = "information";
+String strVal2 = "this"
+String strVal = strVal2 # strVal1;
+print("String from strVal2:'this' # strVal1:'information' :" strVal);

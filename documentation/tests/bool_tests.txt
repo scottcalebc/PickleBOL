@@ -1,0 +1,333 @@
+// 1 - Bool_declaration
+Bool b;
+Bool b = T;
+print(b);
+
+// 2 - Bool_assignment
+Bool b = F;
+print(b);
+
+// 3 - Bool_const_equal_to_Bool_const_operation
+debug Postfix on;
+debug Expr on;
+if T == T:
+	print("True (T == T)");
+endif;
+if T == F:
+	print("True (T == F)");
+endif;
+
+// 4 - Bool_var_equal_to_Bool_const_operation
+Bool b = T;
+if b == T:
+	print("True (b == T)");
+endif;
+if b == F:
+	print("True (b == F)");
+endif;
+
+// 5 Bool_var_equal_to_Bool_var_operation
+Bool b = T;
+Bool b2 = T;
+if b == b2:
+	print("True (b == b2)");
+endif;
+b2 = F;
+if b == b2:
+	print("True (b == b2)");
+endif;
+
+// 6 - Bool_const_not_equal_to_Bool_const_operation
+if T != T:
+	print("True (T != T)");
+endif;
+if T != F:
+	print("True (T != F)");
+endif;
+
+// 7 - Bool_var_not_equal_to_Bool_const_operation
+Bool b = T;
+if b != T:
+	print("True (b != T)");
+endif;
+if b != F:
+	print("True (b != F)");
+endif;
+
+// 8 - Bool_var_not_equal_to_Bool_var_operation
+Bool b = T;
+Bool b2 = T;
+if b != b2:
+	print("True (b == b2)");
+endif;
+b2 = F;
+if b != b2:
+	print("True (b == b2)");
+endif;
+
+// 9 - Bool_var_less_than_Bool_const_operation
+Bool b = T;
+if b < F:
+	print("True (b < F)");
+endif;
+if F < b:
+	print("True (F < b)");
+endif;
+
+// 10 - Bool_var_less_than_Bool_var_operation
+Bool b = T;
+Bool b2 = F;
+if b < b2:
+	print("True (b < b2)");
+endif;
+if b2 < b:
+	print("True (b2 < b)");
+endif;
+
+// 11 - Bool_const_less_than_Bool_const_operation
+if T < F:
+	print("True (b < F)");
+endif;
+if F < T:
+	print("True (F < b)");
+endif;
+
+// 12 - Bool_var_greater_than_Bool_const_operation
+Bool b = T;
+if b > F:
+	print("True (b > F)");
+endif;
+if F > b:
+	print("True (F > b)");
+endif;
+
+// 13 - Bool_var_greater_than_Bool_var_operation
+Bool b = T;
+Bool b2 = F;
+if b > b2:
+	print("True (b > b2)");
+endif;
+if b2 > b:
+	print("True (b2 > b)");
+endif;
+
+// 14 - Bool_const_greater_than_Bool_const_operation
+if T > F:
+	print("True (b > F)");
+endif;
+if F > T:
+	print("True (F > b)");
+endif;
+
+// 15 - Bool_var_less_than_or_equal_Bool_const_operation
+Bool b = T;
+if b <= F:
+	print("True (b <= F)");
+endif;
+if F <= b:
+	print("True (F <= b)");
+endif;
+
+// 16 - Bool_var_less_than_or_equal_Bool_var_operation
+Bool b = T;
+Bool b2 = F;
+if b <= b2:
+	print("True (b <= b2)");
+endif;
+if b2 <= b:
+	print("True (b2 <= b)");
+endif;
+
+// 17 - Bool_const_less_than_or_equal_Bool_const_operation
+if T <= F:
+	print("True (b <= F)");
+endif;
+if F <= T:
+	print("True (F <= b)");
+endif;
+
+// 18 - Bool_var_greater_than_or_equal_Bool_const_operation
+Bool b = T;
+if b >= F:
+	print("True (b >= F)");
+endif;
+if F >= b:
+	print("True (F >= b)");
+endif;
+
+// 19 - Bool_var_greater_than_or_equal_Bool_var_operation
+Bool b = T;
+Bool b2 = F;
+if b >= b2:
+	print("True (b >= b2)");
+endif;
+if b2 >= b:
+	print("True (b2 >= b)");
+endif;
+
+// 20 - Bool_const_greater_than_or_equal_Bool_const_operation
+if T >= F:
+	print("True (b >= F)");
+endif;
+if F >= T:
+	print("True (F >= b)");
+endif;
+
+// 21 - Bool_array_subscripting
+Bool arr[5] = T, T, T, F, F;
+print(arr[2]);
+
+// 22 - Bool_const_logical_and_bool_const_operations
+if T and T:
+	print("True (T and T)");
+endif;
+if T and F:
+	print("True (T and F)");
+endif;
+
+// 23 - Bool_var_logical_and_bool_const_operations
+Bool b = T;
+if b and T:
+	print("True (b and T)");
+endif;
+if b and F:
+	print("True (b and F)");
+endif;
+
+// 24 - Bool_var_logical_and_bool_var_operations
+Bool b = T;
+Bool b2 = F;
+if b and b2:
+	print("True (b and b2)");
+endif;
+b2 = T;
+if b and b2:
+	print("True (b and b2)");
+endif;
+
+// 25 - Bool_var_logical_or_bool_const_operations
+Bool b = T;
+if b or T:
+	print("True (b or T)");
+endif;
+if b or F:
+	print("True (b or F)");
+endif;
+
+// 26 - Bool_var_logical_or_bool_var_operations
+Bool b = T;
+Bool b2 = F;
+if b or b2:
+	print("True (b or b2)");
+endif;
+b2 = T;
+if b or b2:
+	print("True (b or b2)");
+endif;
+
+// 27 - Bool_const_logical_and_bool_const_operations
+if T or T:
+	print("True (T or T)");
+endif;
+if T or F:
+	print("True (T or F)");
+endif;
+
+// 28 - Bool_var_logical_not_operations
+Bool b = T;
+if not b:
+	print("True (not b)");
+endif;
+if not b or T:
+	print("True (not b or T)");
+endif;
+
+// 29 - Bool_const_logical_not_operations
+if not T:
+	print("True (not T)");
+endif;
+if not F:
+	print("True (not F)");
+endif;
+
+// 30 - Bool_array_slicing
+Bool arr[] = T, F, T, F, T;
+print(arr[3~]);
+
+// 31 - Bool_for_item_array
+Bool arr[] = T, F, T, F, T;
+for b in arr:
+	print(b);
+endfor;
+
+// 32 - Bool_while_loop
+Bool b = T;
+Int i = 0;
+while b:
+	if i == 1:
+		b = F;
+	endif;
+	print(i);
+	i += 1;
+endwhile;
+
+// 33 - Bool_select
+Bool b = T;
+select b:
+	when T:
+		print("True");
+	when F:
+		print("False");
+endselect;
+
+// 34 - Bool_IN
+Bool b = T;
+Bool arr[] = T, F, T, F;
+if b IN {F, T, F, F}:
+	print("b is IN list");
+endif;
+
+if b IN arr:
+	print("b is IN arr");
+endif
+
+// 35 - Bool_NOTIN
+Bool b = T;
+Bool arr[] = F, F, F, F;
+if b NOTIN {F, T, F, F}:
+	print("b is NOTIN list");
+endif;
+
+if b NOTIN arr:
+	print("b is NOTIN arr");
+endif
+
+// 36 - Bool_parameters
+def Void testBoolParameters(Bool a, Value Bool b, Ref Bool c):
+	a = T;
+	b = T;
+	c = T;
+enddef;
+
+Bool x = F;
+Bool y = F;
+Bool z = F;
+print("Before function: x=", x, "y=", y, "z=", z);
+testBoolParameters(x, y, z);
+print("After function: x=", x, "y=", y, "z=", z);
+
+// 37 - Bool_returning
+def Bool testBoolReturning(Bool a, Bool b):
+	return a and b;
+enddef;
+
+print(testBoolReturning(T, F));
+
+// 38 - Bool_coerce_String
+Bool b = "T";
+Bool b2 = "F";
+print(b, b2);
+
+// 39 - Bool_assignment_bool_expr
+Bool b = T and F or T or not T;
+print(b);

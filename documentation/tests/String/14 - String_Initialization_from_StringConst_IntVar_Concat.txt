@@ -1,0 +1,3 @@
+Int iVal = 120
+String strVal = "Some" # iVal;
+print("String from 'some' # iVal:120 :" strVal);

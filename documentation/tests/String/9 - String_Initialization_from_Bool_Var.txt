@@ -1,0 +1,3 @@
+Bool bVal = "T";
+String strVal = bVal;
+print("String from bVal:", strVal);

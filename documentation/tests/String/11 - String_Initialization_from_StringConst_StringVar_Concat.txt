@@ -1,0 +1,3 @@
+String strVal1 = "information";
+String strVal = "Some" # strVal1;
+print("String from 'some' # strVal1:'information' :" strVal);

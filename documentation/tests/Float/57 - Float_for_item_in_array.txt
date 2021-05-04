@@ -1,0 +1,5 @@
+Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0, 6.0;
+print("For fVal in [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]: print fVal");
+for fVal in arr:
+	print(fVal);
+endfor;

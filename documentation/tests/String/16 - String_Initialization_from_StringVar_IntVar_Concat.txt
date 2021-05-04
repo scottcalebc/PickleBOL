@@ -1,0 +1,4 @@
+String strVal1 = "information";
+Int iVal = 728;
+String strVal = strVal1 # iVal;
+print("String from 'some' # strVal1:'information' :" strVal);

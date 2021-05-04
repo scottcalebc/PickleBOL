@@ -1,0 +1,6 @@
+String strName = "Ortiz";
+if strName NOTIN "Clark", "Silvestro", "Slavin", "Fernandez":
+    print("String in array, strName in strVal");
+else:
+    print("ERROR: this should not print");
+endif;

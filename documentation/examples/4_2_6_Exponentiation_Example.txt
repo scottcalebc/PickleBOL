@@ -1,0 +1,7 @@
+Int iVal = 10;
+Float fVal = 0.25;
+
+print(iVal ^ 2);    // 100
+print(iVal ^ 0.1);  // 1   
+print(fVal ^ 2);    // 0.0625
+print(fVal ^ 3.0);  // 0.015625

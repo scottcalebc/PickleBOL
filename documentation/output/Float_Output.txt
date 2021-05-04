@@ -1,0 +1,380 @@
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/mnt/s/College/2021 Spring/Compilers/PickleBOL
+Java Build Result: 0
+Testing File: 1 - Float_Declaration.txt
+2.0 
+
+
+Testing File: 2 - Float_Assignment_from_Numeric_Constant_Float.txt
+Float from 4.0: 4.0 
+
+
+Testing File: 3 - Float_Assignment_from_Numeric_Constant_Int.txt
+Float from 4: 4.0 
+
+
+Testing File: 4 - Float_Assignment_from_String.txt
+Float from "4.0": 4.0 
+
+
+Testing File: 5 - Float_var_Equal_To_Float_var_operation.txt
+fVal1:4.0 == fVal2:4.0: T 
+fVal1:4.0 == fVal3:3.0: F 
+
+
+Testing File: 6 - Float_const_Equal_To_Float_var_operation.txt
+4.0 == fVal1:4.0: T 
+3.0 == fVal1:4.0: F 
+
+
+Testing File: 7 - Float_var_Equal_To_Float_const_operation.txt
+fVal1:4.0 == 4.0: T 
+fVal1:4.0 == 3.0: F 
+
+
+Testing File: 8 - Float_const_Equal_To_Float_const_operation.txt
+4.0 == 4.0: T 
+4.0 == 3.0: F 
+
+
+Testing File: 9 - Float_var_Not_Equal_To_Float_var_operation.txt
+fVal1:4.0 != fVal2:4.0: F 
+fVal1:4.0 != fVal3:3.0: T 
+
+
+Testing File: 10 - Float_const_Not_Equal_To_Float_var_operation.txt
+4.0 != fVal1:4.0: F 
+3.0 != fVal1:4.0: T 
+
+
+Testing File: 11 - Float_var_Not_Equal_To_Float_const_operation.txt
+fVal1:4.0 != 4.0: F 
+fVal1:4.0 != 3.0: T 
+
+
+Testing File: 12 - Float_const_Not_Equal_To_Float_const_operation.txt
+4.0 != 4.0: F 
+4.0 != 3.0: T 
+
+
+Testing File: 13 - Float_var_Less_Than_Float_var_operation.txt
+fVal1:4.0 < fVal2:4.0: F 
+fVal1:4.0 < fVal3:3.0: F 
+
+
+Testing File: 14 - Float_const_Less_Than_Float_var_operation.txt
+4.0 < fVal1:4.0: F 
+3.0 < fVal1:4.0: T 
+
+
+Testing File: 15 - Float_var_Less_Than_Float_const_operation.txt
+fVal1:4.0 < 4.0: F 
+fVal1:4.0 < 3.0: F 
+
+
+Testing File: 16 - Float_const_Less_Than_Float_const_operation.txt
+4.0 < 4.0: F 
+4.0 < 3.0: F 
+
+
+Testing File: 17 - Float_var_Greater_Than_Float_var_operation.txt
+fVal1:4.0 > fVal2:4.0: F 
+fVal1:4.0 > fVal3:3.0: T 
+
+
+Testing File: 18 - Float_const_Greater_Than_Float_var_operation.txt
+4.0 > fVal1:4.0: F 
+3.0 > fVal1:4.0: F 
+
+
+Testing File: 19 - Float_var_Greater_Than_Float_const_operation.txt
+fVal1:4.0 > 4.0: F 
+fVal1:4.0 > 3.0: T 
+
+
+Testing File: 20 - Float_const_Greater_Than_Float_const_operation.txt
+4.0 > 4.0: F 
+4.0 > 3.0: T 
+
+
+Testing File: 21 - Float_var_Less_Than_Or_Equal_To_Float_var_operation.txt
+fVal1:4.0 <= fVal2:4.0: T 
+fVal1:4.0 <= fVal3:3.0: F 
+
+
+Testing File: 22 - Float_const_Less_Than_Or_Equal_To_Float_var_operation.txt
+4.0 <= fVal1:4.0: T 
+3.0 <= fVal1:4.0: T 
+
+
+Testing File: 23 - Float_var_Less_Than_Or_Equal_To_Float_const_operation.txt
+fVal1:4.0 <= 4.0: T 
+fVal1:4.0 <= 3.0: F 
+
+
+Testing File: 24 - Float_const_Less_Than_Or_Equal_To_Float_const_operation.txt
+4.0 <= 4.0: T 
+4.0 <= 3.0: F 
+
+
+Testing File: 25 - Float_var_Greater_Than_Or_Equal_To_Float_var_operation.txt
+fVal1:4.0 >= fVal2:4.0: T 
+fVal1:4.0 >= fVal3:3.0: T 
+
+
+Testing File: 26 - Float_const_Greater_Than_Or_Equal_To_Float_var_operation.txt
+4.0 >= fVal1:4.0: T 
+3.0 >= fVal1:4.0: F 
+
+
+Testing File: 27 - Float_var_Greater_Than_Or_Equal_To_Float_const_operation.txt
+fVal1:4.0 >= 5.0: F 
+fVal1:4.0 >= 4.0: T 
+fVal1:4.0 >= 3.0: T 
+
+
+Testing File: 28 - Float_const_Greater_Than_Or_Equal_To_Float_const_operation.txt
+3.0 >= 4.0: F 
+4.0 >= 4.0: T 
+5.0 >= 3.0: T 
+
+
+Testing File: 29 - Float_var_Binary_Plus_Float_var_operation.txt
+fVal1:4.0 + fVal2:4.0: 8.0 
+fVal1:4.0 + fVal3:3.0: 7.0 
+
+
+Testing File: 30 - Float_const_Binary_Plus_Float_var_operation.txt
+4.0 + fVal1:4.0: 8.0 
+3.0 + fVal1:4.0: 7.0 
+
+
+Testing File: 31 - Float_var_Binary_Plus_Float_const_operation.txt
+fVal1:4.0 + 4.0: 8.0 
+fVal1:4.0 + 3.0: 7.0 
+
+
+Testing File: 32 - Float_const_Binary_Plus_Float_const_operation.txt
+4.0 + 4.0: 8.0 
+4.0 + 3.0: 7.0 
+
+
+Testing File: 33 - Float_var_Binary_Minus_Float_var_operation.txt
+fVal1:4.0 - fVal2:4.0: 0.0 
+fVal1:4.0 - fVal3:3.0: 1.0 
+
+
+Testing File: 34 - Float_const_Binary_Minus_Float_var_operation.txt
+4.0 - fVal1:4.0: 0.0 
+3.0 - fVal1:4.0: -1.0 
+
+
+Testing File: 35 - Float_var_Binary_Minus_Float_const_operation.txt
+fVal1:4.0 - 4.0: 0.0 
+fVal1:4.0 - 3.0: 1.0 
+
+
+Testing File: 36 - Float_const_Binary_Minus_Float_const_operation.txt
+4.0 - 4.0: 0.0 
+4.0 - 3.0: 1.0 
+
+
+Testing File: 37 - Float_var_Unary_Minus_Assignment_operation.txt
+-4.0 
+
+
+Testing File: 38 - Float_var_Unary_Minus_Float_var_operation.txt
+-fVal:4.0 -4.0 
+
+
+Testing File: 39 - Float_var_Unary_Minus_Float_const_operation.txt
+-4.0 -4.0 
+
+
+Testing File: 40 - Float_var_Multiplication_Float_var_operation.txt
+fVal1:4.0 * fVal2:4.0: 16.0 
+fVal1:4.0 * fVal3:3.0: 12.0 
+
+
+Testing File: 41 - Float_const_Multiplication_Float_var_operation.txt
+4.0 * fVal1:4.0: 16.0 
+3.0 * fVal1:4.0: 12.0 
+
+
+Testing File: 42 - Float_var_Multiplication_Float_const_operation.txt
+fVal1:4.0 * 4.0: 16.0 
+fVal1:4.0 * 3.0: 12.0 
+
+
+Testing File: 43 - Float_const_Multiplication_Float_const_operation.txt
+4.0 * 4.0: 16.0 
+4.0 * 3.0: 12.0 
+
+
+Testing File: 44 - Float_var_Division_Float_var_operation.txt
+fVal1:4.0 / fVal2:4.0: 1.0 
+fVal1:4.0 / fVal3:3.0: 1.3333333333333333 
+
+
+Testing File: 45 - Float_const_Division_Float_var_operation.txt
+4.0 / fVal1:4.0: 1.0 
+3.0 / fVal1:4.0: 0.75 
+
+
+Testing File: 46 - Float_var_Division_Float_const_operation.txt
+fVal1:4.0 / 4.0: 1.0 
+fVal1:4.0 / 3.0: 1.3333333333333333 
+
+
+Testing File: 47 - Float_const_Division_Float_const_operation.txt
+4.0 / 4.0: 1.0 
+4.0 / 3.0: 1.3333333333333333 
+
+
+Testing File: 48 - Float_var_Exponentiation_Float_var_operation.txt
+fVal1:4.0 ^ fVal2:4.0: 256.0 
+fVal1:4.0 ^ fVal3:3.0: 64.0 
+
+
+Testing File: 49 - Float_const_Exponentiation_Float_var_operation.txt
+4.0 ^ fVal1:4.0: 256.0 
+3.0 ^ fVal1:4.0: 81.0 
+
+
+Testing File: 50 - Float_var_Exponentiation_Float_const_operation.txt
+fVal1:4.0 ^ 4.0: 256.0 
+fVal1:4.0 ^ 3.0: 64.0 
+
+
+Testing File: 51 - Float_const_Exponentiation_Float_const_operation.txt
+4.0 ^ 4.0: 256.0 
+4.0 ^ 3.0: 64.0 
+
+
+Testing File: 52 - Float_const_Addition_Assignment_operation.txt
+fVal1:10.0 += 5.0:  15.0 
+
+
+Testing File: 53 - Float_var_Addition_Assignment_operation.txt
+fVal1:10.0 += fVal2:4.0:  14.0 
+
+
+Testing File: 54 - Float_const_Addition_Assignment_operation.txt
+fVal1:10.0 -= 5.0:  5.0 
+
+
+Testing File: 55 - Float_var_Addition_Assignment_operation.txt
+fVal1:10.0 -= fVal2:4.0:  6.0 
+
+
+Testing File: 56 - Float_for_cv_to_endVal.txt
+For fVal:0.0 to 10.0 
+0.0 
+1.0 
+2.0 
+3.0 
+4.0 
+5.0 
+6.0 
+7.0 
+8.0 
+9.0 
+Uh Oh: Generic Pickle Error
+	at pickle.Parser.countingFor(Parser.java:2234)
+	at pickle.Parser.forStmt(Parser.java:1618)
+	at pickle.Parser.controlStmt(Parser.java:128)
+	at pickle.Parser.getNext(Parser.java:71)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 57 - Float_for_item_in_array.txt
+For fVal in [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]: print fVal 
+1.0 
+2.0 
+3.0 
+4.0 
+5.0 
+6.0 
+
+
+Testing File: 58 - Float_parameters.txt
+Before function: x= 10.0 y= 11.0 z= 12.0 
+Line 10 Invalid assignment: '(', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/58 - Float_parameters.txt
+	at pickle.Parser.assignmentStmt(Parser.java:514)
+	at pickle.Parser.getNext(Parser.java:65)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 59 - Float_returning.txt
+Checking for returned float: 5.0 
+
+
+Testing File: 60 - Float_slices.txt
+Line 2 expected operand, found: '~', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/60 - Float_slices.txt
+	at pickle.Expr.postFixExpr(Expr.java:98)
+	at pickle.Parser.expr(Parser.java:630)
+	at pickle.Parser.functionStmt(Parser.java:678)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 61 - Float_IN.txt
+Line 4 Cannot call print on unknown identifier: 'IN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/61 - Float_IN.txt
+	at pickle.Parser.print(Parser.java:883)
+	at pickle.Expr.evaluatePostFix(Expr.java:954)
+	at pickle.Parser.expr(Parser.java:640)
+	at pickle.Parser.functionStmt(Parser.java:678)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 62 - Float_NOTIN.txt
+Line 4 Cannot call print on unknown identifier: 'NOTIN', File: /mnt/s/College/2021 Spring/Compilers/PickleBOL/documentation/tests/Float/62 - Float_NOTIN.txt
+	at pickle.Parser.print(Parser.java:883)
+	at pickle.Expr.evaluatePostFix(Expr.java:954)
+	at pickle.Parser.expr(Parser.java:640)
+	at pickle.Parser.functionStmt(Parser.java:678)
+	at pickle.Parser.getNext(Parser.java:68)
+	at pickle.Parser.run(Parser.java:2382)
+	at pickle.Pickle.main(Pickle.java:30)
+
+
+Testing File: 63 - Float_print.txt
+print 4.0: 4.0 
+
+
+Testing File: 64 - Float_select.txt
+select fVal:12.0: 
+12.0, 14.0 
+
+
+Testing File: 65 - Float_logical_and.txt
+fVal1:2.0 == 2.0 and fVal2:4.0 == 4.0: T 
+fVal1:2.0 == 3.0 and fVal2:4.0 == 4.0: F 
+fVal1:2.0 == 5.0 and fVal2:4.0 == 5.0: F 
+
+
+Testing File: 66 - Float_logical_or.txt
+fVal1:2.0 == 2.0 or fVal2:4.0 == 4.0: T 
+fVal1:2.0 == 3.0 or fVal2:4.0 == 4.0: T 
+fVal1:2.0 == 1.0 or fVal2:4.0 == 1.0: F 
+
+
+Testing File: 67 - Float_logical_not.txt
+not fVal:2.0 == 2.0: F 
+not fVal:2.0 == 4.0: T 
+
+
+Testing File: 68 - Float_while.txt
+While fVal:2.0 >= 0.0, print fVal, fVal-=1.0 
+2.0 
+1.0 
+0.0 
+
+
+tests done for: tests/Float

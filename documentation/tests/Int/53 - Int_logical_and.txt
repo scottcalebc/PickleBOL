@@ -1,0 +1,11 @@
+Int i = 2;
+Int j = 4;
+if i == 2 and j == 4:
+	print("True (i == 2 and j == 4)");
+endif;
+if i == 3 and j == 4:
+	print("True (i == 3 and j == 4)");
+endif;
+if i == 5 and j == 5:
+	print("True (i == 5 and j == 5)");
+endif;

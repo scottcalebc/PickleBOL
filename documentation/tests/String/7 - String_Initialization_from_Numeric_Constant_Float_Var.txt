@@ -1,0 +1,3 @@
+Float fVal = 4.0;
+String strVal = fVal;
+print("String from fVal:", strVal);

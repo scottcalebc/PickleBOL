@@ -1,0 +1,7 @@
+String strVal1 = "some";
+String strVal2 = "some";
+if strVal1 == strVal1:
+    print("String comparison should be True, 'some' == 'some' :" strVal1 == strVal2);
+else:
+    print("ERROR: this should not print");
+endif;

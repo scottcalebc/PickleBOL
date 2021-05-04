@@ -1,0 +1,6 @@
+print(1 > 2);     // F
+print(1 > 0);     // T
+print(1 > 1);     // F
+print("1" > 1);   // F
+print("1" > "2"); // F
+print("1" > "0"); // T

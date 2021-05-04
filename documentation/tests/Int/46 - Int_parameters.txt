@@ -1,0 +1,11 @@
+def Void checkIntParam(Int a, Ref Int b, Value Int c):
+	a = 1;
+	b = 2;
+	c = 3;
+enddef;
+Int x = 10;
+Int y = 11;
+Int z = 12;
+print("Before function: x=", x, "y=", y, "z=", z);
+checkIntParam(x, y, z);
+print("After function: x=", x, "y=", y, "z=", z);

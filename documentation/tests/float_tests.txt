@@ -1,0 +1,385 @@
+// 1 - Float_Declaration
+Float fVal;
+Float fVal = 2;
+print(fVal);
+
+// 2 - Float_Assignment_from_Numeric_Constant_Float
+Float fVal = 4.0;
+print("Float from 4.0:", fVal);
+
+// 3 - Float_Assignment_from_Numeric_Constant_Int
+Float fVal = 4;
+print("Float from 4:", fVal);
+
+// 4 - Float_Assignment_from_String
+Float fVal = "4.0";
+print("Float from \"4.0\":", fVal);
+
+// 5 - Float_var_Equal_To_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 == fVal2:4.0:", fVal1 == fVal2);
+print("fVal1:4.0 == fVal3:3.0:", fVal1 == fVal3);
+
+// 6 - Float_const_Equal_To_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 == fVal1:4.0:", 4.0 == fVal1);
+print("3.0 == fVal1:4.0:", 3.0 == fVal1);
+
+// 7 - Float_var_Equal_To_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 == 4.0:", fVal1 == 4.0);
+print("fVal1:4.0 == 3.0:", fVal1 == 3.0);
+
+// 8 - Float_const_Equal_To_Float_const_operation
+print("4.0 == 4.0:", 4.0 == 4.0);
+print("4.0 == 3.0:", 4.0 == 3.0);
+
+// 9 - Float_var_Not_Equal_To_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 != fVal2:4.0:", fVal1 != fVal2);
+print("fVal1:4.0 != fVal3:3.0:", fVal1 != fVal3);
+
+// 10 - Float_const_Not_Equal_To_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 != fVal1:4.0:", 4.0 != fVal1);
+print("3.0 != fVal1:4.0:", 3.0 != fVal1);
+
+// 11 - Float_var_Not_Equal_To_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 != 4.0:", fVal1 != 4.0);
+print("fVal1:4.0 != 3.0:", fVal1 != 3.0);
+
+// 12 - Float_const_Not_Equal_To_Float_const_operation
+print("4.0 != 4.0:", 4.0 != 4.0);
+print("4.0 != 3.0:", 4.0 != 3.0);
+
+// 13 - Float_var_Less_Than_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 < fVal2:4.0:", fVal1 < fVal2);
+print("fVal1:4.0 < fVal3:3.0:", fVal1 < fVal3);
+
+// 14 - Float_const_Less_Than_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 < fVal1:4.0:", 4.0 < fVal1);
+print("3.0 < fVal1:4.0:", 3.0 < fVal1);
+
+// 15 - Float_var_Less_Than_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 < 4.0:", fVal1 < 4.0);
+print("fVal1:4.0 < 3.0:", fVal1 < 3.0);
+
+// 16 - Float_const_Less_Than_Float_const_operation
+print("4.0 < 4.0:", 4.0 < 4.0);
+print("4.0 < 3.0:", 4.0 < 3.0);
+
+// 17 - Float_var_Greater_Than_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 > fVal2:4.0:", fVal1 > fVal2);
+print("fVal1:4.0 > fVal3:3.0:", fVal1 > fVal3);
+
+// 18 - Float_const_Greater_Than_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 > fVal1:4.0:", 4.0 > fVal1);
+print("3.0 > fVal1:4.0:", 3.0 > fVal1);
+
+// 19 - Float_var_Greater_Than_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 > 4.0:", fVal1 > 4.0);
+print("fVal1:4.0 > 3.0:", fVal1 > 3.0);
+
+// 20 - Float_const_Greater_Than_Float_const_operation
+print("4.0 > 4.0:", 4.0 > 4.0);
+print("4.0 > 3.0:", 4.0 > 3.0);
+
+// 21 - Float_var_Less_Than_Or_Equal_To_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 <= fVal2:4.0:", fVal1 <= fVal2);
+print("fVal1:4.0 <= fVal3:3.0:", fVal1 <= fVal3);
+
+// 22 - Float_const_Less_Than_Or_Equal_To_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 <= fVal1:4.0:", 4.0 <= fVal1);
+print("3.0 <= fVal1:4.0:", 3.0 <= fVal1);
+
+// 23 - Float_var_Less_Than_Or_Equal_To_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 <= 4.0:", fVal1 <= 4.0);
+print("fVal1:4.0 <= 3.0:", fVal1 <= 3.0);
+
+// 24 - Float_const_Less_Than_Or_Equal_To_Float_const_operation
+print("4.0 <= 4.0:", 4.0 <= 4.0);
+print("4.0 <= 3.0:", 4.0 <= 3.0);
+
+// 25 - Float_var_Greater_Than_Or_Equal_To_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 >= fVal2:4.0:", fVal1 >= fVal2);
+print("fVal1:4.0 >= fVal3:3.0:", fVal1 >= fVal3);
+
+// 26 - Float_const_Greater_Than_Or_Equal_To_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 >= fVal1:4.0:", 4.0 >= fVal1);
+print("3.0 >= fVal1:4.0:", 3.0 >= fVal1);
+
+// 27 - Float_var_Greater_Than_Or_Equal_To_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 >= 5.0:", fVal1 >= 5.0);
+print("fVal1:4.0 >= 4.0:", fVal1 >= 4.0);
+print("fVal1:4.0 >= 3.0:", fVal1 >= 3.0);
+
+// 28 - Float_const_Greater_Than_Or_Equal_To_Float_const_operation
+print("3.0 >= 4.0:", 3.0 >= 4.0);
+print("4.0 >= 4.0:", 4.0 >= 4.0);
+print("5.0 >= 3.0:", 5.0 >= 3.0);
+
+// 29 - Float_var_Binary_Plus_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 + fVal2:4.0:", fVal1 + fVal2);
+print("fVal1:4.0 + fVal3:3.0:", fVal1 + fVal3);
+
+// 30 - Float_const_Binary_Plus_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 + fVal1:4.0:", 4.0 + fVal1);
+print("3.0 + fVal1:4.0:", 3.0 + fVal1);
+
+// 31 - Float_var_Binary_Plus_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 + 4.0:", fVal1 + 4.0);
+print("fVal1:4.0 + 3.0:", fVal1 + 3.0);
+
+// 32 - Float_const_Binary_Plus_Float_const_operation
+print("4.0 + 4.0:", 4.0 + 4.0);
+print("4.0 + 3.0:", 4.0 + 3.0);
+
+// 33 - Float_var_Binary_Minus_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 - fVal2:4.0:", fVal1 - fVal2);
+print("fVal1:4.0 - fVal3:3.0:", fVal1 - fVal3);
+
+// 34 - Float_const_Binary_Minus_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 - fVal1:4.0:", 4.0 - fVal1);
+print("3.0 - fVal1:4.0:", 3.0 - fVal1);
+
+// 35 - Float_var_Binary_Minus_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 - 4.0:", fVal1 - 4.0);
+print("fVal1:4.0 - 3.0:", fVal1 - 3.0);
+
+// 36 - Float_const_Binary_Minus_Float_const_operation
+print("4.0 - 4.0:", 4.0 - 4.0);
+print("4.0 - 3.0:", 4.0 - 3.0);
+
+// 37 - Float_var_Unary_Minus_Assignment_operation
+Float fVal = -4.0;
+print(fVal);
+
+// 38 - Float_var_Unary_Minus_Float_var_operation
+Float fVal = 4.0;
+print("-fVal:4.0", -fVal);
+
+// 39 - Float_var_Unary_Minus_Float_const_operation
+print("-4.0", -4.0);
+
+// 40 - Float_var_Multiplication_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 * fVal2:4.0:", fVal1 * fVal2);
+print("fVal1:4.0 * fVal3:3.0:", fVal1 * fVal3);
+
+// 41 - Float_const_Multiplication_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 * fVal1:4.0:", 4.0 * fVal1);
+print("3.0 * fVal1:4.0:", 3.0 * fVal1);
+
+// 42 - Float_var_Multiplication_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 * 4.0:", fVal1 * 4.0);
+print("fVal1:4.0 * 3.0:", fVal1 * 3.0);
+
+// 43 - Float_const_Multiplication_Float_const_operation
+print("4.0 * 4.0:", 4.0 * 4.0);
+print("4.0 * 3.0:", 4.0 * 3.0);
+
+// 44 - Float_var_Division_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 / fVal2:4.0:", fVal1 / fVal2);
+print("fVal1:4.0 / fVal3:3.0:", fVal1 / fVal3);
+
+// 45 - Float_const_Division_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 / fVal1:4.0:", 4.0 / fVal1);
+print("3.0 / fVal1:4.0:", 3.0 / fVal1);
+
+// 46 - Float_var_Division_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 / 4.0:", fVal1 / 4.0);
+print("fVal1:4.0 / 3.0:", fVal1 / 3.0);
+
+// 47 - Float_const_Division_Float_const_operation
+print("4.0 / 4.0:", 4.0 / 4.0);
+print("4.0 / 3.0:", 4.0 / 3.0);
+
+// 48 - Float_var_Exponentiation_Float_var_operation
+Float fVal1 = 4.0;
+Float fVal2 = 4.0;
+Float fVal3 = 3.0;
+print("fVal1:4.0 ^ fVal2:4.0:", fVal1 ^ fVal2);
+print("fVal1:4.0 ^ fVal3:3.0:", fVal1 ^ fVal3);
+
+// 49 - Float_const_Exponentiation_Float_var_operation
+Float fVal1 = 4.0;
+print("4.0 ^ fVal1:4.0:", 4.0 ^ fVal1);
+print("3.0 ^ fVal1:4.0:", 3.0 ^ fVal1);
+
+// 50 - Float_var_Exponentiation_Float_const_operation
+Float fVal1 = 4.0;
+print("fVal1:4.0 ^ 4.0:", fVal1 ^ 4.0);
+print("fVal1:4.0 ^ 3.0:", fVal1 ^ 3.0);
+
+// 51 - Float_const_Exponentiation_Float_const_operation
+print("4.0 ^ 4.0:", 4.0 ^ 4.0);
+print("4.0 ^ 3.0:", 4.0 ^ 3.0);
+
+// 52 - Float_const_Addition_Assignment_operation
+Float fVal1 = 10.0;
+fVal1 += 5.0;
+print("fVal1:10.0 += 5.0: ", fVal1);
+
+// 53 - Float_var_Addition_Assignment_operation
+Float fVal1 = 10.0;
+Float fVal2 = 4.0;
+fVal1 += fVal2;
+print("fVal1:10.0 += fVal2:4.0: ", fVal1);
+
+// 54 - Float_const_Addition_Assignment_operation
+Float fVal1 = 10.0;
+fVal1 -= 5.0;
+print("fVal1:10.0 -= 5.0: ", fVal1);
+
+// 55 - Float_var_Addition_Assignment_operation
+Float fVal1 = 10.0;
+Float fVal2 = 4.0;
+fVal1 -= fVal2;
+print("fVal1:10.0 -= fVal2:4.0: ", fVal1);
+
+// 56 - Float_for_cv_to_endVal
+print("For fVal:0.0 to 10.0");
+for fVal=0.0 to 10.0:
+	print(fVal);
+endfor
+print("For fVal:0.0 to 10.0 by 2.0");
+for fVal=0.0 to 10.0 by 2.0:
+	print(fVal);
+endfor;
+
+// 57 - Float_for_item_in_array
+Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0, 6.0;
+print("For fVal in [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]: print fVal");
+for fVal in arr:
+	print(fVal);
+endfor;
+
+// 58 - Float_parameters
+def Void checkFloatParam(Float a, Ref Float b, Value Float c):
+	a = 1.0;
+	b = 2.0;
+	c = 3.0;
+enddef;
+
+Float x = 10.0;
+Float y = 11.0;
+Float z = 12.0;
+print("Before function: x=", x, "y=", y, "z=", z);
+checkIntParam(x, y, z);
+print("After function: x=", x, "y=", y, "z=", z);
+
+// 59 - Float_returning
+def Float checkFloatReturn(Float x, Float y):
+    return x + y;
+enddef;
+
+Float fVal = checkFloatReturn(2.0, 3.0);
+print("Checking for returned float:", fVal);
+
+// 60 - Float_slices
+Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
+print("slice [1.0, 2.0, 3.0, 4.0, 5.0] start to 2", arr[~2]);
+print("slice [1.0, 2.0, 3.0, 4.0, 5.0] 2 to end", arr[2~]);
+print("slice [1.0, 2.0, 3.0, 4.0, 5.0] 2 to 5", arr[2~5]);
+
+// 61 - Float_IN
+Float fVal1 = 10.0;
+Float fVal2 = 2.0;
+Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
+print("fVal1:10.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal1 IN arr);
+print("fVal2:2.0 IN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal2 IN arr);
+
+// 62 - Float_NOTIN
+Float fVal1 = 10.0;
+Float fVal2 = 2.0;
+Float arr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
+print("fVal1:10.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal1 NOTIN arr);
+print("fVal2:2.0 NOTIN [1.0, 2.0, 3.0, 4.0, 5.0]:", fVal2 NOTIN arr);
+
+// 63 - Float_print
+print("print 4.0:", 4.0);
+
+// 64 - Float_select
+Float fVal = 12.0;
+print("select fVal:12.0:");
+select fVal:
+	when 0.0, 1.0, 2.0:
+		print("0.0, 1.0, 2.0");
+	when 6.0:
+		print("6.0");
+	when 12.0, 14.0:
+		print("12.0, 14.0");
+	default:
+		print("default");
+endselect;
+
+// 65 - Float_logical_and
+Float fVal1 = 2.0;
+Float fVal2 = 4.0;
+print("fVal1:2.0 == 2.0 and fVal2:4.0 == 4.0:", (fVal1 == 2.0 and fVal2 == 4.0));
+print("fVal1:2.0 == 3.0 and fVal2:4.0 == 4.0:", (fVal1 == 3.0 and fVal2 == 4.0));
+print("fVal1:2.0 == 5.0 and fVal2:4.0 == 5.0:", (fVal1 == 5.0 and fVal2 == 5.0));
+
+// 66 - Float_logical_or
+Float fVal1 = 2.0;
+Float fVal2 = 4.0;
+print("fVal1:2.0 == 2.0 or fVal2:4.0 == 4.0:", (fVal1 == 2.0 or fVal2 == 4.0));
+print("fVal1:2.0 == 3.0 or fVal2:4.0 == 4.0:", (fVal1 == 3.0 or fVal2 == 4.0));
+print("fVal1:2.0 == 1.0 or fVal2:4.0 == 1.0:", (fVal1 == 1.0 or fVal2 == 1.0));
+
+// 67 - Float_logical_not
+Float fVal = 2.0;
+print("not fVal:2.0 == 2.0:", (not fVal == 2.0));
+print("not fVal:2.0 == 4.0:", (not fVal == 4.0));
+
+// 68 - Float_while
+Float fVal = 2.0;
+print("While fVal:2.0 >= 0.0, print fVal, fVal-=1.0");
+while fVal >= 0.0:
+	print(fVal);
+	fVal -= 1.0;
+endwhile;

@@ -1,0 +1,5 @@
+if "Ortiz" NOTIN "Clark", "Silvestro", "Slavin", "Fernandez":
+    print("String in array, "Clark" in strVal");
+else:
+    print("ERROR: this should not print");
+endif;

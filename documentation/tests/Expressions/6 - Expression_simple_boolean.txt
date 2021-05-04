@@ -1,0 +1,1 @@
+print((T or F) and T);

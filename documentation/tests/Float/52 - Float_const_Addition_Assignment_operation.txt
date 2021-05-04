@@ -1,0 +1,3 @@
+Float fVal1 = 10.0;
+fVal1 += 5.0;
+print("fVal1:10.0 += 5.0: ", fVal1);

@@ -1,0 +1,9 @@
+Date d = "1999-12-12";
+Int i = 3;
+while d != "2000-12-12":
+	if i == 0:
+		d = "2000-12-12";
+	endif;
+	print(i);
+	i -= 1;
+endwhile;

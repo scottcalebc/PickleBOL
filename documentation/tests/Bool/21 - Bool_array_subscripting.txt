@@ -1,0 +1,2 @@
+Bool arr[5] = T, T, T, F, F;
+print(arr[2]);

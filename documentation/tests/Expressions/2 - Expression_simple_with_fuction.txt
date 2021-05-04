@@ -1,0 +1,4 @@
+def Int add2(Int x):
+	return x + 2;
+enddef;
+print(5 + add2(2) / 2);

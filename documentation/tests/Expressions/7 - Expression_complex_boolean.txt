@@ -1,0 +1,1 @@
+print(not (F and F or T and F) or F != F and T);
