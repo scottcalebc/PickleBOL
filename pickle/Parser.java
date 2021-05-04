@@ -283,10 +283,10 @@ public class Parser {
             }
         }
         else {
-            if (scanner.currentToken.tokenStr.equals("unbound")) {
-                scanner.currentToken.tokenStr = "-1";
-                scanner.currentToken.primClassif = Classif.OPERAND;
-                scanner.currentToken.subClassif = SubClassif.INTEGER;
+            if (scanner.nextToken.tokenStr.equals("unbound")) {
+                scanner.nextToken.tokenStr = "-1";
+                scanner.nextToken.primClassif = Classif.OPERAND;
+                scanner.nextToken.subClassif = SubClassif.INTEGER;
                 resList = new ResultList(this, new ArrayList<ResultValue>(), -1, arrType);
             }
                 res = (ResultValue) expr(); //get value in square brackets
