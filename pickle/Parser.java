@@ -276,7 +276,7 @@ public class Parser {
 
         resList = new ResultList(this, new ArrayList<ResultValue>(), 0, arrType);
 
-        if (scanner.nextToken.equals("]")) { //if square brackets contain no value
+        if (scanner.nextToken.tokenStr.equals("]")) { //if square brackets contain no value
             scanner.getNext();
             if (!scanner.getNext().equals("=")) {
                     throw new ScannerParserException(scanner.currentToken, scanner.sourceFileNm,"Expected assignment values for array");
